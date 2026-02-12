@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { prompt, aspect_ratio } = await req.json();
+  const { prompt, aspect_ratio, quality, image, prompt_strength } = await req.json();
 
   if (!prompt || typeof prompt !== "string") {
     return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
 
   const allowedRatios = ["1:1", "16:9", "9:16"];
   const ratio = allowedRatios.includes(aspect_ratio) ? aspect_ratio : "9:16";
+  const isHighQuality = quality === "high";
 
   const token = process.env.REPLICATE_API_TOKEN;
   if (!token) {
@@ -33,17 +34,18 @@ export async function POST(req: NextRequest) {
         model: "dev",
         prompt,
         go_fast: false,
-        lora_scale: 1,
+        lora_scale: 0.85,
         megapixels: "1",
         num_outputs: 1,
         aspect_ratio: ratio,
         output_format: "png",
-        guidance_scale: 3.5,
+        guidance_scale: isHighQuality ? 2.5 : 2.8,
         output_quality: 100,
-        prompt_strength: 0.8,
+        prompt_strength: image ? (prompt_strength ?? 0.5) : 0.8,
         extra_lora_scale: 1,
-        num_inference_steps: 36,
+        num_inference_steps: isHighQuality ? 50 : 36,
         disable_safety_checker: true,
+        ...(image ? { image } : {}),
       },
     }),
   });
@@ -71,7 +73,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Poll until done (fallback if Prefer: wait times out)
-  const maxAttempts = 60;
+  const maxAttempts = isHighQuality ? 90 : 60;
   for (let i = 0; i < maxAttempts; i++) {
     await new Promise((r) => setTimeout(r, 2000));
 

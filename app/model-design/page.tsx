@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const ASPECT_RATIOS = [
   { value: "1:1", label: "1:1", icon: "\u25A0" },
@@ -13,25 +13,25 @@ const PRESET_PROMPTS = [
     label: "Beach Goddess",
     emoji: "\u{1F3D6}",
     prompt:
-      "RAW photo of wendy modeling on a tropical beach with crystal clear turquoise water and palm trees, wearing an elegant swimsuit, golden hour sunset lighting, shot on Canon EOS R5 85mm f/1.8, natural skin texture, photorealistic, ultra detailed, soft bokeh background",
+      "A portrait of wendy standing on a tropical beach at sunset, warm golden light coming from the left side casting long soft shadows across her face. She wears an elegant one-piece swimsuit. The turquoise ocean and distant palm trees are slightly out of focus behind her. Her skin has natural texture with visible pores and a slight sun-kissed glow. The wind gently moves her hair. The overall feeling is warm, natural, and relaxed, like a travel magazine editorial.",
   },
   {
     label: "Restaurant Glam",
     emoji: "\u{1F37D}",
     prompt:
-      "RAW photo of wendy modeling at a luxurious beachside restaurant, elegant evening dress, warm ambient candlelight, sophisticated tropical setting, shot on Sony A7IV 50mm f/1.4, natural skin texture, photorealistic, ultra detailed, cinematic color grading",
+      "A candid photo of wendy sitting at a table in an upscale beachside restaurant during the evening. She is wearing a fitted evening dress and looking slightly away from the camera with a relaxed expression. Warm amber candlelight from the table illuminates her face from below, mixed with soft blue twilight from the open terrace behind her. Her skin looks natural with subtle highlights on her cheekbones. The background shows blurred string lights and the dark ocean horizon. The atmosphere is intimate and sophisticated.",
   },
   {
     label: "Beach Topless",
     emoji: "\u{1F31E}",
     prompt:
-      "RAW photo of wendy modeling topless on a secluded tropical beach, soft ocean waves, golden hour warm sunlight, natural relaxed pose, shot on Canon EOS R5 85mm f/1.8, natural skin texture, photorealistic, ultra detailed, soft bokeh background",
+      "A fine art portrait of wendy on a secluded tropical beach, topless, standing knee-deep in calm turquoise water. The late afternoon sun is low and behind her, creating a soft warm backlight that outlines her silhouette and catches in her hair. Her skin has natural freckles and a warm even tan with realistic texture. She has a calm, contemplative expression. The soft ocean waves create gentle reflections on her body. The composition is artistic and tasteful, reminiscent of a high-end fashion editorial.",
   },
   {
     label: "Paradise Dream",
     emoji: "\u{1F334}",
     prompt:
-      "RAW photo of wendy modeling in a tropical paradise with lush green jungle and a beautiful waterfall, wearing a flowing summer dress, natural golden sunlight filtering through leaves, shot on Sony A7IV 35mm f/2.0, natural skin texture, photorealistic, ultra detailed, dreamy atmosphere",
+      "A full-body photo of wendy walking along a jungle path toward a small waterfall in a tropical paradise. She is wearing a light flowing summer dress that catches the breeze. Dappled sunlight filters through the dense green canopy above, creating patches of warm light and cool shadow across her body and the path. The waterfall mist catches the light in the background. Her hair is slightly messy from the humidity. The scene feels lush, organic, and alive, like a page from National Geographic.",
   },
 ];
 
@@ -40,8 +40,13 @@ export default function ModelDesign() {
   const [aspectRatio, setAspectRatio] = useState("9:16");
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
   const [images, setImages] = useState<string[]>([]);
+  const [quality, setQuality] = useState<"standard" | "high">("standard");
+  const [inputImage, setInputImage] = useState<string | null>(null);
+  const [inputImageName, setInputImageName] = useState("");
+  const [promptStrength, setPromptStrength] = useState(0.5);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function generate(promptText: string) {
     if (!promptText.trim()) return;
@@ -53,7 +58,12 @@ export default function ModelDesign() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: promptText, aspect_ratio: aspectRatio }),
+        body: JSON.stringify({
+          prompt: promptText,
+          aspect_ratio: aspectRatio,
+          quality,
+          ...(inputImage ? { image: inputImage, prompt_strength: promptStrength } : {}),
+        }),
       });
 
       const data = await res.json();
@@ -69,6 +79,21 @@ export default function ModelDesign() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setInputImageName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => setInputImage(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  function clearImage() {
+    setInputImage(null);
+    setInputImageName("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function selectPreset(index: number) {
@@ -120,6 +145,82 @@ export default function ModelDesign() {
         </div>
       </section>
 
+      {/* Quality mode */}
+      <section className="md-section">
+        <h2 className="md-section-title">Quality</h2>
+        <div className="md-ratio-grid" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+          <button
+            className={`md-ratio-btn ${quality === "standard" ? "md-ratio-active" : ""}`}
+            onClick={() => setQuality("standard")}
+            disabled={loading}
+          >
+            <span className="md-ratio-icon">{"\u26A1"}</span>
+            <span className="md-ratio-label">Standard</span>
+          </button>
+          <button
+            className={`md-ratio-btn ${quality === "high" ? "md-ratio-active" : ""}`}
+            onClick={() => setQuality("high")}
+            disabled={loading}
+          >
+            <span className="md-ratio-icon">{"\u2728"}</span>
+            <span className="md-ratio-label">High Quality</span>
+          </button>
+        </div>
+      </section>
+
+      {/* Reference image upload */}
+      <section className="md-section">
+        <h2 className="md-section-title">Reference Image (Optional)</h2>
+        <p className="md-section-hint">Upload a photo to use as a base — the AI will transform it with your prompt.</p>
+        {!inputImage ? (
+          <label className="md-upload-zone">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="md-upload-input"
+              disabled={loading}
+            />
+            <span className="md-upload-icon">{"\u{1F4F7}"}</span>
+            <span className="md-upload-text">Tap to upload a photo</span>
+          </label>
+        ) : (
+          <div className="md-upload-preview">
+            <img src={inputImage} alt="Reference" className="md-upload-thumb" />
+            <div className="md-upload-info">
+              <span className="md-upload-name">{inputImageName}</span>
+              <button className="md-upload-remove" onClick={clearImage} disabled={loading}>
+                Remove
+              </button>
+            </div>
+          </div>
+        )}
+
+        {inputImage && (
+          <div className="md-slider-group">
+            <div className="md-slider-header">
+              <span className="md-slider-label">Prompt Strength</span>
+              <span className="md-slider-value">{promptStrength.toFixed(2)}</span>
+            </div>
+            <input
+              type="range"
+              min="0.1"
+              max="1.0"
+              step="0.05"
+              value={promptStrength}
+              onChange={(e) => setPromptStrength(parseFloat(e.target.value))}
+              className="md-slider"
+              disabled={loading}
+            />
+            <div className="md-slider-hints">
+              <span>More like photo</span>
+              <span>More like prompt</span>
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* Custom prompt */}
       <section className="md-section">
         <h2 className="md-section-title">Prompt</h2>
@@ -155,7 +256,11 @@ export default function ModelDesign() {
           <div className="md-loading">
             <div className="md-spinner" />
             <p>Creating your image&hellip;</p>
-            <p className="md-loading-hint">This may take 20-40 seconds</p>
+            <p className="md-loading-hint">
+              {quality === "high"
+                ? "High quality mode \u2014 this may take 40-90 seconds"
+                : "This may take 20-40 seconds"}
+            </p>
           </div>
         )}
 
