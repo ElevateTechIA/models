@@ -96,6 +96,31 @@ export default function ModelDesign() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
+  async function handleDownload(url: string, filename: string) {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const file = new File([blob], filename, { type: "image/png" });
+
+      // iOS: use Share API to show "Save to Photos" option
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        return;
+      }
+
+      // Desktop/Android: blob download
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    } catch {
+      // User cancelled share sheet — do nothing
+    }
+  }
+
   function selectPreset(index: number) {
     setSelectedPreset(index);
     setPrompt(PRESET_PROMPTS[index].prompt);
@@ -271,9 +296,9 @@ export default function ModelDesign() {
             {images.map((url, i) => (
               <div key={i} className="md-image-wrapper">
                 <img src={url} alt={`Generated ${i + 1}`} className="md-image" />
-                <a href={url} download={`wendy-${i + 1}.png`} className="md-download-btn">
+                <button onClick={() => handleDownload(url, `wendy-${i + 1}.png`)} className="md-download-btn">
                   Descargar PNG
-                </a>
+                </button>
               </div>
             ))}
           </div>
