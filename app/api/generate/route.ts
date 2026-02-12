@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         model: "dev",
         prompt,
         go_fast: false,
-        lora_scale: 0.85,
+        lora_scale: 0.75,
         megapixels: "1",
         num_outputs: 1,
         aspect_ratio: ratio,

@@ -13,25 +13,25 @@ const PRESET_PROMPTS = [
     label: "Beach Goddess",
     emoji: "\u{1F3D6}",
     prompt:
-      "A portrait of wendy standing on a tropical beach at sunset, warm golden light coming from the left side casting long soft shadows across her face. She wears an elegant one-piece swimsuit. The turquoise ocean and distant palm trees are slightly out of focus behind her. Her skin has natural texture with visible pores and a slight sun-kissed glow. The wind gently moves her hair. The overall feeling is warm, natural, and relaxed, like a travel magazine editorial.",
+      "A portrait of wendy standing on a tropical beach at sunset, warm golden light coming from the left side casting long soft shadows across her face. She wears an elegant one-piece swimsuit. The turquoise ocean and distant palm trees are slightly out of focus behind her. Her skin shows visible pores, slight uneven tone, tiny sun spots on her shoulders, and fine peach fuzz catching the backlight. A small mole is visible near her collarbone. The wind gently moves her hair. The overall feeling is warm, natural, and relaxed, like a travel magazine editorial.",
   },
   {
     label: "Restaurant Glam",
     emoji: "\u{1F37D}",
     prompt:
-      "A candid photo of wendy sitting at a table in an upscale beachside restaurant during the evening. She is wearing a fitted evening dress and looking slightly away from the camera with a relaxed expression. Warm amber candlelight from the table illuminates her face from below, mixed with soft blue twilight from the open terrace behind her. Her skin looks natural with subtle highlights on her cheekbones. The background shows blurred string lights and the dark ocean horizon. The atmosphere is intimate and sophisticated.",
+      "A candid photo of wendy sitting at a table in an upscale beachside restaurant during the evening. She is wearing a fitted evening dress and looking slightly away from the camera with a relaxed expression. Warm amber candlelight from the table illuminates her face from below, mixed with soft blue twilight from the open terrace behind her. Her skin has visible pores on her nose and cheeks, slight redness around the nose, a few barely-visible acne scars, and natural shine on her forehead from the warm air. The background shows blurred string lights and the dark ocean horizon. The atmosphere is intimate and sophisticated.",
   },
   {
     label: "Beach Topless",
     emoji: "\u{1F31E}",
     prompt:
-      "A fine art portrait of wendy on a secluded tropical beach, topless, standing knee-deep in calm turquoise water. The late afternoon sun is low and behind her, creating a soft warm backlight that outlines her silhouette and catches in her hair. Her skin has natural freckles and a warm even tan with realistic texture. She has a calm, contemplative expression. The soft ocean waves create gentle reflections on her body. The composition is artistic and tasteful, reminiscent of a high-end fashion editorial.",
+      "A fine art portrait of wendy on a secluded tropical beach, topless, standing knee-deep in calm turquoise water. The late afternoon sun is low and behind her, creating a soft warm backlight that outlines her silhouette and catches in her hair. Her skin has natural freckles scattered across her shoulders and chest, visible pores, slightly uneven tan lines, fine body hair catching the light, and a few small moles on her torso. She has a calm, contemplative expression. The soft ocean waves create gentle reflections on her body. The composition is artistic and tasteful, reminiscent of a high-end fashion editorial.",
   },
   {
     label: "Paradise Dream",
     emoji: "\u{1F334}",
     prompt:
-      "A full-body photo of wendy walking along a jungle path toward a small waterfall in a tropical paradise. She is wearing a light flowing summer dress that catches the breeze. Dappled sunlight filters through the dense green canopy above, creating patches of warm light and cool shadow across her body and the path. The waterfall mist catches the light in the background. Her hair is slightly messy from the humidity. The scene feels lush, organic, and alive, like a page from National Geographic.",
+      "A full-body photo of wendy walking along a jungle path toward a small waterfall in a tropical paradise. She is wearing a light flowing summer dress that catches the breeze. Dappled sunlight filters through the dense green canopy above, creating patches of warm light and cool shadow across her body and the path. The waterfall mist catches the light in the background. Her hair is slightly messy and frizzy from the humidity. Visible sweat beads on her neck and arms, her skin has natural texture with pores, slight redness on her knees and elbows, and a few mosquito bites on her legs. The scene feels lush, organic, and alive, like a page from National Geographic.",
   },
 ];
 
