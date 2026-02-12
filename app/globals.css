@@ -823,6 +823,99 @@ body:has(.md-page) {
   color: var(--text-muted);
 }
 
+/* ── Mode Toggle ─────────────────────────────── */
+.md-mode-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.md-mode-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border-radius: 14px;
+  border: 1.5px solid var(--gold-border);
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-soft);
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.md-mode-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #fff;
+}
+
+.md-mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.md-mode-active {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.08), rgba(201, 168, 76, 0.15));
+  box-shadow: 0 0 0 2px var(--gold-light);
+}
+
+.md-mode-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ── Face Swap Source Preview ────────────────── */
+.md-faceswap-source {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--gold-border);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-soft);
+}
+
+.md-faceswap-source-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--gold-light);
+}
+
+.md-faceswap-source-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.md-faceswap-source-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.md-faceswap-change {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gold);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.md-faceswap-change:hover {
+  opacity: 0.7;
+}
+
 /* ── Desktop adjustments for model-design ──────── */
 @media (min-width: 600px) {
   .md-page {
