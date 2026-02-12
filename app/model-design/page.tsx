@@ -10,28 +10,28 @@ const ASPECT_RATIOS = [
 
 const PRESET_PROMPTS = [
   {
-    label: "Beach Goddess",
+    label: "Diosa de Playa",
     emoji: "\u{1F3D6}",
     prompt:
-      "A portrait of wendy standing on a tropical beach at sunset, warm golden light coming from the left side casting long soft shadows across her face. She wears an elegant one-piece swimsuit. The turquoise ocean and distant palm trees are slightly out of focus behind her. Her skin shows visible pores, slight uneven tone, tiny sun spots on her shoulders, and fine peach fuzz catching the backlight. A small mole is visible near her collarbone. The wind gently moves her hair. The overall feeling is warm, natural, and relaxed, like a travel magazine editorial.",
+      "Un retrato de wendy de pie en una playa tropical al atardecer, luz dorada y calida viniendo desde el lado izquierdo proyectando sombras suaves y largas sobre su rostro. Lleva un elegante traje de bano de una pieza. El oceano turquesa y las palmeras lejanas estan ligeramente desenfocados detras de ella. Su piel muestra poros visibles, tono ligeramente desigual, pequenas manchas de sol en los hombros y fino vello facial atrapando la contraluz. Un pequeno lunar es visible cerca de su clavicula. El viento mueve suavemente su cabello. La sensacion general es calida, natural y relajada, como un editorial de revista de viajes.",
   },
   {
-    label: "Restaurant Glam",
+    label: "Glamour Nocturno",
     emoji: "\u{1F37D}",
     prompt:
-      "A candid photo of wendy sitting at a table in an upscale beachside restaurant during the evening. She is wearing a fitted evening dress and looking slightly away from the camera with a relaxed expression. Warm amber candlelight from the table illuminates her face from below, mixed with soft blue twilight from the open terrace behind her. Her skin has visible pores on her nose and cheeks, slight redness around the nose, a few barely-visible acne scars, and natural shine on her forehead from the warm air. The background shows blurred string lights and the dark ocean horizon. The atmosphere is intimate and sophisticated.",
+      "Una foto espontanea de wendy sentada en una mesa de un restaurante elegante frente al mar durante la noche. Lleva un vestido de noche ajustado y mira ligeramente lejos de la camara con una expresion relajada. La calida luz ambar de las velas sobre la mesa ilumina su rostro desde abajo, mezclada con la suave luz azul del crepusculo desde la terraza abierta detras de ella. Su piel tiene poros visibles en la nariz y mejillas, ligero enrojecimiento alrededor de la nariz, algunas cicatrices de acne apenas visibles y brillo natural en la frente por el aire calido. El fondo muestra luces de hilo borrosas y el horizonte oscuro del oceano. La atmosfera es intima y sofisticada.",
   },
   {
-    label: "Beach Topless",
+    label: "Playa Topless",
     emoji: "\u{1F31E}",
     prompt:
-      "A fine art portrait of wendy on a secluded tropical beach, topless, standing knee-deep in calm turquoise water. The late afternoon sun is low and behind her, creating a soft warm backlight that outlines her silhouette and catches in her hair. Her skin has natural freckles scattered across her shoulders and chest, visible pores, slightly uneven tan lines, fine body hair catching the light, and a few small moles on her torso. She has a calm, contemplative expression. The soft ocean waves create gentle reflections on her body. The composition is artistic and tasteful, reminiscent of a high-end fashion editorial.",
+      "Un retrato artistico de wendy en una playa tropical aislada, topless, de pie con el agua turquesa y calma hasta las rodillas. El sol de la tarde esta bajo y detras de ella, creando una suave contraluz calida que delinea su silueta y se refleja en su cabello. Su piel tiene pecas naturales esparcidas por los hombros y el pecho, poros visibles, lineas de bronceado ligeramente desiguales, fino vello corporal atrapando la luz y algunos pequenos lunares en el torso. Tiene una expresion calmada y contemplativa. Las suaves olas del oceano crean reflejos delicados en su cuerpo. La composicion es artistica y de buen gusto, como un editorial de moda de alta gama.",
   },
   {
-    label: "Paradise Dream",
+    label: "Sueno Tropical",
     emoji: "\u{1F334}",
     prompt:
-      "A full-body photo of wendy walking along a jungle path toward a small waterfall in a tropical paradise. She is wearing a light flowing summer dress that catches the breeze. Dappled sunlight filters through the dense green canopy above, creating patches of warm light and cool shadow across her body and the path. The waterfall mist catches the light in the background. Her hair is slightly messy and frizzy from the humidity. Visible sweat beads on her neck and arms, her skin has natural texture with pores, slight redness on her knees and elbows, and a few mosquito bites on her legs. The scene feels lush, organic, and alive, like a page from National Geographic.",
+      "Una foto de cuerpo completo de wendy caminando por un sendero en la selva hacia una pequena cascada en un paraiso tropical. Lleva un vestido de verano ligero y fluido que atrapa la brisa. La luz del sol filtrada a traves del denso dosel verde crea parches de luz calida y sombra fresca sobre su cuerpo y el camino. La neblina de la cascada atrapa la luz al fondo. Su cabello esta ligeramente desordenado y encrespado por la humedad. Gotas de sudor visibles en su cuello y brazos, su piel tiene textura natural con poros, ligero enrojecimiento en rodillas y codos, y algunas picaduras de mosquito en las piernas. La escena se siente exuberante, organica y viva, como una pagina de National Geographic.",
   },
 ];
 
@@ -104,14 +104,14 @@ export default function ModelDesign() {
   return (
     <div className="md-page">
       <header className="md-header">
-        <a href="/" className="md-back">&larr; Back</a>
-        <h1 className="md-title">AI Photo Studio</h1>
-        <p className="md-subtitle-text">Generate stunning photos with Wendy</p>
+        <a href="/" className="md-back">&larr; Volver</a>
+        <h1 className="md-title">Estudio de Fotos IA</h1>
+        <p className="md-subtitle-text">Genera fotos impresionantes con Wendy</p>
       </header>
 
       {/* Preset prompts */}
       <section className="md-section">
-        <h2 className="md-section-title">Quick Styles</h2>
+        <h2 className="md-section-title">Estilos Rapidos</h2>
         <div className="md-preset-grid">
           {PRESET_PROMPTS.map((p, i) => (
             <button
@@ -129,7 +129,7 @@ export default function ModelDesign() {
 
       {/* Aspect ratio */}
       <section className="md-section">
-        <h2 className="md-section-title">Aspect Ratio</h2>
+        <h2 className="md-section-title">Proporcion</h2>
         <div className="md-ratio-grid">
           {ASPECT_RATIOS.map((r) => (
             <button
@@ -147,7 +147,7 @@ export default function ModelDesign() {
 
       {/* Quality mode */}
       <section className="md-section">
-        <h2 className="md-section-title">Quality</h2>
+        <h2 className="md-section-title">Calidad</h2>
         <div className="md-ratio-grid" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
           <button
             className={`md-ratio-btn ${quality === "standard" ? "md-ratio-active" : ""}`}
@@ -155,7 +155,7 @@ export default function ModelDesign() {
             disabled={loading}
           >
             <span className="md-ratio-icon">{"\u26A1"}</span>
-            <span className="md-ratio-label">Standard</span>
+            <span className="md-ratio-label">Estandar</span>
           </button>
           <button
             className={`md-ratio-btn ${quality === "high" ? "md-ratio-active" : ""}`}
@@ -163,15 +163,15 @@ export default function ModelDesign() {
             disabled={loading}
           >
             <span className="md-ratio-icon">{"\u2728"}</span>
-            <span className="md-ratio-label">High Quality</span>
+            <span className="md-ratio-label">Alta Calidad</span>
           </button>
         </div>
       </section>
 
       {/* Reference image upload */}
       <section className="md-section">
-        <h2 className="md-section-title">Reference Image (Optional)</h2>
-        <p className="md-section-hint">Upload a photo to use as a base — the AI will transform it with your prompt.</p>
+        <h2 className="md-section-title">Imagen de Referencia (Opcional)</h2>
+        <p className="md-section-hint">Sube una foto como base — la IA la transformara con tu prompt.</p>
         {!inputImage ? (
           <label className="md-upload-zone">
             <input
@@ -183,7 +183,7 @@ export default function ModelDesign() {
               disabled={loading}
             />
             <span className="md-upload-icon">{"\u{1F4F7}"}</span>
-            <span className="md-upload-text">Tap to upload a photo</span>
+            <span className="md-upload-text">Toca para subir una foto</span>
           </label>
         ) : (
           <div className="md-upload-preview">
@@ -191,7 +191,7 @@ export default function ModelDesign() {
             <div className="md-upload-info">
               <span className="md-upload-name">{inputImageName}</span>
               <button className="md-upload-remove" onClick={clearImage} disabled={loading}>
-                Remove
+                Eliminar
               </button>
             </div>
           </div>
@@ -200,7 +200,7 @@ export default function ModelDesign() {
         {inputImage && (
           <div className="md-slider-group">
             <div className="md-slider-header">
-              <span className="md-slider-label">Prompt Strength</span>
+              <span className="md-slider-label">Fuerza del Prompt</span>
               <span className="md-slider-value">{promptStrength.toFixed(2)}</span>
             </div>
             <input
@@ -214,8 +214,8 @@ export default function ModelDesign() {
               disabled={loading}
             />
             <div className="md-slider-hints">
-              <span>More like photo</span>
-              <span>More like prompt</span>
+              <span>Mas como la foto</span>
+              <span>Mas como el prompt</span>
             </div>
           </div>
         )}
@@ -223,10 +223,10 @@ export default function ModelDesign() {
 
       {/* Custom prompt */}
       <section className="md-section">
-        <h2 className="md-section-title">Prompt</h2>
+        <h2 className="md-section-title">Descripcion</h2>
         <textarea
           className="md-textarea"
-          placeholder={'Describe your photo... (include "wendy" as trigger word)'}
+          placeholder={'Describe tu foto... (incluye "wendy" como palabra clave)'}
           value={prompt}
           onChange={(e) => {
             setPrompt(e.target.value);
@@ -242,10 +242,10 @@ export default function ModelDesign() {
           {loading ? (
             <>
               <span className="md-btn-spinner" />
-              Generating...
+              Generando...
             </>
           ) : (
-            "Generate Image"
+            "Generar Imagen"
           )}
         </button>
       </section>
@@ -255,11 +255,11 @@ export default function ModelDesign() {
         {loading && (
           <div className="md-loading">
             <div className="md-spinner" />
-            <p>Creating your image&hellip;</p>
+            <p>Creando tu imagen&hellip;</p>
             <p className="md-loading-hint">
               {quality === "high"
-                ? "High quality mode \u2014 this may take 40-90 seconds"
-                : "This may take 20-40 seconds"}
+                ? "Modo alta calidad \u2014 puede tomar 40-90 segundos"
+                : "Puede tomar 20-40 segundos"}
             </p>
           </div>
         )}
@@ -272,7 +272,7 @@ export default function ModelDesign() {
               <div key={i} className="md-image-wrapper">
                 <img src={url} alt={`Generated ${i + 1}`} className="md-image" />
                 <a href={url} download={`wendy-${i + 1}.png`} className="md-download-btn">
-                  Download PNG
+                  Descargar PNG
                 </a>
               </div>
             ))}
@@ -282,7 +282,7 @@ export default function ModelDesign() {
         {!loading && images.length === 0 && !error && (
           <div className="md-placeholder">
             <span className="md-placeholder-icon">{"\u{1F4F8}"}</span>
-            <p>Your generated photos will appear here</p>
+            <p>Tus fotos generadas apareceran aqui</p>
           </div>
         )}
       </section>
