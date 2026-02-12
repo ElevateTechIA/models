@@ -27,9 +27,10 @@ body {
 }
 
 body {
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   justify-content: center;
+  overflow: hidden;
   background: linear-gradient(180deg, #fdfcfa 0%, #f3efe8 50%, #fdfcfa 100%);
 }
 
@@ -37,11 +38,13 @@ body {
 .page-wrapper {
   width: 100%;
   max-width: 480px;
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 48px 24px 64px;
+  justify-content: space-evenly;
+  padding: 3dvh 24px 2dvh;
+  overflow: hidden;
 }
 
 /* ── Header ───────────────────────────────────── */
@@ -57,13 +60,13 @@ body {
 /* ── Profile image ────────────────────────────── */
 .avatar-ring {
   position: relative;
-  width: 170px;
-  height: 170px;
+  width: min(150px, 20dvh);
+  height: min(150px, 20dvh);
   border-radius: 50%;
   padding: 4px;
   background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-light));
   box-shadow: 0 6px 24px rgba(180, 160, 120, 0.25);
-  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .avatar-ring img {
@@ -98,17 +101,16 @@ body {
 /* ── Name block ───────────────────────────────── */
 .name {
   font-family: 'Playfair Display', serif;
-  font-size: 26px;
+  font-size: clamp(20px, 3.5dvh, 26px);
   font-weight: 700;
-  margin-top: 16px;
+  margin-top: 0.5dvh;
   letter-spacing: 0.5px;
 }
 
 .subtitle {
-  font-size: 14px;
+  font-size: clamp(11px, 1.8dvh, 14px);
   color: var(--text-muted);
-  margin-top: 4px;
-  margin-bottom: 32px;
+  margin-top: 0.3dvh;
   letter-spacing: 1px;
   display: flex;
   align-items: center;
@@ -128,14 +130,14 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: clamp(6px, 1.2dvh, 16px);
 }
 
 .link-btn {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 16px 20px;
+  padding: clamp(8px, 1.5dvh, 16px) 20px;
   border-radius: 50px;
   background: var(--card-bg);
   border: 1.5px solid var(--gold-border);
@@ -159,7 +161,7 @@ body {
 }
 
 .link-icon {
-  width: 40px;
+  width: clamp(28px, 4.5dvh, 40px);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -167,7 +169,7 @@ body {
 }
 
 .link-icon img {
-  height: 40px;
+  height: clamp(28px, 4.5dvh, 40px);
   width: auto;
   object-fit: contain;
 }
@@ -187,8 +189,8 @@ body {
 
 /* ── Footer ───────────────────────────────────── */
 .footer {
-  margin-top: auto;
-  padding-top: 40px;
+  margin-top: 0;
+  padding-top: 1dvh;
   font-size: 12px;
   color: var(--text-muted);
   opacity: 0.6;

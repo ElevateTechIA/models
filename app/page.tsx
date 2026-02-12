@@ -12,7 +12,7 @@ const LINKS = [
     icon: "/onlyfans_icon.svg",
   },
   {
-    href: "https://wa.me/17864279533",
+    href: "https://wa.me/17864279533?text=Hola%20quisiera%20mas%20informacion%20del%20chat%20bot",
     label: "Chatea conmigo",
     icon: "/whatsapp_icon.svg",
   },
@@ -42,7 +42,7 @@ export default function Home() {
       {/* Profile avatar */}
       <div className="avatar-ring">
         <Image
-          src="/profile-picture.png"
+          src="/profile-pictures/profile-picture.png"
           alt="Wendy Prada"
           width={170}
           height={170}
