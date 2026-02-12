@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const LINKS = [
   {
@@ -34,13 +37,15 @@ const LINKS = [
 ];
 
 export default function Home() {
+  const router = useRouter();
+
   return (
     <div className="device-frame">
       {/* iPhone notch */}
       <div className="device-notch" />
     <main className="page-wrapper">
       {/* Profile avatar */}
-      <div className="avatar-ring">
+      <div className="avatar-ring" onDoubleClick={() => router.push("/model-design")} style={{ cursor: "pointer" }}>
         <Image
           src="/profile-pictures/profile-picture.png"
           alt="Wendy Prada"
