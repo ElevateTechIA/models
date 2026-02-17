@@ -1,0 +1,61 @@
+{
+  "profile": {
+    "name": "Wendy Prada",
+    "subtitle": "Modelo \u2726 Contenido Exclusivo",
+    "picture": "/profile-pictures/profile-picture.png"
+  },
+  "links": [
+    {
+      "id": "lk_instagram",
+      "icon": "/instagram_icon.svg",
+      "iconType": "preset",
+      "label": "@wendyprada",
+      "url": "https://www.instagram.com/wendypradaoficial/",
+      "enabled": true
+    },
+    {
+      "id": "lk_onlyfans",
+      "icon": "/onlyfans_icon.svg",
+      "iconType": "preset",
+      "label": "OnlyFans",
+      "url": "https://onlyfans.com/yohanah",
+      "enabled": true
+    },
+    {
+      "id": "lk_whatsapp",
+      "icon": "/whatsapp_icon.svg",
+      "iconType": "preset",
+      "label": "Chatea conmigo",
+      "url": "https://wa.me/17864279533?text=Hola%20quisiera%20mas%20informacion%20del%20chat%20bot",
+      "enabled": true
+    },
+    {
+      "id": "lk_tiktok",
+      "icon": "/tiktok_icon.svg",
+      "iconType": "preset",
+      "label": "TikTok @wendyprada",
+      "url": "https://www.tiktok.com/@bypradaw",
+      "enabled": true
+    },
+    {
+      "id": "lk_x",
+      "icon": "/x_icon.svg",
+      "iconType": "preset",
+      "label": "X @pramuswpl",
+      "url": "https://x.com/pramuswpl",
+      "enabled": true
+    },
+    {
+      "id": "lk_facebook",
+      "icon": "/facebook_icon.svg",
+      "iconType": "preset",
+      "label": "Facebook",
+      "url": "https://www.facebook.com/wjlamus",
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "language": "es",
+    "footerText": "\u00a9 2026 Wendy Prada Oficial"
+  }
+}

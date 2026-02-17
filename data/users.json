@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "email": "cesarvega.col20@gmail.com",
+      "username": "cesarvegacol20",
+      "displayName": "Cesar Vega",
+      "createdAt": "2026-02-17T00:00:00.000Z"
+    },
+    {
+      "email": "cesarvega.col@gmail.com",
+      "username": "cesarvegacol",
+      "displayName": "Cesar Vega",
+      "createdAt": "2026-02-17T00:00:00.000Z"
+    }
+  ]
+}

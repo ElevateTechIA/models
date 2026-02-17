@@ -1,0 +1,53 @@
+{
+  "profile": {
+    "name": "Cesar Vega",
+    "subtitle": "Software Engineer | AI Consultan",
+    "picture": "/user-uploads/cesarvegacol/profile-picture.png"
+  },
+  "links": [
+    {
+      "id": "lk_i0kegjc03r",
+      "icon": "/instagram_icon.svg",
+      "iconType": "preset",
+      "label": "cesarvegamiami",
+      "url": "https://www.instagram.com/cesarvegamiami/",
+      "enabled": true
+    },
+    {
+      "id": "lk_iyr0ojffkl",
+      "icon": "/icons/spotify_icon.svg",
+      "iconType": "preset",
+      "label": "Cesar DJ",
+      "url": "https://open.spotify.com/artist/2yDyhxTGUgA5pipclMqlRD?si=7N4U7AYwTFyFQMWjX5NdTA",
+      "enabled": true
+    },
+    {
+      "id": "lk_8j0s6uklgs",
+      "icon": "/facebook_icon.svg",
+      "iconType": "preset",
+      "label": "Cesar Vega",
+      "url": "https://www.facebook.com/ELEVATETECHAI",
+      "enabled": true
+    },
+    {
+      "id": "lk_v8b7790cmn",
+      "icon": "/x_icon.svg",
+      "iconType": "preset",
+      "label": "XVEGAS1",
+      "url": "https://x.com/XVEGAS1",
+      "enabled": true
+    },
+    {
+      "id": "lk_jassk6092c",
+      "icon": "/whatsapp_icon.svg",
+      "iconType": "preset",
+      "label": "Escribe me ",
+      "url": "https://wa.me/17864279533?text=Hola%20quisiera%20mas%20informacion%20del%20chat%20bot",
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "language": "es",
+    "footerText": ""
+  }
+}
