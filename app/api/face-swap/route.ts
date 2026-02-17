@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 export async function POST(req: NextRequest) {
   const { target_image, swap_image } = await req.json();
@@ -12,30 +10,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (!swap_image || typeof swap_image !== "string") {
+    return NextResponse.json(
+      { error: "Se requiere una imagen de cara" },
+      { status: 400 }
+    );
+  }
+
   const token = process.env.REPLICATE_API_TOKEN;
   if (!token) {
     return NextResponse.json(
       { error: "Server misconfigured" },
       { status: 500 }
     );
-  }
-
-  // Use client-provided face or fall back to Wendy's profile picture
-  let swapImageDataUri: string;
-  if (swap_image && typeof swap_image === "string") {
-    swapImageDataUri = swap_image;
-  } else {
-    try {
-      const imagePath = join(process.cwd(), "public", "profile-pictures", "profile-picture.png");
-      const imageBuffer = readFileSync(imagePath);
-      const base64 = imageBuffer.toString("base64");
-      swapImageDataUri = `data:image/png;base64,${base64}`;
-    } catch {
-      return NextResponse.json(
-        { error: "No se pudo cargar la imagen de referencia" },
-        { status: 500 }
-      );
-    }
   }
 
   const createRes = await fetch("https://api.replicate.com/v1/predictions", {
@@ -50,7 +37,7 @@ export async function POST(req: NextRequest) {
         "278a81e7ebb22db98bcba54de985d22cc1abeead2754eb1f2af717247be69b34",
       input: {
         input_image: target_image,
-        swap_image: swapImageDataUri,
+        swap_image: swap_image,
       },
     }),
   });

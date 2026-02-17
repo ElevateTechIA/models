@@ -2,13 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Wendy Prada | Links",
-  description: "Modelo ✦ Contenido Exclusivo",
-  openGraph: {
-    title: "Wendy Prada",
-    description: "Modelo ✦ Contenido Exclusivo",
-    type: "website",
-  },
+  title: "Bio Links",
+  description: "Your personal links page",
 };
 
 export const viewport: Viewport = {
