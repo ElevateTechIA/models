@@ -33,18 +33,16 @@ async function geminiSwap(targetImage: string, swapImage: string) {
   const targetMime = detectMime(targetImage);
   const sourceMime = detectMime(swapImage);
 
-  const prompt = `You are a professional face-swap AI. Perform a high-quality face swap.
+  const prompt = `Perform a high-quality face swap on these two images.
 
 CRITICAL INSTRUCTIONS:
-- The FIRST image is the target/template photo. The SECOND image is the user's face.
-- ONLY replace the face in the first image with the face from the second image.
-- Keep EVERYTHING else from the template PIXEL-PERFECT: exact same crop, framing, zoom level, camera angle, pose, body position, outfit, accessories, background, and all objects in the scene.
-- Use the user's natural skin tone and facial features from the second image, adapted to the template's lighting.
-- The output image MUST have the EXACT same framing and dimensions as the template.
-- Do NOT zoom in, zoom out, crop differently, or shift the composition.
-- Blend the face naturally with proper lighting, shadows, and skin tone matching.`;
+- The FIRST image is the template/reference scene. The SECOND image is the user's face.
+- ONLY replace the face. Keep EVERYTHING else from the template PIXEL-PERFECT: exact same crop, framing, zoom level, camera angle, pose, body position, outfit, accessories, background, and all objects in the scene.
+- Use the user's natural skin tone and hairstyle from the second image, adapted to the template's lighting.
+- Do NOT keep the template's hair or skin tone — use the user's.
+- The output image MUST have the EXACT same framing and field of view as the template. Do NOT zoom in, zoom out, crop differently, or shift the composition. Every element must be in the same position as the template.`;
 
-  const model = "gemini-2.0-flash-exp";
+  const model = "gemini-2.0-flash-exp-image-generation";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const payload = {
@@ -57,7 +55,7 @@ CRITICAL INSTRUCTIONS:
         ],
       },
     ],
-    generationConfig: { responseModalities: ["IMAGE"] },
+    generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
   };
 
   const MAX_RETRIES = 2;
