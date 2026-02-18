@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import QRCode from "qrcode";
 import type { SiteConfig, SiteLink } from "@/lib/types";
 import { PRESET_ICONS } from "@/lib/preset-icons";
 import { translations, type Language } from "@/lib/translations";
@@ -47,6 +48,14 @@ export default function AdminPage() {
   const [footerText, setFooterText] = useState("");
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
+
+  // QR modal state
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Confirm modal state
+  const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   // Translation
   const t = translations[language] || translations.es;
@@ -195,21 +204,26 @@ export default function AdminPage() {
   }
 
   // ── Delete link ───────────────────────────────────
-  async function deleteLink(id: string) {
+  function deleteLink(id: string) {
     if (!token) return;
-    if (!confirm(t.confirmDelete)) return;
-    try {
-      const res = await fetch(`/api/admin/links?id=${id}`, {
-        method: "DELETE",
-        headers: authHeaders(token),
-      });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      setLinks(data.links);
-      showToast(t.saved);
-    } catch {
-      showToast(t.somethingWrong);
-    }
+    setConfirmModal({
+      message: t.confirmDelete,
+      onConfirm: async () => {
+        setConfirmModal(null);
+        try {
+          const res = await fetch(`/api/admin/links?id=${id}`, {
+            method: "DELETE",
+            headers: authHeaders(token),
+          });
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          setLinks(data.links);
+          showToast(t.saved);
+        } catch {
+          showToast(t.somethingWrong);
+        }
+      },
+    });
   }
 
   // ── Start edit link ───────────────────────────────
@@ -347,6 +361,37 @@ export default function AdminPage() {
     router.push("/login");
   }
 
+  // ── QR Code ─────────────────────────────────────
+  const generateQr = useCallback(async () => {
+    if (!username) return;
+    const siteUrl = `${window.location.origin}/${username}`;
+    try {
+      const url = await QRCode.toDataURL(siteUrl, {
+        width: 512,
+        margin: 2,
+        color: { dark: "#2d2d2d", light: "#ffffff" },
+      });
+      setQrDataUrl(url);
+    } catch {
+      showToast(t.somethingWrong);
+    }
+  }, [username, t.somethingWrong]);
+
+  function openQrModal() {
+    setShowQrModal(true);
+    generateQr();
+  }
+
+  function saveQrImage() {
+    if (!qrDataUrl) return;
+    const a = document.createElement("a");
+    a.href = qrDataUrl;
+    a.download = `${username}-qr.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
   // ── Loading state ─────────────────────────────────
   if (loading) {
     return (
@@ -363,6 +408,37 @@ export default function AdminPage() {
     <div className="adm-page">
       {/* Toast */}
       {toast && <div className="adm-toast">{toast}</div>}
+
+      {/* QR Modal */}
+      {showQrModal && (
+        <div className="adm-qr-overlay" onClick={() => setShowQrModal(false)}>
+          <div className="adm-qr-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="adm-qr-title">{t.qrTitle}</h3>
+            <p className="adm-qr-subtitle">{t.qrSubtitle}</p>
+            {qrDataUrl && (
+              <img src={qrDataUrl} alt="QR Code" className="adm-qr-image" />
+            )}
+            <p className="adm-qr-url">{username ? `${window.location.origin}/${username}` : ""}</p>
+            <div className="adm-qr-actions">
+              <button className="adm-btn adm-btn-primary" onClick={saveQrImage}>{t.qrSave}</button>
+              <button className="adm-btn" onClick={() => setShowQrModal(false)}>{t.qrClose}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Modal */}
+      {confirmModal && (
+        <div className="adm-confirm-overlay" onClick={() => setConfirmModal(null)}>
+          <div className="adm-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <p className="adm-confirm-message">{confirmModal.message}</p>
+            <div className="adm-confirm-actions">
+              <button className="adm-btn adm-btn-danger" onClick={confirmModal.onConfirm}>{t.deleteLink}</button>
+              <button className="adm-btn" onClick={() => setConfirmModal(null)}>{t.cancel}</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hidden file inputs */}
       <input
@@ -456,12 +532,23 @@ export default function AdminPage() {
       <section className="adm-section">
         <div className="adm-section-header">
           <h2 className="adm-section-title">{t.linksSection}</h2>
-          <button
-            className="adm-btn adm-btn-primary adm-btn-small"
-            onClick={() => setShowAddForm(!showAddForm)}
-          >
-            {showAddForm ? t.cancel : t.addLink}
-          </button>
+          <div className="adm-section-header-actions">
+            <button
+              className="adm-btn adm-btn-small adm-btn-qr"
+              onClick={openQrModal}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="8" height="8" rx="1" /><rect x="14" y="2" width="8" height="8" rx="1" /><rect x="2" y="14" width="8" height="8" rx="1" /><rect x="14" y="14" width="4" height="4" /><rect x="20" y="14" width="2" height="2" /><rect x="14" y="20" width="2" height="2" /><rect x="20" y="20" width="2" height="2" />
+              </svg>
+              {t.shareQr}
+            </button>
+            <button
+              className="adm-btn adm-btn-primary adm-btn-small"
+              onClick={() => setShowAddForm(!showAddForm)}
+            >
+              {showAddForm ? t.cancel : t.addLink}
+            </button>
+          </div>
         </div>
 
         {/* Add link form */}

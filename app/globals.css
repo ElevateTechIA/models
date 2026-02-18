@@ -197,6 +197,106 @@ body:has(.md-page) {
   margin-left: 8px;
 }
 
+/* ── QR Link Modal (public bio page) ─────────── */
+.qr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  padding: 24px;
+  animation: qr-fade-in 0.2s ease;
+}
+
+@keyframes qr-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.qr-modal {
+  width: 100%;
+  max-width: 320px;
+  padding: 28px 20px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1.5px solid var(--gold-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  animation: qr-scale-in 0.25s ease;
+}
+
+@keyframes qr-scale-in {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.qr-modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.qr-modal-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 14px;
+  border: 2px solid var(--gold-light);
+  box-shadow: 0 4px 16px rgba(180, 160, 120, 0.15);
+  margin: 4px 0;
+}
+
+.qr-modal-url {
+  font-size: 11px;
+  color: var(--text-muted);
+  word-break: break-all;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--bg-cream);
+  width: 100%;
+}
+
+.qr-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.qr-modal-btn {
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1.5px solid var(--gold-border);
+  background: var(--card-bg);
+  color: var(--text-dark);
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.qr-modal-btn:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.qr-modal-btn-save {
+  background: linear-gradient(135deg, var(--gold), #b8942f);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(201, 168, 76, 0.35);
+}
+
+.qr-modal-btn-save:hover {
+  box-shadow: 0 6px 20px rgba(201, 168, 76, 0.45);
+}
+
 /* ── Footer ───────────────────────────────────── */
 .footer {
   margin-top: 0;
@@ -1603,6 +1703,149 @@ body:has(.adm-page) {
 .adm-lang-toggle {
   display: flex;
   gap: 10px;
+}
+
+/* ── Section header actions ──────────────────────── */
+.adm-section-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.adm-btn-qr {
+  border-color: var(--gold);
+  color: var(--gold);
+  gap: 6px;
+}
+
+.adm-btn-qr svg {
+  flex-shrink: 0;
+}
+
+/* ── QR Modal ────────────────────────────────────── */
+.adm-qr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  padding: 24px;
+  animation: adm-fade-in 0.2s ease;
+}
+
+@keyframes adm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.adm-qr-modal {
+  width: 100%;
+  max-width: 360px;
+  padding: 32px 24px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1.5px solid var(--gold-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  animation: adm-qr-scale-in 0.25s ease;
+}
+
+@keyframes adm-qr-scale-in {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.adm-qr-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.adm-qr-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.adm-qr-image {
+  width: 220px;
+  height: 220px;
+  border-radius: 16px;
+  border: 2px solid var(--gold-light);
+  box-shadow: 0 4px 16px rgba(180, 160, 120, 0.15);
+  margin: 8px 0;
+}
+
+.adm-qr-url {
+  font-size: 12px;
+  color: var(--text-muted);
+  word-break: break-all;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--bg-cream);
+  width: 100%;
+}
+
+.adm-qr-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* ── Confirm Modal ────────────────────────────────── */
+.adm-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+  animation: adm-fade-in 0.2s ease;
+}
+
+.adm-confirm-modal {
+  width: 100%;
+  max-width: 340px;
+  padding: 28px 24px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1.5px solid var(--gold-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  animation: adm-qr-scale-in 0.25s ease;
+}
+
+.adm-confirm-message {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-dark);
+  line-height: 1.5;
+}
+
+.adm-confirm-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+.adm-confirm-actions .adm-btn {
+  flex: 1;
+  max-width: 140px;
 }
 
 /* ── Empty state ──────────────────────────────────── */

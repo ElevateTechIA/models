@@ -44,6 +44,11 @@ export const translations = {
     disabled: "Inactivo",
     confirmDelete: "Seguro que quieres eliminar este enlace?",
     noLinks: "No hay enlaces. Agrega uno!",
+    shareQr: "Compartir QR",
+    qrTitle: "Codigo QR de tu Pagina",
+    qrSubtitle: "Escanea para visitar tu pagina",
+    qrSave: "Guardar QR",
+    qrClose: "Cerrar",
 
     // Admin page - settings section
     settingsSection: "Configuracion",
@@ -154,6 +159,11 @@ export const translations = {
     disabled: "Disabled",
     confirmDelete: "Are you sure you want to delete this link?",
     noLinks: "No links yet. Add one!",
+    shareQr: "Share QR",
+    qrTitle: "Your Page QR Code",
+    qrSubtitle: "Scan to visit your page",
+    qrSave: "Save QR",
+    qrClose: "Close",
 
     // Admin page - settings section
     settingsSection: "Settings",

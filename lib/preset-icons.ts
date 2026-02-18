@@ -1,6 +1,7 @@
 import type { PresetIcon } from "@/lib/types";
 
 export const PRESET_ICONS: PresetIcon[] = [
+  { id: "qrcode", name: "QR Code", path: "/icons/qrcode_icon.svg" },
   { id: "instagram", name: "Instagram", path: "/instagram_icon.svg" },
   { id: "tiktok", name: "TikTok", path: "/tiktok_icon.svg" },
   { id: "facebook", name: "Facebook", path: "/facebook_icon.svg" },

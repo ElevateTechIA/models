@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { findUserByUsername, readUserConfig } from "@/lib/data";
+import LinksNav from "./links-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -57,23 +58,7 @@ export default async function UserBioPage({ params }: Props) {
         <h2 className="name">{config.profile.name}</h2>
         <p className="subtitle">{config.profile.subtitle}</p>
 
-        <nav className="links">
-          {enabledLinks.map((link) => (
-            <a
-              key={link.id}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-btn"
-            >
-              <span className="link-icon">
-                <Image src={link.icon} alt="" width={40} height={40} />
-              </span>
-              <span className="link-label">{link.label}</span>
-              <span className="link-arrow">&#8250;</span>
-            </a>
-          ))}
-        </nav>
+        <LinksNav links={enabledLinks} />
 
         {config.settings.footerText && (
           <footer className="footer">{config.settings.footerText}</footer>
