@@ -132,7 +132,12 @@ export default function ModelDesign() {
   // --- Save & Share handlers ---
 
   async function fetchImageBlob(url: string): Promise<Blob> {
-    // Proxy through our API to avoid CORS issues with Replicate URLs
+    // Data URLs (base64 from Gemini) can be fetched directly
+    if (url.startsWith("data:")) {
+      const res = await fetch(url);
+      return res.blob();
+    }
+    // HTTP URLs (Replicate) need proxy for CORS
     const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
     const res = await fetch(proxyUrl);
     return res.blob();
