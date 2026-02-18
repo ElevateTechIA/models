@@ -1210,6 +1210,16 @@ body:has(.landing-page) {
   margin: 0;
 }
 
+.landing-social-icons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px 0;
+  color: var(--gold);
+  opacity: 0.6;
+}
+
 /* ── CTA ─────────────────────────────────────────── */
 .landing-cta {
   display: flex;
