@@ -3,13 +3,13 @@ import "./globals.css";
 import SwRegistrar from "./components/sw-registrar";
 
 export const metadata: Metadata = {
-  title: "Social Links",
+  title: "ONE LINK",
   description: "Your personal links page",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Social Links",
+    title: "ONE LINK",
   },
 };
 

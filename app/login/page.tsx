@@ -100,7 +100,7 @@ export default function LoginPage() {
     <div className="landing-page">
       {/* Hero */}
       <section className="landing-hero">
-        <div className="landing-logo">S</div>
+        <div className="landing-logo">O</div>
         <h1 className="landing-h1">{t.hero}</h1>
         <p className="landing-sub">{t.heroSub}</p>
       </section>
