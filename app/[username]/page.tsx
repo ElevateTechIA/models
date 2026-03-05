@@ -73,6 +73,8 @@ export default async function UserBioPage({ params }: Props) {
           {config.settings.footerText && (
             <footer className="footer">{config.settings.footerText}</footer>
           )}
+
+          <a href="/login" className="pearl-btn" title="Acceder" aria-label="Acceder" />
         </main>
         <div className="device-home-indicator" />
       </div>

@@ -1,4 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <rect width="48" height="48" rx="12" fill="#009cde"/>
-  <text x="24" y="33" font-family="Arial Black, Arial, sans-serif" font-size="26" font-weight="900" text-anchor="middle" fill="#ffffff">P</text>
+  <rect width="48" height="48" rx="12" fill="#003087"/>
+  <!-- Blue P -->
+  <path d="M18 10h9c4.5 0 7.5 2.5 7.5 6.5 0 5-3.5 8-8.5 8h-3.5L21 32h-5.5L18 10z" fill="#009cde"/>
+  <!-- Light Blue P (offset) -->
+  <path d="M21 14h9c4.5 0 7.5 2.5 7.5 6.5 0 5-3.5 8-8.5 8h-3.5L24 36h-5.5L21 14z" fill="#012169" opacity="0.5"/>
+  <!-- White P shape -->
+  <path d="M19.5 12h8c3.5 0 5.8 2 5.8 5.2 0 4-2.8 6.5-6.8 6.5H23l-1.5 8.5h-4.5L19.5 12z" fill="#ffffff"/>
+  <path d="M22.5 15h7c3 0 4.8 1.5 4.8 4.2 0 3.5-2.5 5.5-5.8 5.5H25L23.5 33h-4L22.5 15z" fill="#009cde"/>
 </svg>

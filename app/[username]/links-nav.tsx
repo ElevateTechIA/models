@@ -16,12 +16,13 @@ export default function LinksNav({ links }: { links: SiteLink[] }) {
 
   async function openQr(link: SiteLink) {
     try {
-      const dataUrl = await QRCode.toDataURL(link.url, {
+      const url = link.url === "#profile" ? window.location.href : link.url;
+      const dataUrl = await QRCode.toDataURL(url, {
         width: 512,
         margin: 2,
         color: { dark: "#2d2d2d", light: "#ffffff" },
       });
-      setQrModal({ url: link.url, label: link.label, dataUrl });
+      setQrModal({ url, label: link.label, dataUrl });
     } catch {
       // fallback: just open the link
       window.open(link.url, "_blank");

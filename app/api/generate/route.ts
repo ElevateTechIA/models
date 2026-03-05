@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { prompt, aspect_ratio, quality, image, prompt_strength } = await req.json();
+  const { prompt, aspect_ratio, quality, image, prompt_strength, model_version, token_env } = await req.json();
 
   if (!prompt || typeof prompt !== "string") {
     return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
-  }
-
-  if (!image) {
-    return NextResponse.json({ error: "Reference image is required" }, { status: 400 });
   }
 
   const allowedRatios = ["1:1", "16:9", "9:16"];
   const ratio = allowedRatios.includes(aspect_ratio) ? aspect_ratio : "9:16";
   const isHighQuality = quality === "high";
 
-  const token = process.env.REPLICATE_API_TOKEN;
+  const token = token_env === "cesarvega"
+    ? process.env.REPLICATE_API_TOKEN_CESARVEGA
+    : process.env.REPLICATE_API_TOKEN;
+
   if (!token) {
     return NextResponse.json(
       { error: "Server misconfigured" },
@@ -23,34 +22,36 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Create prediction using base Flux dev model (no LORA)
-  const createRes = await fetch(
-    "https://api.replicate.com/v1/models/black-forest-labs/flux-dev/predictions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        Prefer: "wait",
+  const activeVersion = model_version || "bbcfe20b237567081da78379c67d10c637bd7267110e199d91e800955845f9b4";
+
+  const createRes = await fetch("https://api.replicate.com/v1/predictions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Prefer: "wait",
+    },
+    body: JSON.stringify({
+      version: activeVersion,
+      input: {
+        model: "dev",
+        prompt,
+        go_fast: false,
+        lora_scale: 0.75,
+        megapixels: "1",
+        num_outputs: 1,
+        aspect_ratio: ratio,
+        output_format: "png",
+        guidance_scale: isHighQuality ? 2.5 : 2.8,
+        output_quality: 100,
+        prompt_strength: image ? (prompt_strength ?? 0.5) : 0.8,
+        extra_lora_scale: 1,
+        num_inference_steps: isHighQuality ? 50 : 36,
+        disable_safety_checker: true,
+        ...(image ? { image } : {}),
       },
-      body: JSON.stringify({
-        input: {
-          prompt,
-          image,
-          go_fast: false,
-          megapixels: "1",
-          num_outputs: 1,
-          aspect_ratio: ratio,
-          output_format: "png",
-          guidance_scale: isHighQuality ? 3.5 : 3,
-          output_quality: 100,
-          prompt_strength: prompt_strength ?? 0.8,
-          num_inference_steps: isHighQuality ? 50 : 28,
-          disable_safety_checker: true,
-        },
-      }),
-    }
-  );
+    }),
+  });
 
   if (!createRes.ok) {
     const err = await createRes.json().catch(() => ({}));
@@ -62,7 +63,6 @@ export async function POST(req: NextRequest) {
 
   let prediction = await createRes.json();
 
-  // If Prefer: wait returned a completed prediction, return it
   if (prediction.status === "succeeded") {
     return NextResponse.json({ images: prediction.output });
   }

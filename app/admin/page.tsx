@@ -471,9 +471,11 @@ export default function AdminPage() {
           <Link href={`/${username}`} className="adm-nav-link">
             {t.viewSite}
           </Link>
-          <Link href="/model-design" className="adm-nav-link">
-            {t.photoStudio}
-          </Link>
+          {(username === "cesarvegacol" || username === "wendypradaoficial11") && (
+            <Link href="/model-design" className="adm-nav-link">
+              {t.photoStudio}
+            </Link>
+          )}
           <button className="adm-btn adm-btn-logout" onClick={handleLogout}>
             {t.logout}
           </button>
