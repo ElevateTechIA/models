@@ -41,7 +41,9 @@ body:has(.device-frame) {
 
 /* Allow scrolling on model-design page */
 body:has(.md-page) {
-  overflow-y: auto;
+  display: block;
+  height: auto;
+  overflow-y: visible;
 }
 
 /* ── Container ────────────────────────────────── */
@@ -1334,10 +1336,10 @@ body:has(.md-page) {
    ══════════════════════════════════════════════════ */
 
 body:has(.landing-page) {
-  overflow-y: auto;
+  display: block;
+  height: auto;
+  overflow-y: visible;
   min-height: 100dvh;
-  display: flex;
-  justify-content: center;
   background: var(--bg-cream);
 }
 
@@ -1560,10 +1562,10 @@ body:has(.landing-page) {
 
 /* Allow scroll and reset body on admin */
 body:has(.adm-page) {
-  overflow-y: auto;
+  display: block;
+  height: auto;
+  overflow-y: visible;
   min-height: 100dvh;
-  display: flex;
-  justify-content: center;
   background: var(--bg-cream);
 }
 
