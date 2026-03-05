@@ -13,7 +13,7 @@ const t_es = {
   featureQrDesc: "Genera un QR para que te encuentren al instante.",
   featureCustom: "100% personalizable",
   featureCustomDesc: "Tu foto, tu nombre, tu estilo. Hazlo tuyo.",
-  cta: "Crea tu pagina gratis",
+  cta: "Login o Registrarse",
   loginWithGoogle: "Continuar con Google",
   loginError: "Error al iniciar sesion",
   already: "Ya tienes cuenta?",
@@ -29,7 +29,7 @@ const t_en = {
   featureQrDesc: "Generate a QR so people can find you instantly.",
   featureCustom: "Fully customizable",
   featureCustomDesc: "Your photo, your name, your style. Make it yours.",
-  cta: "Create your page for free",
+  cta: "Login or Register",
   loginWithGoogle: "Continue with Google",
   loginError: "Login failed",
   already: "Already have an account?",
@@ -49,16 +49,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (
-      typeof window !== "undefined" &&
       localStorage.getItem("firebase-token") &&
       localStorage.getItem("username")
     ) {
       window.location.href = "/admin";
-      return;
     }
-
-    const detected = navigator.language?.startsWith("en") ? "en" : "es";
-    setLang(detected);
   }, []);
 
   async function handleGoogleLogin() {
