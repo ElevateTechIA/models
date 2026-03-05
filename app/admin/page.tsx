@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import QRCode from "qrcode";
 import type { SiteConfig, SiteLink } from "@/lib/types";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 import { PRESET_ICONS } from "@/lib/preset-icons";
 import { translations, type Language } from "@/lib/translations";
 
@@ -355,9 +357,10 @@ export default function AdminPage() {
   }
 
   // ── Logout ────────────────────────────────────────
-  function handleLogout() {
+  async function handleLogout() {
     localStorage.removeItem("firebase-token");
     localStorage.removeItem("username");
+    await signOut(auth);
     router.push("/login");
   }
 

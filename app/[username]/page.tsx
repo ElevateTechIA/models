@@ -74,9 +74,12 @@ export default async function UserBioPage({ params }: Props) {
             <footer className="footer">{config.settings.footerText}</footer>
           )}
 
+          <div className="pearl-container">
+            <a href="/login" className="pearl-btn" title="Acceder" aria-label="Acceder" />
+            <span style={{ fontSize: "9px", color: "#b0a99a", opacity: 0.5, display: "block", textAlign: "center", marginTop: "-2px", letterSpacing: "0.5px" }}>v1.0.1</span>
+          </div>
+
         </main>
-        <a href="/login" className="pearl-btn" title="Acceder" aria-label="Acceder" />
-        <span style={{ fontSize: "9px", color: "#b0a99a", opacity: 0.5, display: "block", textAlign: "center", marginTop: "-2px", letterSpacing: "0.5px" }}>v1.0.1</span>
         <div className="device-home-indicator" />
       </div>
 

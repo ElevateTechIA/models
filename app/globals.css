@@ -300,6 +300,15 @@ body:has(.md-page) {
 }
 
 /* ── Pearl login button ───────────────────────── */
+/* Mobile: fixed at bottom center of viewport */
+.pearl-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0 4px;
+  width: 100%;
+}
+
 .pearl-btn {
   display: block;
   width: 16px;
