@@ -13,6 +13,7 @@ function isQrLink(link: SiteLink) {
 
 export default function LinksNav({ links }: { links: SiteLink[] }) {
   const [qrModal, setQrModal] = useState<{ url: string; label: string; dataUrl: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function openQr(link: SiteLink) {
     try {
@@ -81,6 +82,11 @@ export default function LinksNav({ links }: { links: SiteLink[] }) {
             <p className="qr-modal-url">{qrModal.url}</p>
             <div className="qr-modal-actions">
               <button className="qr-modal-btn qr-modal-btn-save" onClick={saveQr}>Guardar QR</button>
+              <button className="qr-modal-btn" onClick={() => {
+                navigator.clipboard.writeText(qrModal.url);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}>{copied ? "¡Copiado!" : "Copiar Link"}</button>
               <button className="qr-modal-btn" onClick={() => setQrModal(null)}>Cerrar</button>
             </div>
           </div>
