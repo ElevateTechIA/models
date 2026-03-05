@@ -20,7 +20,7 @@ const config = {
   profile: {
     name: "DJ Hannah",
     subtitle: "",
-    picture: "",
+    picture: "/profile-pictures/deejanehannah.png",
   },
   links: [
     {
@@ -68,7 +68,7 @@ const config = {
       icon: "/youtube_icon.svg",
       iconType: "preset",
       label: "YouTube 🎵",
-      url: "https://youtu.be/JOaTSGyZcVw?si=vbsBQ3YND_QVmsIy",
+      url: "https://www.youtube.com/@DJHANNAH1",
       enabled: true,
     },
     {
