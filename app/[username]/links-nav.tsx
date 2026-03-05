@@ -40,6 +40,11 @@ export default function LinksNav({ links }: { links: SiteLink[] }) {
     document.body.removeChild(a);
   }
 
+  function LinkIcon({ icon }: { icon: string }) {
+    if (!icon) return <span className="link-icon-placeholder">🔗</span>;
+    return <Image src={icon} alt="" width={40} height={40} />;
+  }
+
   return (
     <>
       <nav className="links">
@@ -51,7 +56,7 @@ export default function LinksNav({ links }: { links: SiteLink[] }) {
               onClick={() => openQr(link)}
             >
               <span className="link-icon">
-                <Image src={link.icon} alt="" width={40} height={40} />
+                <LinkIcon icon={link.icon} />
               </span>
               <span className="link-label">{link.label}</span>
               <span className="link-arrow">&#8250;</span>
@@ -65,7 +70,7 @@ export default function LinksNav({ links }: { links: SiteLink[] }) {
               className="link-btn"
             >
               <span className="link-icon">
-                <Image src={link.icon} alt="" width={40} height={40} />
+                <LinkIcon icon={link.icon} />
               </span>
               <span className="link-label">{link.label}</span>
               <span className="link-arrow">&#8250;</span>
