@@ -48,6 +48,14 @@ const MODELS = [
     triggerWord: "neopop",
     tokenEnv: "cesarvega",
   },
+  {
+    id: "djhanna",
+    name: "DJ Hannah",
+    picture: "/profile-pictures/profile-picture.png",
+    version: "fae09d7bc22ec9e1d6c074380b7005df58ca7e5c91a22a749c610fc23601b826",
+    triggerWord: "djhanna",
+    tokenEnv: "cesarvega",
+  },
 ];
 
 const ASPECT_RATIOS = [
@@ -429,8 +437,8 @@ export default function ModelDesignClient() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={url} alt={`Generated ${i + 1}`} className="md-image" />
                     <div className="md-action-buttons">
-                      <button onClick={() => handleSave(url, `wendy-${i + 1}.png`)} className="md-download-btn">Guardar Foto</button>
-                      <button onClick={() => handleShare(url, `wendy-${i + 1}.png`)} className="md-share-btn">Compartir</button>
+                      <button onClick={() => handleSave(url, `${activeModel.id}-${new Date().toISOString().replace(/[:.]/g, "-")}-${i + 1}.png`)} className="md-download-btn">Guardar Foto</button>
+                      <button onClick={() => handleShare(url, `${activeModel.id}-${new Date().toISOString().replace(/[:.]/g, "-")}-${i + 1}.png`)} className="md-share-btn">Compartir</button>
                     </div>
                   </div>
                 ))}
@@ -505,8 +513,8 @@ export default function ModelDesignClient() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={faceSwapResult} alt="Face swap result" className="md-image" />
                   <div className="md-action-buttons">
-                    <button onClick={() => handleSave(faceSwapResult, "wendy-faceswap.png")} className="md-download-btn">Guardar Foto</button>
-                    <button onClick={() => handleShare(faceSwapResult, "wendy-faceswap.png")} className="md-share-btn">Compartir</button>
+                    <button onClick={() => handleSave(faceSwapResult, `${activeModel.id}-faceswap-${new Date().toISOString().replace(/[:.]/g, "-")}.png`)} className="md-download-btn">Guardar Foto</button>
+                    <button onClick={() => handleShare(faceSwapResult, `${activeModel.id}-faceswap-${new Date().toISOString().replace(/[:.]/g, "-")}.png`)} className="md-share-btn">Compartir</button>
                   </div>
                 </div>
               </div>
