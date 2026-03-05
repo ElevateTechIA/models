@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const ALLOWED_USERNAMES = ["cesarvegacol", "wendypradaoficial11"];
+const ALLOWED_USERNAMES = ["cesarvegacol", "wendypradaoficial11", "deejanehannah"];
 
 type PageMode = "generate" | "faceswap";
 
@@ -229,6 +229,8 @@ export default function ModelDesignClient() {
     } else {
       setCurrentUsername(username);
       setAuthorized(true);
+      if (username === "deejanehannah") setSelectedModel("djhanna");
+      else if (username === "wendypradaoficial11") setSelectedModel("wendy");
     }
   }, [router]);
 
@@ -352,9 +354,10 @@ export default function ModelDesignClient() {
   if (!authorized) return null;
 
   const anyLoading = loading || faceSwapLoading;
-  const availableModels = currentUsername === "wendypradaoficial11"
-    ? MODELS.filter((m) => m.id === "wendy")
-    : MODELS;
+  const availableModels =
+    currentUsername === "wendypradaoficial11" ? MODELS.filter((m) => m.id === "wendy") :
+    currentUsername === "deejanehannah" ? MODELS.filter((m) => m.id === "djhanna") :
+    MODELS;
   const activeModel = availableModels.find((m) => m.id === selectedModel) ?? availableModels[0];
   const activePresets = activeModel.presets ?? WENDY_PRESETS;
 

@@ -474,7 +474,7 @@ export default function AdminPage() {
           <Link href={`/${username}`} className="adm-nav-link">
             {t.viewSite}
           </Link>
-          {(username === "cesarvegacol" || username === "wendypradaoficial11") && (
+          {(username === "cesarvegacol" || username === "wendypradaoficial11" || username === "deejanehannah") && (
             <Link href="/model-design" className="adm-nav-link">
               {t.photoStudio}
             </Link>
