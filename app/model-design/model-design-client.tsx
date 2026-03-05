@@ -7,7 +7,77 @@ const ALLOWED_USERNAMES = ["cesarvegacol", "wendypradaoficial11"];
 
 type PageMode = "generate" | "faceswap";
 
-const MODELS = [
+type PresetPrompt = {
+  label: string;
+  image: string;
+  emoji: string;
+  prompts: string[];
+};
+
+type Model = {
+  id: string;
+  name: string;
+  picture: string;
+  version: string;
+  triggerWord: string;
+  tokenEnv: string;
+  presets?: PresetPrompt[];
+};
+
+
+const DJHANNA_PRESETS: PresetPrompt[] = [
+  {
+    label: "DH Diosa de Playa",
+    image: "/1.png",
+    emoji: "\u{1F3D6}",
+    prompts: [
+      "Un retrato de djhanna de pie en una playa tropical al atardecer, luz dorada y calida viniendo desde el lado izquierdo proyectando sombras suaves y largas sobre su rostro. Lleva un elegante traje de bano de una pieza. El oceano turquesa y las palmeras lejanas estan ligeramente desenfocados detras de ella. Su piel muestra poros visibles, tono ligeramente desigual, pequenas manchas de sol en los hombros y fino vello facial atrapando la contraluz. El viento mueve suavemente su cabello. La sensacion general es calida, natural y relajada, como un editorial de revista de viajes.",
+      "djhanna jugando en las olas del mar turquesa, riendo con el cabello mojado y pegado al rostro, vistiendo un bikini colorido. La espuma blanca de las olas salpica alrededor de sus piernas. El sol del mediodia crea destellos brillantes en el agua. Su piel bronceada tiene gotas de agua brillando con la luz, poros visibles y ligeras marcas de bronceado en los hombros. La expresion es alegre y espontanea, capturada como si fuera una foto de vacaciones perfecta.",
+      "djhanna sentada en la orilla de una cala virgen al amanecer, con el agua cristalina llegando hasta sus tobillos. El cielo tiene tonos rosados y naranjas del amanecer. Lleva un vestido de playa blanco transparente sobre el traje de bano. Las rocas de la cala crean un fondo natural. Su piel tiene la calidez rosada del amanecer reflejada en las mejillas, poros naturales visibles y algunos lunares en los brazos. La atmosfera es serena y romantica, como una escena de pelicula.",
+      "djhanna caminando a lo largo de la orilla en la hora dorada, dejando huellas en la arena mojada. El sol detras de ella crea una silueta luminosa con el cabello brillando como un halo. Lleva un pareo colorido anudado en la cadera sobre un bikini. El reflejo del sol en la arena humeda crea un efecto espejo bajo sus pies. Su piel tiene la textura natural del final del dia, con sal seca en los hombros y mejillas ligeramente rosadas por el sol.",
+      "djhanna recostada en una hamaca de tela entre dos palmeras inclinadas sobre el mar, con el agua verde esmeralda detras. Lleva un traje de bano de una pieza con estampado tropical. La suave sombra de las hojas de palma crea patrones de luz sobre su cuerpo y la hamaca. Su cabello cae suelto hacia abajo. La piel tiene ese brillo sano de quien ha pasado el dia al sol, con pequenas imperfecciones naturales y la relajacion total visible en su expresion.",
+    ],
+  },
+  {
+    label: "DH Glamour Nocturno",
+    image: "/2.png",
+    emoji: "\u{1F37D}",
+    prompts: [
+      "portrait photo of djhanna leaning against a wall with a glowing pink neon sign behind her. She wears an oversized black leather jacket completely open with nothing underneath, holding the edges of the jacket confidently. The neon light softly illuminates her body and face with warm magenta tones. Her gaze is bold and seductive looking directly at the camera. Professional fashion photography, editorial magazine style, ultra realistic skin texture, cinematic lighting, 85mm lens, shallow depth of field.",
+      "photo of djhanna sitting in the VIP section of a luxury nightclub holding a cocktail. The club lights create colorful reflections and soft bokeh behind her. She wears a shimmering designer dress that reflects the lights. Her expression is confident and relaxed. Editorial nightlife photography, ultra realistic skin texture, cinematic lighting, shallow depth of field.",
+      "photo of djhanna arriving at a high profile music event on the red carpet. Camera flashes illuminate her as photographers capture the moment. She wears a bold avant garde designer outfit. The atmosphere feels glamorous and powerful. Professional red carpet photography, cinematic lighting, ultra realistic skin texture, 85mm lens.",
+      "photo of djhanna posing during a fashion editorial photoshoot in a professional studio with colorful backgrounds and dramatic lighting. She wears different designer outfits and gives expressive poses. The shoot feels artistic and stylish. Fashion magazine photography, cinematic lighting, ultra realistic skin texture, high detail.",
+      "photo of djhanna standing on a penthouse terrace in New York at night. The Manhattan skyline glows behind her with beautiful city bokeh lights. The wind gently moves her hair. She wears a sophisticated urban look. Cinematic city photography, ultra realistic skin texture, shallow depth of field, editorial fashion photo.",
+      "photo of djhanna celebrating backstage after a successful DJ show. Champagne bottles, flowers and warm mirror lights fill the dressing room. She smiles naturally surrounded by her crew. The atmosphere is intimate and joyful. Documentary style photography, cinematic lighting, ultra realistic skin texture."
+    ],
+  },
+  {
+    label: "DH Playa Topless",
+    image: "/3.png",
+    emoji: "\u{1F31E}",
+    prompts: [
+      "Un retrato artistico de djhanna en una playa tropical aislada, topless, de pie con el agua turquesa y calma hasta las rodillas. El sol de la tarde esta bajo y detras de ella, creando una suave contraluz calida que delinea su silueta y se refleja en su cabello. Su piel tiene pecas naturales esparcidas por los hombros y el pecho, poros visibles, lineas de bronceado ligeramente desiguales y fino vello corporal atrapando la luz. La composicion es artistica y de buen gusto, como un editorial de moda de alta gama.",
+      "djhanna tumbada boca abajo sobre una roca plana de granito rosa junto al mar, topless, tomando el sol. El mar azul profundo con olas lentas de fondo. La luz lateral del sol de la tarde ilumina su espalda creando una sombra suave y alargada sobre la roca. Su piel tiene el tono bronceado desigual tipico del verano, con algunas pecas nuevas en los hombros, piel ligeramente seca con textura natural en los codos. El ambiente es solitario, salvaje y bello.",
+      "djhanna caminando hacia afuera del oceano, topless, con el agua goteando por todo su cuerpo. El sol refleja en cada gota de agua creando destellos brillantes. Su cabello mojado y pegado al cuello y hombros. La expresion es de total libertad y felicidad natural. Su piel brillante y humeda muestra su textura real, con pequenas gotas de agua capturadas en el vello fino de sus brazos y abdomen. Las olas espumosas detras de ella crean un fondo dinamico y vivo.",
+      "djhanna sentada bajo una palmera inclinada sobre el mar, topless, con las rodillas recogidas hacia el pecho mirando al horizonte. La sombra de las hojas de palma crea un patron de luz y sombra sobre su piel y la arena. El sol crea un contraste marcado entre las zonas iluminadas y las sombras. Su piel bronceada tiene la textura real del verano prolongado, con lineas de bronceado visibles, la piel ligeramente exfoliada por la sal y la arena.",
+      "djhanna de pie en el borde de un acantilado bajo sobre el mar Mediterraneo, topless, con los brazos abiertos y el cabello al viento. El azul profundo del Mediterraneo y el cielo infinito se fusionan en el horizonte detras de ella. La brisa marina eleva su cabello dramaticamente. El sol de la manana ilumina su rostro y cuerpo de frente con una luz suave y favorecedora. Su piel tiene el tono claro del inicio del verano, con la frescura y el ligero enrojecimiento del viento marino en las mejillas.",
+    ],
+  },
+  {
+    label: "DH Sueno Tropical",
+    image: "/4.png",
+    emoji: "\u{1F334}",
+    prompts: [
+      "Una foto de cuerpo completo de djhanna caminando por un sendero en la selva hacia una pequena cascada en un paraiso tropical. Lleva un vestido de verano ligero y fluido que atrapa la brisa. La luz del sol filtrada a traves del denso dosel verde crea parches de luz calida y sombra fresca. Su cabello esta ligeramente desordenado y encrespado por la humedad. Gotas de sudor visibles en su cuello y brazos, su piel tiene textura natural con poros, ligero enrojecimiento en rodillas y codos. La escena se siente exuberante, organica y viva.",
+      "djhanna de pie en un puente colgante de madera y cuerda sobre un rio de agua cristalina en la selva tropical. Lleva shorts de tela y blusa anudada. El verde intenso de la vegetacion tropical la rodea completamente. Los rayos de sol se filtran a traves del follaje creando columnas de luz dorada que iluminan particulas de polvo y humedad en el aire. Su piel tiene el sudor natural del calor tropical, con el cabello recogido parcialmente por el calor. La luz crea un ambiente magico y aventurero.",
+      "djhanna nadando en una poza natural de agua cristalina turquesa al pie de una pequena cascada rodeada de selva densa. Lleva un bikini de colores vivos. El agua tiene esa tonalidad verde-azul caracteristica de los cenotes y pozas naturales. Las gotas de la cascada crean un velo de niebla fina que atrapa la luz como miles de diamantes. Su piel refleja los tonos azules y verdes del agua. La expresion es de puro asombro y felicidad, como descubrir un paraiso secreto.",
+      "djhanna sentada en una gran hoja de platanero en un jardin botanico tropical exuberante, rodeada de flores de heliconias y bromelias coloridas. Lleva un vestido wrap floral de colores tropicales. La luz difusa del mediodia crea colores intensos y saturados en las plantas. Las flores son gigantes y de colores imposibles. Su piel refleja los tonos calidos y coloridos del entorno. El conjunto se ve como una pintura surrealista y magica de la naturaleza en su estado mas exuberante.",
+      "djhanna caminando por un mercado de flores tropical al amanecer, entre puestos llenos de orquideas, flores de ave del paraiso y heliconias. Lleva un vestido largo blanco con bordados florales. Los colores vibrantes de las flores crean un fondo explosivo de amarillos, rojos, morados y naranjas. La luz baja del amanecer crea sombras largas y tonos dorados sobre todo. Su piel tiene el brillo fresco de la manana, con el cabello suelto y algunos petalos de flores enganchados en el. La escena irradia vida, color y alegria pura.",
+    ],
+  },
+];
+
+const MODELS: Model[] = [
   {
     id: "wendy",
     name: "Wendy Prada",
@@ -55,6 +125,7 @@ const MODELS = [
     version: "fae09d7bc22ec9e1d6c074380b7005df58ca7e5c91a22a749c610fc23601b826",
     triggerWord: "djhanna",
     tokenEnv: "cesarvega",
+    presets: DJHANNA_PRESETS,
   },
 ];
 
@@ -64,7 +135,7 @@ const ASPECT_RATIOS = [
   { value: "9:16", label: "9:16", icon: "▮" },
 ];
 
-const PRESET_PROMPTS = [
+const WENDY_PRESETS = [
   {
     label: "Diosa de Playa",
     image: "/1.png",
@@ -137,6 +208,12 @@ export default function ModelDesignClient() {
   // Model selector state
   const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
 
+  useEffect(() => {
+    setPrompt("");
+    setSelectedPreset(null);
+    setPresetVariant(0);
+  }, [selectedModel]);
+
   // Face swap state
   const [faceSwapImage, setFaceSwapImage] = useState<string | null>(null);
   const [faceSwapImageName, setFaceSwapImageName] = useState("");
@@ -198,16 +275,6 @@ export default function ModelDesignClient() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function selectPreset(index: number) {
-    const variant = selectedPreset === index
-      ? (presetVariant + 1) % PRESET_PROMPTS[index].prompts.length
-      : 0;
-    setSelectedPreset(index);
-    setPresetVariant(variant);
-    const rawPrompt = PRESET_PROMPTS[index].prompts[variant];
-    const adapted = rawPrompt.replace(/\bwendy\b/gi, activeModel.triggerWord);
-    setPrompt(adapted);
-  }
 
   // --- Face swap handlers ---
 
@@ -289,6 +356,7 @@ export default function ModelDesignClient() {
     ? MODELS.filter((m) => m.id === "wendy")
     : MODELS;
   const activeModel = availableModels.find((m) => m.id === selectedModel) ?? availableModels[0];
+  const activePresets = activeModel.presets ?? WENDY_PRESETS;
 
   return (
     <div className="md-page">
@@ -331,11 +399,16 @@ export default function ModelDesignClient() {
           <section className="md-section">
             <h2 className="md-section-title">Estilos Rapidos</h2>
             <div className="md-preset-grid">
-              {PRESET_PROMPTS.map((p, i) => (
+              {activePresets.map((p, i) => (
                 <button
                   key={p.label}
                   className={`md-preset-btn ${selectedPreset === i ? "md-preset-active" : ""}`}
-                  onClick={() => selectPreset(i)}
+                  onClick={() => {
+                    const variant = selectedPreset === i ? (presetVariant + 1) % activePresets[i].prompts.length : 0;
+                    setSelectedPreset(i);
+                    setPresetVariant(variant);
+                    setPrompt(activePresets[i].prompts[variant]);
+                  }}
                   disabled={loading}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
