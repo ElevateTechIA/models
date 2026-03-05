@@ -95,7 +95,7 @@ export default function LoginPage() {
     <div className="landing-page">
       {/* Hero */}
       <section className="landing-hero">
-        <div className="landing-logo">O</div>
+        <img src="/ol_logo.png" alt="Logo" className="landing-logo-img" />
         <h1 className="landing-h1">{t.hero}</h1>
         <p className="landing-sub">{t.heroSub}</p>
       </section>
