@@ -5,6 +5,7 @@ export interface SiteLink {
   label: string;
   url: string;
   enabled: boolean;
+  photo?: string; // Optional image for showcase page card background
 }
 
 export interface SiteProfile {

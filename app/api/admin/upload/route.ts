@@ -28,6 +28,9 @@ export async function POST(req: NextRequest) {
 
   if (type === "profile") {
     storagePath = `user-uploads/${authed.username}/profile-picture.${ext}`;
+  } else if (type === "link-photo") {
+    const uniqueName = `link-photo-${Date.now()}.${ext}`;
+    storagePath = `user-uploads/${authed.username}/${uniqueName}`;
   } else {
     const uniqueName = `icon-${Date.now()}.${ext}`;
     storagePath = `user-uploads/${authed.username}/${uniqueName}`;

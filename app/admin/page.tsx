@@ -6,9 +6,10 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import type { SiteConfig, SiteLink } from "@/lib/types";
 import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { PRESET_ICONS } from "@/lib/preset-icons";
 import { translations, type Language } from "@/lib/translations";
+import CropModal from "@/app/components/CropModal";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -45,6 +46,20 @@ export default function AdminPage() {
   const [editIconType, setEditIconType] = useState<"preset" | "custom">("preset");
   const editIconFileRef = useRef<HTMLInputElement>(null);
 
+  // Link photo state (for showcase page)
+  const [newLinkPhoto, setNewLinkPhoto] = useState("");
+  const [editLinkPhoto, setEditLinkPhoto] = useState("");
+  const newLinkPhotoRef = useRef<HTMLInputElement>(null);
+  const editLinkPhotoRef = useRef<HTMLInputElement>(null);
+
+  // Crop modal state
+  type CropTarget = "profile" | "new-link-photo" | "edit-link-photo";
+  const [cropState, setCropState] = useState<{ file: File; target: CropTarget } | null>(null);
+  // Store original files to allow re-cropping anytime
+  const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
+  const [newLinkPhotoFile, setNewLinkPhotoFile] = useState<File | null>(null);
+  const [editLinkPhotoFile, setEditLinkPhotoFile] = useState<File | null>(null);
+
   // Settings state
   const [language, setLanguage] = useState<Language>("es");
   const [footerText, setFooterText] = useState("");
@@ -68,8 +83,17 @@ export default function AdminPage() {
     setTimeout(() => setToast(""), 3000);
   }
 
-  // Auth helper
-  function authHeaders(tk: string) {
+  // Always get a fresh token — Firebase refreshes it automatically
+  async function getFreshToken(): Promise<string | null> {
+    try {
+      return (await auth.currentUser?.getIdToken()) ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function authHeaders() {
+    const tk = await getFreshToken();
     return {
       Authorization: `Bearer ${tk}`,
       "Content-Type": "application/json",
@@ -78,21 +102,31 @@ export default function AdminPage() {
 
   // ── Auth check + load config ──────────────────────
   useEffect(() => {
-    const tk = localStorage.getItem("firebase-token");
     const un = localStorage.getItem("username");
-    if (!tk || !un) {
+    if (!un) {
       router.push("/login");
       return;
     }
-    setToken(tk);
-    setUsername(un);
 
-    fetch(`/api/admin/config?username=${un}`)
-      .then((r) => {
-        if (!r.ok) throw new Error("not found");
-        return r.json();
-      })
-      .then((data: SiteConfig) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      unsubscribe();
+      if (!user) {
+        localStorage.removeItem("firebase-token");
+        localStorage.removeItem("username");
+        router.push("/login");
+        return;
+      }
+
+      // Get a fresh token (Firebase handles refresh automatically)
+      const freshToken = await user.getIdToken();
+      localStorage.setItem("firebase-token", freshToken);
+      setToken(freshToken);
+      setUsername(un);
+
+      try {
+        const res = await fetch(`/api/admin/config?username=${un}`);
+        if (!res.ok) throw new Error("not found");
+        const data: SiteConfig = await res.json();
         setConfig(data);
         setName(data.profile.name);
         setSubtitle(data.profile.subtitle);
@@ -101,23 +135,23 @@ export default function AdminPage() {
         setLanguage(data.settings.language);
         setFooterText(data.settings.footerText);
         setLoading(false);
-      })
-      .catch(() => {
+      } catch {
         localStorage.removeItem("firebase-token");
         localStorage.removeItem("username");
         router.push("/login");
-      });
+      }
+    });
   }, [router]);
 
   // ── Profile save ──────────────────────────────────
   async function saveProfile() {
-    if (!token) return;
+    if (!auth.currentUser) return;
     setSavingProfile(true);
     setProfileSaved(false);
     try {
       const res = await fetch("/api/admin/config", {
         method: "PUT",
-        headers: authHeaders(token),
+        headers: await authHeaders(),
         body: JSON.stringify({
           profile: { name, subtitle, picture },
         }),
@@ -133,45 +167,30 @@ export default function AdminPage() {
     }
   }
 
-  // ── Profile picture upload ────────────────────────
-  async function handleProfilePicUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  // ── Profile picture upload → opens crop modal ─────
+  function handleProfilePicUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !token) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showToast(t.imageTooLarge);
-      return;
-    }
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("type", "profile");
-    try {
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      setPicture(data.path);
-      showToast(t.saved);
-    } catch {
-      showToast(t.somethingWrong);
-    }
+    if (!file || !auth.currentUser) return;
+    if (file.size > 5 * 1024 * 1024) { showToast(t.imageTooLarge); return; }
+    setProfilePicFile(file);
+    setCropState({ file, target: "profile" });
+    e.target.value = ""; // reset so same file can be picked again
   }
 
   // ── Add link ──────────────────────────────────────
   async function addLink() {
-    if (!token || !newLabel || !newUrl) return;
+    if (!auth.currentUser || !newLabel || !newUrl) return;
     try {
       const res = await fetch("/api/admin/links", {
         method: "POST",
-        headers: authHeaders(token),
+        headers: await authHeaders(),
         body: JSON.stringify({
           icon: newIcon,
           iconType: newIconType,
           label: newLabel,
           url: newUrl,
           enabled: true,
+          ...(newLinkPhoto ? { photo: newLinkPhoto } : {}),
         }),
       });
       if (!res.ok) throw new Error();
@@ -181,6 +200,7 @@ export default function AdminPage() {
       setNewUrl("");
       setNewIcon(PRESET_ICONS[0].path);
       setNewIconType("preset");
+      setNewLinkPhoto("");
       setShowAddForm(false);
       showToast(t.saved);
     } catch {
@@ -190,11 +210,11 @@ export default function AdminPage() {
 
   // ── Toggle link ───────────────────────────────────
   async function toggleLink(link: SiteLink) {
-    if (!token) return;
+    if (!auth.currentUser) return;
     try {
       const res = await fetch("/api/admin/links", {
         method: "PUT",
-        headers: authHeaders(token),
+        headers: await authHeaders(),
         body: JSON.stringify({ id: link.id, enabled: !link.enabled }),
       });
       if (!res.ok) throw new Error();
@@ -207,7 +227,7 @@ export default function AdminPage() {
 
   // ── Delete link ───────────────────────────────────
   function deleteLink(id: string) {
-    if (!token) return;
+    if (!auth.currentUser) return;
     setConfirmModal({
       message: t.confirmDelete,
       onConfirm: async () => {
@@ -215,7 +235,7 @@ export default function AdminPage() {
         try {
           const res = await fetch(`/api/admin/links?id=${id}`, {
             method: "DELETE",
-            headers: authHeaders(token),
+            headers: await authHeaders(),
           });
           if (!res.ok) throw new Error();
           const data = await res.json();
@@ -235,21 +255,24 @@ export default function AdminPage() {
     setEditUrl(link.url);
     setEditIcon(link.icon);
     setEditIconType(link.iconType);
+    setEditLinkPhoto(link.photo || "");
+    setEditLinkPhotoFile(null);
   }
 
   // ── Save edited link ──────────────────────────────
   async function saveEditLink() {
-    if (!token || !editingLinkId) return;
+    if (!auth.currentUser || !editingLinkId) return;
     try {
       const res = await fetch("/api/admin/links", {
         method: "PUT",
-        headers: authHeaders(token),
+        headers: await authHeaders(),
         body: JSON.stringify({
           id: editingLinkId,
           label: editLabel,
           url: editUrl,
           icon: editIcon,
           iconType: editIconType,
+          photo: editLinkPhoto,
         }),
       });
       if (!res.ok) throw new Error();
@@ -264,7 +287,7 @@ export default function AdminPage() {
 
   // ── Reorder links ─────────────────────────────────
   async function reorderLinks(idx: number, dir: "up" | "down") {
-    if (!token) return;
+    if (!auth.currentUser) return;
     const newLinks = [...links];
     const swapIdx = dir === "up" ? idx - 1 : idx + 1;
     [newLinks[idx], newLinks[swapIdx]] = [newLinks[swapIdx], newLinks[idx]];
@@ -272,7 +295,7 @@ export default function AdminPage() {
     try {
       await fetch("/api/admin/links/reorder", {
         method: "PUT",
-        headers: authHeaders(token),
+        headers: await authHeaders(),
         body: JSON.stringify({ ids: newLinks.map((l) => l.id) }),
       });
     } catch {
@@ -283,7 +306,7 @@ export default function AdminPage() {
   // ── Custom icon upload (for add form) ─────────────
   async function handleNewIconUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !token) return;
+    if (!file || !auth.currentUser) return;
     if (file.size > 5 * 1024 * 1024) {
       showToast(t.imageTooLarge);
       return;
@@ -294,7 +317,7 @@ export default function AdminPage() {
     try {
       const res = await fetch("/api/admin/upload", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${await getFreshToken()}` },
         body: formData,
       });
       if (!res.ok) throw new Error();
@@ -309,7 +332,7 @@ export default function AdminPage() {
   // ── Custom icon upload (for edit form) ────────────
   async function handleEditIconUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !token) return;
+    if (!file || !auth.currentUser) return;
     if (file.size > 5 * 1024 * 1024) {
       showToast(t.imageTooLarge);
       return;
@@ -320,7 +343,7 @@ export default function AdminPage() {
     try {
       const res = await fetch("/api/admin/upload", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${await getFreshToken()}` },
         body: formData,
       });
       if (!res.ok) throw new Error();
@@ -332,15 +355,79 @@ export default function AdminPage() {
     }
   }
 
+  // ── Link photo (new form) → opens crop modal ──────
+  function handleNewLinkPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !auth.currentUser) return;
+    if (file.size > 5 * 1024 * 1024) { showToast(t.imageTooLarge); return; }
+    setNewLinkPhotoFile(file);
+    setCropState({ file, target: "new-link-photo" });
+    e.target.value = "";
+  }
+
+  // ── Link photo (edit form) → opens crop modal ─────
+  function handleEditLinkPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !auth.currentUser) return;
+    if (file.size > 5 * 1024 * 1024) { showToast(t.imageTooLarge); return; }
+    setEditLinkPhotoFile(file);
+    setCropState({ file, target: "edit-link-photo" });
+    e.target.value = "";
+  }
+
+  // ── Upload a cropped blob to Firebase Storage ─────
+  async function uploadCroppedBlob(blob: Blob, type: string): Promise<string | null> {
+    const formData = new FormData();
+    formData.append("file", new File([blob], "cropped.jpg", { type: "image/jpeg" }));
+    formData.append("type", type);
+    try {
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${await getFreshToken()}` },
+        body: formData,
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      return data.path as string;
+    } catch {
+      showToast(t.somethingWrong);
+      return null;
+    }
+  }
+
+  // ── Crop confirm: upload cropped result ───────────
+  async function handleCropConfirm(blob: Blob) {
+    if (!cropState) return;
+    const { target } = cropState;
+    setCropState(null);
+    switch (target) {
+      case "profile": {
+        const path = await uploadCroppedBlob(blob, "profile");
+        if (path) { setPicture(path); showToast(t.saved); }
+        break;
+      }
+      case "new-link-photo": {
+        const path = await uploadCroppedBlob(blob, "link-photo");
+        if (path) setNewLinkPhoto(path);
+        break;
+      }
+      case "edit-link-photo": {
+        const path = await uploadCroppedBlob(blob, "link-photo");
+        if (path) setEditLinkPhoto(path);
+        break;
+      }
+    }
+  }
+
   // ── Save settings ─────────────────────────────────
   async function saveSettings() {
-    if (!token) return;
+    if (!auth.currentUser) return;
     setSavingSettings(true);
     setSettingsSaved(false);
     try {
       const res = await fetch("/api/admin/config", {
         method: "PUT",
-        headers: authHeaders(token),
+        headers: await authHeaders(),
         body: JSON.stringify({
           settings: { language, footerText },
         }),
@@ -409,6 +496,15 @@ export default function AdminPage() {
 
   return (
     <div className="adm-page">
+      {/* Crop Modal */}
+      {cropState && (
+        <CropModal
+          file={cropState.file}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropState(null)}
+        />
+      )}
+
       {/* Toast */}
       {toast && <div className="adm-toast">{toast}</div>}
 
@@ -465,6 +561,20 @@ export default function AdminPage() {
         style={{ display: "none" }}
         onChange={handleEditIconUpload}
       />
+      <input
+        type="file"
+        ref={newLinkPhotoRef}
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleNewLinkPhotoUpload}
+      />
+      <input
+        type="file"
+        ref={editLinkPhotoRef}
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleEditLinkPhotoUpload}
+      />
 
       {/* ── Header ────────────────────────────────── */}
       <header className="adm-header">
@@ -473,6 +583,9 @@ export default function AdminPage() {
         <nav className="adm-nav">
           <Link href={`/${username}`} className="adm-nav-link">
             {t.viewSite}
+          </Link>
+          <Link href={`/${username}/showcase`} className="adm-nav-link">
+            {t.viewShowcase}
           </Link>
           {(username === "cesarvegacol" || username === "wendypradaoficial11" || username === "deejanehannah") && (
             <Link href="/model-design" className="adm-nav-link">
@@ -498,12 +611,22 @@ export default function AdminPage() {
                 {name.charAt(0)}
               </div>
             )}
-            <button
-              className="adm-btn adm-btn-small"
-              onClick={() => profilePicRef.current?.click()}
-            >
-              {t.changePicture}
-            </button>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+              <button
+                className="adm-btn adm-btn-small"
+                onClick={() => profilePicRef.current?.click()}
+              >
+                {t.changePicture}
+              </button>
+              {profilePicFile && (
+                <button
+                  className="adm-btn adm-btn-small"
+                  onClick={() => setCropState({ file: profilePicFile, target: "profile" })}
+                >
+                  ✂ Recortar
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="adm-profile-fields">
@@ -624,6 +747,33 @@ export default function AdminPage() {
               onChange={(e) => setNewUrl(e.target.value)}
               placeholder="https://..."
             />
+
+            <label className="adm-label">{t.linkPhoto}</label>
+            <div className="adm-photo-upload">
+              {newLinkPhoto ? (
+                <div className="adm-photo-preview">
+                  <img src={newLinkPhoto} alt="Link photo" />
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {newLinkPhotoFile && (
+                      <button className="adm-btn adm-btn-small" onClick={() => setCropState({ file: newLinkPhotoFile, target: "new-link-photo" })}>
+                        ✂ Recortar
+                      </button>
+                    )}
+                    <button className="adm-btn adm-btn-small" onClick={() => newLinkPhotoRef.current?.click()}>
+                      {t.uploadLinkPhoto}
+                    </button>
+                    <button className="adm-btn adm-btn-small" onClick={() => { setNewLinkPhoto(""); setNewLinkPhotoFile(null); }}>
+                      {t.removePhoto}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button className="adm-btn adm-btn-small" onClick={() => newLinkPhotoRef.current?.click()}>
+                  {t.uploadLinkPhoto}
+                </button>
+              )}
+            </div>
+
             <div className="adm-form-actions">
               <button className="adm-btn adm-btn-primary" onClick={addLink}>
                 {t.save}
@@ -706,6 +856,33 @@ export default function AdminPage() {
                   value={editUrl}
                   onChange={(e) => setEditUrl(e.target.value)}
                 />
+
+                <label className="adm-label">{t.linkPhoto}</label>
+                <div className="adm-photo-upload">
+                  {editLinkPhoto ? (
+                    <div className="adm-photo-preview">
+                      <img src={editLinkPhoto} alt="Link photo" />
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {editLinkPhotoFile && (
+                          <button className="adm-btn adm-btn-small" onClick={() => setCropState({ file: editLinkPhotoFile, target: "edit-link-photo" })}>
+                            ✂ Recortar
+                          </button>
+                        )}
+                        <button className="adm-btn adm-btn-small" onClick={() => editLinkPhotoRef.current?.click()}>
+                          {t.uploadLinkPhoto}
+                        </button>
+                        <button className="adm-btn adm-btn-small" onClick={() => { setEditLinkPhoto(""); setEditLinkPhotoFile(null); }}>
+                          {t.removePhoto}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button className="adm-btn adm-btn-small" onClick={() => editLinkPhotoRef.current?.click()}>
+                      {t.uploadLinkPhoto}
+                    </button>
+                  )}
+                </div>
+
                 <div className="adm-form-actions">
                   <button
                     className="adm-btn adm-btn-primary"
@@ -734,6 +911,14 @@ export default function AdminPage() {
                     <span className="adm-link-label">{link.label}</span>
                     <span className="adm-link-url">{link.url}</span>
                   </div>
+                  {link.photo && (
+                    <img
+                      src={link.photo}
+                      alt="showcase"
+                      className="adm-link-photo-thumb"
+                      title={t.linkPhoto}
+                    />
+                  )}
                 </div>
                 <div className="adm-link-actions">
                   {/* Toggle */}

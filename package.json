@@ -1,5 +1,5 @@
 {
-  "name": "wendy-prada-links",
+  "name": "elevate-social-links",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -14,7 +14,8 @@
     "next": "^15.1.0",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-image-crop": "^11.0.10"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

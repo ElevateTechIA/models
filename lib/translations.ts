@@ -50,6 +50,12 @@ export const translations = {
     qrSave: "Guardar QR",
     qrClose: "Cerrar",
 
+    // Showcase
+    viewShowcase: "Ver Showcase",
+    linkPhoto: "Foto Showcase",
+    uploadLinkPhoto: "Subir Foto",
+    removePhoto: "Quitar Foto",
+
     // Admin page - settings section
     settingsSection: "Configuracion",
     language: "Idioma",
@@ -164,6 +170,12 @@ export const translations = {
     qrSubtitle: "Scan to visit your page",
     qrSave: "Save QR",
     qrClose: "Close",
+
+    // Showcase
+    viewShowcase: "View Showcase",
+    linkPhoto: "Showcase Photo",
+    uploadLinkPhoto: "Upload Photo",
+    removePhoto: "Remove Photo",
 
     // Admin page - settings section
     settingsSection: "Settings",

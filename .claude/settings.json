@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/cesarvega/Movies/CapCut/Models/app -type d -not -path */.*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/cesarvega/Movies/CapCut/Models/app/[username]"
+    ]
+  }
+}

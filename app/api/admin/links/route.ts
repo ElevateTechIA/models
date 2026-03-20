@@ -10,13 +10,14 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const config = await readUserConfig(authed.username);
 
-  const newLink = {
+  const newLink: import("@/lib/types").SiteLink = {
     id: generateLinkId(),
     icon: body.icon || "/icons/telegram_icon.svg",
     iconType: body.iconType || "preset",
     label: body.label || "New Link",
     url: body.url || "",
     enabled: body.enabled !== false,
+    ...(body.photo ? { photo: body.photo } : {}),
   };
 
   config.links.push(newLink);
@@ -43,6 +44,7 @@ export async function PUT(req: NextRequest) {
   if (body.label !== undefined) config.links[index].label = body.label;
   if (body.url !== undefined) config.links[index].url = body.url;
   if (body.enabled !== undefined) config.links[index].enabled = body.enabled;
+  if (body.photo !== undefined) config.links[index].photo = body.photo || undefined;
 
   await writeUserConfig(authed.username, config);
   return NextResponse.json({ links: config.links });
