@@ -2576,6 +2576,18 @@ body:has(.sc-page) {
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc-card-placeholder {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  padding: 12px;
+  z-index: 1;
 }
 
 .sc-card-overlay {
@@ -2619,6 +2631,77 @@ body:has(.sc-page) {
   color: #fff;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
   z-index: 1;
+}
+
+/* Edit buttons overlay on showcase cards (visible only for owner) */
+.sc-card-edit-btns {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 3;
+}
+
+.sc-edit-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sc-edit-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+/* Hero edit buttons (profile picture) */
+.sc-hero-edit-btns {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 4px;
+  z-index: 3;
+}
+
+/* Loading overlay for showcase cards & hero */
+.sc-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 4;
+  border-radius: inherit;
+}
+
+.sc-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: sc-spin 0.7s linear infinite;
+}
+
+@keyframes sc-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sc-loading-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .sc-footer {

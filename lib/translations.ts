@@ -55,6 +55,10 @@ export const translations = {
     linkPhoto: "Foto Showcase",
     uploadLinkPhoto: "Subir Foto",
     removePhoto: "Quitar Foto",
+    changePhoto: "Cambiar Foto",
+    replacePhoto: "Reemplazar Foto",
+    updatingPhoto: "Actualizando...",
+    showcaseEditing: "Editando Showcase",
 
     // Admin page - settings section
     settingsSection: "Configuracion",
@@ -176,6 +180,10 @@ export const translations = {
     linkPhoto: "Showcase Photo",
     uploadLinkPhoto: "Upload Photo",
     removePhoto: "Remove Photo",
+    changePhoto: "Change Photo",
+    replacePhoto: "Replace Photo",
+    updatingPhoto: "Updating...",
+    showcaseEditing: "Editing Showcase",
 
     // Admin page - settings section
     settingsSection: "Settings",

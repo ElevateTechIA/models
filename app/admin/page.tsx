@@ -25,6 +25,7 @@ export default function AdminPage() {
   const [name, setName] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [picture, setPicture] = useState("");
+  const [pictureAspect, setPictureAspect] = useState<number | undefined>();
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
   const profilePicRef = useRef<HTMLInputElement>(null);
@@ -48,7 +49,9 @@ export default function AdminPage() {
 
   // Link photo state (for showcase page)
   const [newLinkPhoto, setNewLinkPhoto] = useState("");
+  const [newLinkPhotoAspect, setNewLinkPhotoAspect] = useState<number | undefined>();
   const [editLinkPhoto, setEditLinkPhoto] = useState("");
+  const [editLinkPhotoAspect, setEditLinkPhotoAspect] = useState<number | undefined>();
   const newLinkPhotoRef = useRef<HTMLInputElement>(null);
   const editLinkPhotoRef = useRef<HTMLInputElement>(null);
 
@@ -131,6 +134,7 @@ export default function AdminPage() {
         setName(data.profile.name);
         setSubtitle(data.profile.subtitle);
         setPicture(data.profile.picture);
+        setPictureAspect(data.profile.pictureAspect);
         setLinks(data.links);
         setLanguage(data.settings.language);
         setFooterText(data.settings.footerText);
@@ -153,7 +157,7 @@ export default function AdminPage() {
         method: "PUT",
         headers: await authHeaders(),
         body: JSON.stringify({
-          profile: { name, subtitle, picture },
+          profile: { name, subtitle, picture, pictureAspect },
         }),
       });
       if (!res.ok) throw new Error();
@@ -190,7 +194,7 @@ export default function AdminPage() {
           label: newLabel,
           url: newUrl,
           enabled: true,
-          ...(newLinkPhoto ? { photo: newLinkPhoto } : {}),
+          ...(newLinkPhoto ? { photo: newLinkPhoto, photoAspect: newLinkPhotoAspect } : {}),
         }),
       });
       if (!res.ok) throw new Error();
@@ -201,6 +205,7 @@ export default function AdminPage() {
       setNewIcon(PRESET_ICONS[0].path);
       setNewIconType("preset");
       setNewLinkPhoto("");
+      setNewLinkPhotoAspect(undefined);
       setShowAddForm(false);
       showToast(t.saved);
     } catch {
@@ -256,6 +261,7 @@ export default function AdminPage() {
     setEditIcon(link.icon);
     setEditIconType(link.iconType);
     setEditLinkPhoto(link.photo || "");
+    setEditLinkPhotoAspect(link.photoAspect);
     setEditLinkPhotoFile(null);
   }
 
@@ -273,6 +279,7 @@ export default function AdminPage() {
           icon: editIcon,
           iconType: editIconType,
           photo: editLinkPhoto,
+          photoAspect: editLinkPhotoAspect,
         }),
       });
       if (!res.ok) throw new Error();
@@ -396,24 +403,24 @@ export default function AdminPage() {
   }
 
   // ── Crop confirm: upload cropped result ───────────
-  async function handleCropConfirm(blob: Blob) {
+  async function handleCropConfirm(blob: Blob, aspectRatio?: number) {
     if (!cropState) return;
     const { target } = cropState;
     setCropState(null);
     switch (target) {
       case "profile": {
         const path = await uploadCroppedBlob(blob, "profile");
-        if (path) { setPicture(path); showToast(t.saved); }
+        if (path) { setPicture(path); setPictureAspect(aspectRatio); showToast(t.saved); }
         break;
       }
       case "new-link-photo": {
         const path = await uploadCroppedBlob(blob, "link-photo");
-        if (path) setNewLinkPhoto(path);
+        if (path) { setNewLinkPhoto(path); setNewLinkPhotoAspect(aspectRatio); }
         break;
       }
       case "edit-link-photo": {
         const path = await uploadCroppedBlob(blob, "link-photo");
-        if (path) setEditLinkPhoto(path);
+        if (path) { setEditLinkPhoto(path); setEditLinkPhotoAspect(aspectRatio); }
         break;
       }
     }
@@ -762,7 +769,7 @@ export default function AdminPage() {
                     <button className="adm-btn adm-btn-small" onClick={() => newLinkPhotoRef.current?.click()}>
                       {t.uploadLinkPhoto}
                     </button>
-                    <button className="adm-btn adm-btn-small" onClick={() => { setNewLinkPhoto(""); setNewLinkPhotoFile(null); }}>
+                    <button className="adm-btn adm-btn-small" onClick={() => { setNewLinkPhoto(""); setNewLinkPhotoFile(null); setNewLinkPhotoAspect(undefined); }}>
                       {t.removePhoto}
                     </button>
                   </div>
@@ -871,7 +878,7 @@ export default function AdminPage() {
                         <button className="adm-btn adm-btn-small" onClick={() => editLinkPhotoRef.current?.click()}>
                           {t.uploadLinkPhoto}
                         </button>
-                        <button className="adm-btn adm-btn-small" onClick={() => { setEditLinkPhoto(""); setEditLinkPhotoFile(null); }}>
+                        <button className="adm-btn adm-btn-small" onClick={() => { setEditLinkPhoto(""); setEditLinkPhotoFile(null); setEditLinkPhotoAspect(undefined); }}>
                           {t.removePhoto}
                         </button>
                       </div>

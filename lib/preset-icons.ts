@@ -16,4 +16,5 @@ export const PRESET_ICONS: PresetIcon[] = [
   { id: "linkedin", name: "LinkedIn", path: "/icons/linkedin_icon.svg" },
   { id: "pinterest", name: "Pinterest", path: "/icons/pinterest_icon.svg" },
   { id: "telegram", name: "Telegram", path: "/icons/telegram_icon.svg" },
+  { id: "soundcloud", name: "SoundCloud", path: "/icons/soundcloud_icon.svg" },
 ];

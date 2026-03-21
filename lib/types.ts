@@ -6,12 +6,14 @@ export interface SiteLink {
   url: string;
   enabled: boolean;
   photo?: string; // Optional image for showcase page card background
+  photoAspect?: number; // Width/height ratio from crop (e.g. 1, 1.333, 0.75, 1.778)
 }
 
 export interface SiteProfile {
   name: string;
   subtitle: string;
   picture: string;
+  pictureAspect?: number; // Width/height ratio from crop
 }
 
 export interface SiteSettings {

@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     url: body.url || "",
     enabled: body.enabled !== false,
     ...(body.photo ? { photo: body.photo } : {}),
+    ...(body.photoAspect !== undefined ? { photoAspect: body.photoAspect } : {}),
   };
 
   config.links.push(newLink);
@@ -45,6 +46,7 @@ export async function PUT(req: NextRequest) {
   if (body.url !== undefined) config.links[index].url = body.url;
   if (body.enabled !== undefined) config.links[index].enabled = body.enabled;
   if (body.photo !== undefined) config.links[index].photo = body.photo || undefined;
+  if (body.photoAspect !== undefined) config.links[index].photoAspect = body.photoAspect || undefined;
 
   await writeUserConfig(authed.username, config);
   return NextResponse.json({ links: config.links });

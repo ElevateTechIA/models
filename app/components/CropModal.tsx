@@ -11,7 +11,7 @@ import "react-image-crop/dist/ReactCrop.css";
 
 interface Props {
   file: File;
-  onConfirm: (blob: Blob) => void;
+  onConfirm: (blob: Blob, aspectRatio?: number) => void;
   onCancel: () => void;
 }
 
@@ -68,8 +68,9 @@ export default function CropModal({ file, onConfirm, onCancel }: Props) {
       canvas.height = img.naturalHeight;
       const ctx = canvas.getContext("2d")!;
       ctx.drawImage(img, 0, 0);
+      const ratio = img.naturalWidth / img.naturalHeight;
       canvas.toBlob(
-        (blob) => { if (blob) onConfirm(blob); },
+        (blob) => { if (blob) onConfirm(blob, ratio); },
         "image/jpeg",
         0.92
       );
@@ -95,10 +96,11 @@ export default function CropModal({ file, onConfirm, onCancel }: Props) {
       canvas.width,
       canvas.height
     );
+    const ratio = canvas.width / canvas.height;
     canvas.toBlob(
       (blob) => {
         setConfirming(false);
-        if (blob) onConfirm(blob);
+        if (blob) onConfirm(blob, ratio);
       },
       "image/jpeg",
       0.92

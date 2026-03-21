@@ -30,6 +30,8 @@ export async function PUT(req: NextRequest) {
     if (body.profile.subtitle !== undefined)
       config.profile.subtitle = body.profile.subtitle;
     if (body.profile.picture) config.profile.picture = body.profile.picture;
+    if (body.profile.pictureAspect !== undefined)
+      config.profile.pictureAspect = body.profile.pictureAspect || undefined;
   }
 
   if (body.settings) {
