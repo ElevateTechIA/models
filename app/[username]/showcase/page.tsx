@@ -23,5 +23,9 @@ export default async function ShowcasePage({ params }: Props) {
 
   if (!config) notFound();
 
-  return <ShowcaseClient config={config} username={username} />;
+  return (
+    <div suppressHydrationWarning>
+      <ShowcaseClient config={config} username={username} />
+    </div>
+  );
 }

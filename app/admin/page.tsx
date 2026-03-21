@@ -66,6 +66,7 @@ export default function AdminPage() {
   // Settings state
   const [language, setLanguage] = useState<Language>("es");
   const [footerText, setFooterText] = useState("");
+  const [showcaseLayout, setShowcaseLayout] = useState<"classic" | "compact" | "immersive">("classic");
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
 
@@ -138,6 +139,7 @@ export default function AdminPage() {
         setLinks(data.links);
         setLanguage(data.settings.language);
         setFooterText(data.settings.footerText);
+        setShowcaseLayout(data.settings.showcaseLayout || "classic");
         setLoading(false);
       } catch {
         localStorage.removeItem("firebase-token");
@@ -436,7 +438,7 @@ export default function AdminPage() {
         method: "PUT",
         headers: await authHeaders(),
         body: JSON.stringify({
-          settings: { language, footerText },
+          settings: { language, footerText, showcaseLayout },
         }),
       });
       if (!res.ok) throw new Error();
@@ -759,25 +761,45 @@ export default function AdminPage() {
             <div className="adm-photo-upload">
               {newLinkPhoto ? (
                 <div className="adm-photo-preview">
-                  <img src={newLinkPhoto} alt="Link photo" />
-                  <div style={{ display: "flex", gap: 6 }}>
-                    {newLinkPhotoFile && (
-                      <button className="adm-btn adm-btn-small" onClick={() => setCropState({ file: newLinkPhotoFile, target: "new-link-photo" })}>
-                        ✂ Recortar
+                  <div className="adm-photo-preview-container">
+                    <div className="adm-photo-preview-blur" style={{ backgroundImage: `url(${newLinkPhoto})` }} />
+                    <img src={newLinkPhoto} alt="Link photo" />
+                    <div className="adm-photo-preview-actions">
+                      <button className="adm-photo-action-btn" title="Cambiar foto" onClick={() => newLinkPhotoRef.current?.click()}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </button>
-                    )}
-                    <button className="adm-btn adm-btn-small" onClick={() => newLinkPhotoRef.current?.click()}>
-                      {t.uploadLinkPhoto}
-                    </button>
-                    <button className="adm-btn adm-btn-small" onClick={() => { setNewLinkPhoto(""); setNewLinkPhotoFile(null); setNewLinkPhotoAspect(undefined); }}>
-                      {t.removePhoto}
-                    </button>
+                      {newLinkPhotoFile && (
+                        <button className="adm-photo-action-btn" title="Recortar" onClick={() => setCropState({ file: newLinkPhotoFile, target: "new-link-photo" })}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6.13 1 6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13 16 6a2 2 0 0 1 2 2v15"/></svg>
+                        </button>
+                      )}
+                      <button className="adm-photo-action-btn adm-photo-action-btn--danger" title="Eliminar foto" onClick={() => { setNewLinkPhoto(""); setNewLinkPhotoFile(null); setNewLinkPhotoAspect(undefined); }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
-                <button className="adm-btn adm-btn-small" onClick={() => newLinkPhotoRef.current?.click()}>
-                  {t.uploadLinkPhoto}
-                </button>
+                <div
+                  className="adm-photo-dropzone"
+                  onClick={() => newLinkPhotoRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("adm-photo-dropzone--active"); }}
+                  onDragLeave={(e) => { e.currentTarget.classList.remove("adm-photo-dropzone--active"); }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove("adm-photo-dropzone--active");
+                    const file = e.dataTransfer.files?.[0];
+                    if (file && file.type.startsWith("image/")) {
+                      const dt = new DataTransfer();
+                      dt.items.add(file);
+                      newLinkPhotoRef.current!.files = dt.files;
+                      newLinkPhotoRef.current!.dispatchEvent(new Event("change", { bubbles: true }));
+                    }
+                  }}
+                >
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span>Arrastra o haz clic para subir foto</span>
+                </div>
               )}
             </div>
 
@@ -868,25 +890,45 @@ export default function AdminPage() {
                 <div className="adm-photo-upload">
                   {editLinkPhoto ? (
                     <div className="adm-photo-preview">
-                      <img src={editLinkPhoto} alt="Link photo" />
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {editLinkPhotoFile && (
-                          <button className="adm-btn adm-btn-small" onClick={() => setCropState({ file: editLinkPhotoFile, target: "edit-link-photo" })}>
-                            ✂ Recortar
+                      <div className="adm-photo-preview-container">
+                        <div className="adm-photo-preview-blur" style={{ backgroundImage: `url(${editLinkPhoto})` }} />
+                        <img src={editLinkPhoto} alt="Link photo" />
+                        <div className="adm-photo-preview-actions">
+                          <button className="adm-photo-action-btn" title="Cambiar foto" onClick={() => editLinkPhotoRef.current?.click()}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                           </button>
-                        )}
-                        <button className="adm-btn adm-btn-small" onClick={() => editLinkPhotoRef.current?.click()}>
-                          {t.uploadLinkPhoto}
-                        </button>
-                        <button className="adm-btn adm-btn-small" onClick={() => { setEditLinkPhoto(""); setEditLinkPhotoFile(null); setEditLinkPhotoAspect(undefined); }}>
-                          {t.removePhoto}
-                        </button>
+                          {editLinkPhotoFile && (
+                            <button className="adm-photo-action-btn" title="Recortar" onClick={() => setCropState({ file: editLinkPhotoFile, target: "edit-link-photo" })}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6.13 1 6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13 16 6a2 2 0 0 1 2 2v15"/></svg>
+                            </button>
+                          )}
+                          <button className="adm-photo-action-btn adm-photo-action-btn--danger" title="Eliminar foto" onClick={() => { setEditLinkPhoto(""); setEditLinkPhotoFile(null); setEditLinkPhotoAspect(undefined); }}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    <button className="adm-btn adm-btn-small" onClick={() => editLinkPhotoRef.current?.click()}>
-                      {t.uploadLinkPhoto}
-                    </button>
+                    <div
+                      className="adm-photo-dropzone"
+                      onClick={() => editLinkPhotoRef.current?.click()}
+                      onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("adm-photo-dropzone--active"); }}
+                      onDragLeave={(e) => { e.currentTarget.classList.remove("adm-photo-dropzone--active"); }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.classList.remove("adm-photo-dropzone--active");
+                        const file = e.dataTransfer.files?.[0];
+                        if (file && file.type.startsWith("image/")) {
+                          const dt = new DataTransfer();
+                          dt.items.add(file);
+                          editLinkPhotoRef.current!.files = dt.files;
+                          editLinkPhotoRef.current!.dispatchEvent(new Event("change", { bubbles: true }));
+                        }
+                      }}
+                    >
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      <span>Arrastra o haz clic para subir foto</span>
+                    </div>
                   )}
                 </div>
 

@@ -16,9 +16,16 @@ export interface SiteProfile {
   pictureAspect?: number; // Width/height ratio from crop
 }
 
+export type ShowcaseLayout = "classic" | "compact" | "immersive";
+
+export type ShowcaseSection = "hero" | "links" | "gallery";
+
 export interface SiteSettings {
   language: "es" | "en";
   footerText: string;
+  showcaseLayout?: ShowcaseLayout;
+  carouselPhotos?: string[];
+  sectionOrder?: ShowcaseSection[];
 }
 
 export interface SiteConfig {

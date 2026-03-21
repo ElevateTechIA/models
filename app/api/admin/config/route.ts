@@ -38,6 +38,12 @@ export async function PUT(req: NextRequest) {
     if (body.settings.language) config.settings.language = body.settings.language;
     if (body.settings.footerText !== undefined)
       config.settings.footerText = body.settings.footerText;
+    if (body.settings.showcaseLayout !== undefined)
+      config.settings.showcaseLayout = body.settings.showcaseLayout;
+    if (body.settings.carouselPhotos !== undefined)
+      config.settings.carouselPhotos = body.settings.carouselPhotos;
+    if (body.settings.sectionOrder !== undefined)
+      config.settings.sectionOrder = body.settings.sectionOrder;
   }
 
   await writeUserConfig(authed.username, config);
