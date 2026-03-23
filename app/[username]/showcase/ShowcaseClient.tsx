@@ -651,7 +651,7 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
       {config.settings.footerText && <div className="sc-footer">{config.settings.footerText}</div>}
 
       <div className="pearl-container">
-        <a href="/login" className="pearl-btn" title="Acceder" aria-label="Acceder" />
+        <a href="/admin" className="pearl-btn" title="Configuracion" aria-label="Configuracion" />
         <span style={{ fontSize: "9px", color: "#b0a99a", opacity: 0.5, display: "block", textAlign: "center", marginTop: "-2px", letterSpacing: "0.5px" }}>v1.0.2</span>
       </div>
     </div>
