@@ -6,6 +6,9 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { translations } from "@/lib/translations";
 import CropModal from "@/app/components/CropModal";
+import QRCode from "qrcode";
+
+const QR_ICON_PATH = "/icons/qrcode_icon.svg";
 
 interface Props {
   config: SiteConfig;
@@ -28,6 +31,10 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const profilePicRef = useRef<HTMLInputElement>(null);
   const carouselInputRef = useRef<HTMLInputElement>(null);
+
+  // QR modal state
+  const [qrModal, setQrModal] = useState<{ url: string; label: string; dataUrl: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Edit panel state
   const [showEditPanel, setShowEditPanel] = useState(false);
@@ -112,6 +119,48 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(""), 3000);
+  }
+
+  function isQrLink(link: SiteLink) {
+    return link.icon === QR_ICON_PATH;
+  }
+
+  function isMyProfileLink(link: SiteLink) {
+    if (link.url === "#profile") return true;
+    // Detect links pointing to the user's own profile (e.g. https://domain.com/username)
+    try {
+      const parsed = new URL(link.url, window.location.origin);
+      const path = parsed.pathname.replace(/\/+$/, "");
+      return path === `/${username}` || path === `/${username}/showcase`;
+    } catch {
+      return false;
+    }
+  }
+
+  async function openQr(link: SiteLink) {
+    try {
+      const url = isMyProfileLink(link)
+        ? `${window.location.origin}/${username}/showcase`
+        : link.url;
+      const dataUrl = await QRCode.toDataURL(url, {
+        width: 512,
+        margin: 2,
+        color: { dark: "#2d2d2d", light: "#ffffff" },
+      });
+      setQrModal({ url, label: link.label, dataUrl });
+    } catch {
+      window.open(link.url, "_blank");
+    }
+  }
+
+  function saveQr() {
+    if (!qrModal) return;
+    const a = document.createElement("a");
+    a.href = qrModal.dataUrl;
+    a.download = `${qrModal.label.replace(/\s+/g, "-").toLowerCase()}-qr.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   async function getFreshToken(): Promise<string | null> {
@@ -356,22 +405,41 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
             onChange={(e) => handleFileSelect(link.id, e)}
           />
         )}
-        <a href={link.url} target="_blank" rel="noopener noreferrer" style={{ display: "contents" }}>
-          {link.photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={link.photo} alt={link.label} className="sc-card-img" />
-          ) : (
-            <div className="sc-card-no-photo">
-              {canEdit && <span className="sc-card-placeholder">{t.replacePhoto}</span>}
+        {isQrLink(link) ? (
+          <div style={{ display: "contents", cursor: "pointer" }} onClick={() => openQr(link)}>
+            {link.photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={link.photo} alt={link.label} className="sc-card-img" />
+            ) : (
+              <div className="sc-card-no-photo">
+                {canEdit && <span className="sc-card-placeholder">{t.replacePhoto}</span>}
+              </div>
+            )}
+            <div className="sc-card-overlay" />
+            <div className="sc-card-icon">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={link.icon} alt={link.label} />
             </div>
-          )}
-          <div className="sc-card-overlay" />
-          <div className="sc-card-icon">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={link.icon} alt={link.label} />
+            <div className="sc-card-label">{link.label}</div>
           </div>
-          <div className="sc-card-label">{link.label}</div>
-        </a>
+        ) : (
+          <a href={link.url} target="_blank" rel="noopener noreferrer" style={{ display: "contents" }}>
+            {link.photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={link.photo} alt={link.label} className="sc-card-img" />
+            ) : (
+              <div className="sc-card-no-photo">
+                {canEdit && <span className="sc-card-placeholder">{t.replacePhoto}</span>}
+              </div>
+            )}
+            <div className="sc-card-overlay" />
+            <div className="sc-card-icon">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={link.icon} alt={link.label} />
+            </div>
+            <div className="sc-card-label">{link.label}</div>
+          </a>
+        )}
         {isCardLoading && (
           <div className="sc-loading-overlay">
             <div className="sc-spinner" />
@@ -464,12 +532,19 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
             {config.profile.subtitle && <div className="sc-compact-subtitle">{config.profile.subtitle}</div>}
           </div>
           <div className="sc-compact-social">
-            {enabledLinks.slice(0, 4).map((link) => (
-              <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="sc-social-btn sc-social-btn-sm" title={link.label}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={link.icon} alt={link.label} />
-              </a>
-            ))}
+            {enabledLinks.slice(0, 4).map((link) =>
+              isQrLink(link) ? (
+                <button key={link.id} className="sc-social-btn sc-social-btn-sm" title={link.label} onClick={() => openQr(link)}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={link.icon} alt={link.label} />
+                </button>
+              ) : (
+                <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="sc-social-btn sc-social-btn-sm" title={link.label}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={link.icon} alt={link.label} />
+                </a>
+              )
+            )}
           </div>
         </div>
       );
@@ -495,23 +570,37 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
           {!isImmersive && config.profile.subtitle && <div className="sc-handle">{config.profile.subtitle}</div>}
           {isImmersive ? (
             <div className="sc-immersive-social-col">
-              {enabledLinks.slice(0, 4).map((link) => (
-                <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="sc-social-btn" title={link.label}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={link.icon} alt={link.label} />
-                </a>
-              ))}
+              {enabledLinks.slice(0, 4).map((link) =>
+                isQrLink(link) ? (
+                  <button key={link.id} className="sc-social-btn" title={link.label} onClick={() => openQr(link)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={link.icon} alt={link.label} />
+                  </button>
+                ) : (
+                  <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="sc-social-btn" title={link.label}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={link.icon} alt={link.label} />
+                  </a>
+                )
+              )}
             </div>
           ) : (
             <>
               {enabledLinks.length > 0 && (
                 <div className="sc-social-row">
-                  {enabledLinks.slice(0, 6).map((link) => (
-                    <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="sc-social-btn" title={link.label}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={link.icon} alt={link.label} />
-                    </a>
-                  ))}
+                  {enabledLinks.slice(0, 6).map((link) =>
+                    isQrLink(link) ? (
+                      <button key={link.id} className="sc-social-btn" title={link.label} onClick={() => openQr(link)}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={link.icon} alt={link.label} />
+                      </button>
+                    ) : (
+                      <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="sc-social-btn" title={link.label}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={link.icon} alt={link.label} />
+                      </a>
+                    )
+                  )}
                 </div>
               )}
               <p className="sc-cta">Check my links</p>
@@ -558,6 +647,26 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
     <div className={`sc-page sc-layout-${layout}`}>
       {cropState && <CropModal file={cropState.file} onConfirm={handleCropConfirm} onCancel={() => setCropState(null)} />}
       {toast && <div className="adm-toast">{toast}</div>}
+
+      {qrModal && (
+        <div className="qr-overlay" onClick={() => setQrModal(null)}>
+          <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="qr-modal-title">{qrModal.label}</h3>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={qrModal.dataUrl} alt="QR Code" className="qr-modal-image" />
+            <p className="qr-modal-url">{qrModal.url}</p>
+            <div className="qr-modal-actions">
+              <button className="qr-modal-btn qr-modal-btn-save" onClick={saveQr}>Guardar QR</button>
+              <button className="qr-modal-btn" onClick={() => {
+                navigator.clipboard.writeText(qrModal.url);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}>{copied ? "¡Copiado!" : "Copiar Link"}</button>
+              <button className="qr-modal-btn" onClick={() => setQrModal(null)}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {canEdit && (
         <>
