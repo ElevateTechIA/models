@@ -597,9 +597,16 @@ export default function AdminPage() {
             {t.viewShowcase}
           </Link>
           {(username === "cesarvegacol" || username === "wendypradaoficial11" || username === "deejanehannah") && (
-            <Link href="/model-design" className="adm-nav-link">
-              {t.photoStudio}
-            </Link>
+            <>
+              <Link href="/model-design" className="adm-nav-link">
+                {t.photoStudio}
+              </Link>
+              {username === "cesarvegacol" && (
+                <Link href="/photos" className="adm-nav-link">
+                  {t.photos}
+                </Link>
+              )}
+            </>
           )}
           <button className="adm-btn adm-btn-logout" onClick={handleLogout}>
             {t.logout}

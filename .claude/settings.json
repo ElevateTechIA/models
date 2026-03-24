@@ -3,7 +3,24 @@
     "allow": [
       "Bash(find /Users/cesarvega/Movies/CapCut/Models/app -type d -not -path */.*)",
       "Bash(npx tsc:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(find /Users/cesarvega/Movies/CapCut/Models/components -type f -name *.tsx -o -name *.ts)",
+      "Bash(xargs ls:*)",
+      "Bash(lsof -ti:3000,3005)",
+      "Bash(xargs kill:*)",
+      "Bash(npx next:*)",
+      "Bash(lsof -ti:3003)",
+      "Bash(grep GEMINI /Users/cesarvega/Movies/CapCut/Models/.env*)",
+      "Read(//Users/cesarvega/Movies/CapCut/VIRTURA/virtura-ai-canvas/**)",
+      "Bash(grep GEMINI_API_KEY /Users/cesarvega/Movies/CapCut/VIRTURA/virtura-ai-canvas/.env* /Users/cesarvega/Movies/CapCut/VIRTURA/virtura-ai-canvas/supabase/.env*)",
+      "Read(//Users/cesarvega/Movies/CapCut/**)",
+      "Bash(grep -E \"\\\\.\\(tsx?|js\\)$\")",
+      "Bash(find /Users/cesarvega/Movies/CapCut/Models/app -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
+      "Bash(find /Users/cesarvega/Movies/CapCut/Models -type f \\\\\\(-name *.env* -o -name *.local \\\\\\))",
+      "Bash(grep -r \"credit\\\\|payment\\\\|stripe\\\\|pricing\\\\|checkout\" /Users/cesarvega/Movies/CapCut/Models --include=*.ts --include=*.tsx)",
+      "Bash(grep -r \"subscribe\\\\|plan\\\\|price\\\\|package\\\\|tier\\\\|billing\" /Users/cesarvega/Movies/CapCut/Models --include=*.ts --include=*.tsx)",
+      "Bash(grep -ri \"stripe\\\\|payment\\\\|credit\\\\|token\\\\|pricing\\\\|checkout\\\\|webhook\\\\|subscription\\\\|plan\\\\|billing\\\\|charge\\\\|invoice\\\\|purchase\\\\|transaction\" /Users/cesarvega/Movies/CapCut/Models --include=*.ts --include=*.tsx --include=*.json)",
+      "Bash(grep -r creditPackages /Users/cesarvega/Movies/CapCut/XCODE/face_swap/lib --include=*.ts --include=*.tsx)"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]"

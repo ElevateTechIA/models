@@ -42,7 +42,7 @@ CRITICAL INSTRUCTIONS:
 - Do NOT keep the template's hair or skin tone — use the user's.
 - The output image MUST have the EXACT same framing and field of view as the template. Do NOT zoom in, zoom out, crop differently, or shift the composition. Every element must be in the same position as the template.`;
 
-  const model = "gemini-2.0-flash-exp-image-generation";
+  const model = "gemini-2.5-flash-image";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const payload = {

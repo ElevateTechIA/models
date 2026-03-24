@@ -15,6 +15,7 @@ export const translations = {
     adminSubtitle: "Gestiona tu pagina de enlaces",
     viewSite: "Ver Sitio",
     photoStudio: "Estudio de Fotos",
+    photos: "Photos",
     logout: "Salir",
 
     // Admin page - profile section
@@ -140,6 +141,7 @@ export const translations = {
     adminSubtitle: "Manage your links page",
     viewSite: "View Site",
     photoStudio: "Photo Studio",
+    photos: "Photos",
     logout: "Sign Out",
 
     // Admin page - profile section

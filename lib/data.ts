@@ -6,6 +6,7 @@ const RESERVED_USERNAMES = [
   "login",
   "api",
   "model-design",
+  "photos",
   "_next",
   "public",
   "favicon",
