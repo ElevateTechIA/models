@@ -20,7 +20,8 @@
       "Bash(grep -r \"credit\\\\|payment\\\\|stripe\\\\|pricing\\\\|checkout\" /Users/cesarvega/Movies/CapCut/Models --include=*.ts --include=*.tsx)",
       "Bash(grep -r \"subscribe\\\\|plan\\\\|price\\\\|package\\\\|tier\\\\|billing\" /Users/cesarvega/Movies/CapCut/Models --include=*.ts --include=*.tsx)",
       "Bash(grep -ri \"stripe\\\\|payment\\\\|credit\\\\|token\\\\|pricing\\\\|checkout\\\\|webhook\\\\|subscription\\\\|plan\\\\|billing\\\\|charge\\\\|invoice\\\\|purchase\\\\|transaction\" /Users/cesarvega/Movies/CapCut/Models --include=*.ts --include=*.tsx --include=*.json)",
-      "Bash(grep -r creditPackages /Users/cesarvega/Movies/CapCut/XCODE/face_swap/lib --include=*.ts --include=*.tsx)"
+      "Bash(grep -r creditPackages /Users/cesarvega/Movies/CapCut/XCODE/face_swap/lib --include=*.ts --include=*.tsx)",
+      "Read(//Users/cesarvega/Movies/**)"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]"
