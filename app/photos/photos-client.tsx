@@ -454,7 +454,8 @@ export default function PhotosClient() {
               <div className="ph-library-grid">
                 {libraryVideos.map((vid) => (
                   <div key={vid.id} className="ph-library-item" onClick={() => openFullscreenVideo(vid.videoUrl, vid.prompt)}>
-                    {vid.thumbnailUrl ? (<>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={vid.thumbnailUrl} alt={vid.prompt} className="ph-library-img" /><div className="ph-library-play"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></>) : (<video src={vid.videoUrl} className="ph-library-img" muted preload="metadata" />)}
+                    <video src={vid.videoUrl} className="ph-library-img" muted playsInline preload="metadata" onMouseOver={(e) => (e.target as HTMLVideoElement).play()} onMouseOut={(e) => { const v = e.target as HTMLVideoElement; v.pause(); v.currentTime = 0; }} />
+                    <div className="ph-library-play"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
                   </div>
                 ))}
               </div>
