@@ -307,7 +307,7 @@ export default function PhotosClient() {
     <div className={`ph-page ${activeTab === "videos" ? "ph-theme-blue" : activeTab === "library" ? "ph-theme-purple" : ""}`}>
       <header className="ph-header">
         <a href="/admin" className="ph-back">&larr;</a>
-        <h1 className="ph-title">{t.goToAdmin}</h1>
+        <a href="/admin" className="ph-title">{t.goToAdmin}</a>
       </header>
 
       {/* ═══ PHOTOS TAB ═══ */}
