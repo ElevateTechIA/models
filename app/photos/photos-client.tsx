@@ -88,11 +88,17 @@ export default function PhotosClient() {
     if (!username || !ALLOWED_USERNAMES.includes(username)) { router.replace("/"); return; }
     setAuthorized(true);
     // Detect language from config
-    fetch(`/api/admin/config?username=${username}`).then(r => r.json()).then(d => {
-      if (d?.settings?.language) setLang(d.settings.language);
-    }).catch(() => {});
+    function loadLang() {
+      fetch(`/api/admin/config?username=${username}`).then(r => r.json()).then(d => {
+        if (d?.settings?.language) setLang(d.settings.language);
+      }).catch(() => {});
+    }
+    loadLang();
+    // Re-fetch language when user returns to this tab
+    const handleFocus = () => loadLang();
+    window.addEventListener("focus", handleFocus);
     const unsub = onAuthStateChanged(auth, (u) => { if (u) setAuthReady(true); });
-    return () => unsub();
+    return () => { unsub(); window.removeEventListener("focus", handleFocus); };
   }, [router]);
 
   // ── Library fetch ──
