@@ -37,8 +37,8 @@ const packages = [
     name: 'ONE LINK Starter',
     credits: 1000,
     priceUSD: 800, // $8.00
-    stripePriceId: 'price_REPLACE_WITH_STARTER_PRICE_ID',
-    stripeProductId: 'prod_REPLACE_WITH_STARTER_PRODUCT_ID',
+    stripePriceId: 'price_1TFfpsIGoSU0Z9WxxZ8wGudY',
+    stripeProductId: 'prod_UE86W6Q6crjJua',
     description: '~10 Fotos o ~2 Videos',
     popular: false,
     active: true,
@@ -48,8 +48,8 @@ const packages = [
     name: 'ONE LINK Creator',
     credits: 2200,
     priceUSD: 1500, // $15.00
-    stripePriceId: 'price_REPLACE_WITH_CREATOR_PRICE_ID',
-    stripeProductId: 'prod_REPLACE_WITH_CREATOR_PRODUCT_ID',
+    stripePriceId: 'price_1TFfsKIGoSU0Z9WxqVe9JhFB',
+    stripeProductId: 'prod_UE88YcdngknKPX',
     description: '~22 Fotos o ~4 Videos',
     popular: false,
     active: true,
@@ -59,8 +59,8 @@ const packages = [
     name: 'ONE LINK Pro',
     credits: 4000,
     priceUSD: 2500, // $25.00
-    stripePriceId: 'price_REPLACE_WITH_PRO_PRICE_ID',
-    stripeProductId: 'prod_REPLACE_WITH_PRO_PRODUCT_ID',
+    stripePriceId: 'price_1TFftPIGoSU0Z9WxHYF2FVVO',
+    stripeProductId: 'prod_UE89fsCKefdAg5',
     description: '~40 Fotos o ~8 Videos',
     popular: true,
     active: true,
@@ -70,8 +70,8 @@ const packages = [
     name: 'ONE LINK Ultra',
     credits: 8000,
     priceUSD: 4500, // $45.00
-    stripePriceId: 'price_REPLACE_WITH_ULTRA_PRICE_ID',
-    stripeProductId: 'prod_REPLACE_WITH_ULTRA_PRODUCT_ID',
+    stripePriceId: 'price_1TFfuRIGoSU0Z9WxYzsoCSqi',
+    stripeProductId: 'prod_UE8AE3oY9y2kDy',
     description: '~80 Fotos o ~16 Videos',
     popular: false,
     active: true,
