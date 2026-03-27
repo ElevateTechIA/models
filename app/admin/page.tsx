@@ -601,7 +601,17 @@ export default function AdminPage() {
         email={auth.currentUser?.email ?? null}
         profilePicture={picture || null}
         language={language}
-        onChangeLanguage={(lang) => { setLanguage(lang); setShowMenu(false); }}
+        onChangeLanguage={async (lang) => {
+          setLanguage(lang);
+          setShowMenu(false);
+          try {
+            await fetch("/api/admin/config", {
+              method: "PUT",
+              headers: await authHeaders(),
+              body: JSON.stringify({ settings: { language: lang, footerText, showcaseLayout } }),
+            });
+          } catch {}
+        }}
         onLogout={() => { setShowMenu(false); handleLogout(); }}
         t={t}
       />
