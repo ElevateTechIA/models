@@ -45,48 +45,42 @@ function SuccessContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans flex items-center justify-center p-6">
-      <div className="max-w-md w-full text-center">
-        {/* Success icon */}
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 flex items-center justify-center mx-auto mb-6 animate-bounce">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-500">
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <div style={styles.iconWrap}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
         </div>
 
-        <h1 className="text-4xl font-black mb-4 uppercase italic">
-          Pago <span className="text-pink-600">Exitoso!</span>
+        <h1 style={styles.title}>
+          Pago <span style={{ color: '#db2777' }}>Exitoso!</span>
         </h1>
 
         {loading ? (
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-400">Cargando créditos...</p>
+          <div style={styles.loadingWrap}>
+            <div style={styles.spinnerSmall} />
+            <p style={{ color: '#9ca3af' }}>Cargando créditos...</p>
           </div>
         ) : (
-          <div className="mb-6">
-            <p className="text-gray-400 mb-3">Ahora tienes</p>
-            <div className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-600/20 to-purple-600/20 border border-pink-500/30">
-              <span className="text-4xl">🪙</span>
-              <span className="text-4xl font-black">{credits?.toLocaleString()}</span>
-              <span className="text-lg text-gray-400">créditos</span>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <p style={{ color: '#9ca3af', marginBottom: '12px' }}>Ahora tienes</p>
+            <div style={styles.creditsBadge}>
+              <span style={{ fontSize: '2rem' }}>🪙</span>
+              <span style={{ fontSize: '2rem', fontWeight: 900 }}>{credits?.toLocaleString()}</span>
+              <span style={{ fontSize: '1rem', color: '#9ca3af' }}>créditos</span>
             </div>
           </div>
         )}
 
-        <p className="text-gray-500 mb-8">
-          Tus créditos ya están disponibles para usar.
-        </p>
+        <p style={styles.subtext}>Tus créditos ya están disponibles para usar.</p>
 
-        <button
-          onClick={() => router.push('/admin')}
-          className="w-full px-6 py-4 rounded-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl shadow-pink-500/20 hover:shadow-pink-500/30 transition-all active:scale-95"
-        >
+        <button onClick={() => router.push('/admin')} style={styles.mainBtn}>
           Empezar a Crear
         </button>
 
-        <p className="text-sm text-gray-500 mt-4">
+        <p style={styles.countdown}>
           Redirigiendo en {countdown} segundos...
         </p>
       </div>
@@ -98,8 +92,8 @@ export default function SuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin" />
+        <div style={styles.page}>
+          <div style={styles.spinner} />
         </div>
       }
     >
@@ -107,3 +101,94 @@ export default function SuccessPage() {
     </Suspense>
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+    minHeight: '100vh',
+    background: '#050505',
+    color: '#fff',
+    fontFamily: "'Poppins', sans-serif",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '1.5rem',
+  },
+  container: {
+    maxWidth: '420px',
+    width: '100%',
+    textAlign: 'center' as const,
+  },
+  iconWrap: {
+    width: '96px',
+    height: '96px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15))',
+    border: '2px solid rgba(34,197,94,0.4)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 1.5rem',
+    animation: 'bounce 1s ease infinite',
+  },
+  title: {
+    fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
+    fontWeight: 900,
+    textTransform: 'uppercase' as const,
+    fontStyle: 'italic',
+    marginBottom: '1rem',
+  },
+  loadingWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    marginBottom: '1.5rem',
+  },
+  spinner: {
+    width: '40px',
+    height: '40px',
+    border: '4px solid rgba(219,39,119,0.3)',
+    borderTopColor: '#db2777',
+    borderRadius: '50%',
+    animation: 'spin 0.8s linear infinite',
+    margin: 'auto',
+  },
+  spinnerSmall: {
+    width: '20px',
+    height: '20px',
+    border: '2px solid rgba(156,163,175,0.3)',
+    borderTopColor: '#9ca3af',
+    borderRadius: '50%',
+    animation: 'spin 0.8s linear infinite',
+  },
+  creditsBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '16px 32px',
+    borderRadius: '1rem',
+    background: 'linear-gradient(135deg, rgba(219,39,119,0.15), rgba(147,51,234,0.15))',
+    border: '1px solid rgba(219,39,119,0.3)',
+  },
+  subtext: {
+    color: '#6b7280',
+    marginBottom: '2rem',
+  },
+  mainBtn: {
+    width: '100%',
+    padding: '16px',
+    borderRadius: '1rem',
+    border: 'none',
+    fontWeight: 700,
+    fontSize: '1rem',
+    background: 'linear-gradient(135deg, #db2777, #9333ea)',
+    color: '#fff',
+    cursor: 'pointer',
+    boxShadow: '0 8px 30px rgba(219,39,119,0.2)',
+  },
+  countdown: {
+    fontSize: '0.85rem',
+    color: '#6b7280',
+    marginTop: '1rem',
+  },
+};

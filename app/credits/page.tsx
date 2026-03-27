@@ -88,50 +88,42 @@ export default function CreditsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full animate-spin" />
+      <div style={styles.page}>
+        <div style={styles.spinner} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans">
-      <div className="max-w-md mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Header */}
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6 sm:mb-8 active:scale-95"
-        >
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <button onClick={() => router.back()} style={styles.backBtn}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm">Volver</span>
+          <span>Volver</span>
         </button>
 
-        <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tighter mb-3 sm:mb-4 uppercase italic">
-            Comprar <span className="text-pink-600">Créditos</span>
+        <div style={styles.header}>
+          <h1 style={styles.title}>
+            Comprar <span style={{ color: '#db2777' }}>Créditos</span>
           </h1>
-          <p className="text-gray-400 text-base sm:text-lg mb-4 sm:mb-6 px-4">
-            Elige el paquete perfecto para ti
-          </p>
+          <p style={styles.subtitle}>Elige el paquete perfecto para ti</p>
 
-          {/* Current balance */}
-          <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-gradient-to-r from-pink-600/20 to-purple-600/20 border border-pink-500/30">
-            <span className="text-xl sm:text-2xl">🪙</span>
-            <span className="text-sm sm:text-lg">
-              Tienes <span className="font-bold">{currentCredits.toLocaleString()}</span> créditos
+          <div style={styles.balanceBadge}>
+            <span style={{ fontSize: '1.4rem' }}>🪙</span>
+            <span>
+              Tienes <strong>{currentCredits.toLocaleString()}</strong> créditos
             </span>
           </div>
         </div>
 
-        {/* Packages grid */}
         {packages.length === 0 ? (
-          <div className="text-center text-gray-500 py-12">
+          <div style={styles.emptyState}>
             <p>No hay paquetes disponibles en este momento.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div style={styles.grid}>
             {packages.map((pkg) => (
               <CreditPackageCard
                 key={pkg.packageId}
@@ -143,12 +135,91 @@ export default function CreditsPage() {
           </div>
         )}
 
-        {/* Footer note */}
-        <div className="text-center mt-8 sm:mt-12 text-xs sm:text-sm text-gray-500 px-4">
+        <div style={styles.footer}>
           <p>Pagos procesados de forma segura por Stripe</p>
-          <p className="mt-1">Los créditos no caducan y puedes usarlos en cualquier momento</p>
+          <p style={{ marginTop: '4px' }}>Los créditos no caducan y puedes usarlos en cualquier momento</p>
         </div>
       </div>
     </div>
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+    minHeight: '100vh',
+    background: '#050505',
+    color: '#fff',
+    fontFamily: "'Poppins', sans-serif",
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  container: {
+    maxWidth: '460px',
+    width: '100%',
+    padding: '2rem 1.2rem 3rem',
+  },
+  spinner: {
+    width: '48px',
+    height: '48px',
+    border: '4px solid rgba(219, 39, 119, 0.3)',
+    borderTopColor: '#db2777',
+    borderRadius: '50%',
+    animation: 'spin 0.8s linear infinite',
+    margin: 'auto',
+  },
+  backBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    background: 'none',
+    border: 'none',
+    color: '#9ca3af',
+    fontSize: '0.875rem',
+    cursor: 'pointer',
+    marginBottom: '1.5rem',
+    padding: 0,
+  },
+  header: {
+    textAlign: 'center' as const,
+    marginBottom: '2rem',
+  },
+  title: {
+    fontSize: 'clamp(1.8rem, 5vw, 2.8rem)',
+    fontWeight: 900,
+    letterSpacing: '-0.03em',
+    textTransform: 'uppercase' as const,
+    fontStyle: 'italic',
+    marginBottom: '0.5rem',
+  },
+  subtitle: {
+    color: '#9ca3af',
+    fontSize: '1rem',
+    marginBottom: '1.2rem',
+  },
+  balanceBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '10px 20px',
+    borderRadius: '100px',
+    background: 'linear-gradient(135deg, rgba(219,39,119,0.15), rgba(147,51,234,0.15))',
+    border: '1px solid rgba(219,39,119,0.3)',
+    fontSize: '0.95rem',
+  },
+  grid: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '1.2rem',
+  },
+  emptyState: {
+    textAlign: 'center' as const,
+    color: '#6b7280',
+    padding: '3rem 0',
+  },
+  footer: {
+    textAlign: 'center' as const,
+    marginTop: '2.5rem',
+    fontSize: '0.8rem',
+    color: '#6b7280',
+  },
+};

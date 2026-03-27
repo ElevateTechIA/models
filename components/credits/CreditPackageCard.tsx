@@ -25,54 +25,124 @@ export function CreditPackageCard({
   const priceInDollars = (pkg.priceUSD / 100).toFixed(2);
   const pricePerCredit = (pkg.priceUSD / 100 / pkg.credits).toFixed(2);
 
+  const cardStyle: React.CSSProperties = {
+    position: 'relative',
+    borderRadius: '1.2rem',
+    padding: '1.5rem',
+    border: pkg.popular
+      ? '1px solid rgba(219, 39, 119, 0.5)'
+      : '1px solid rgba(255, 255, 255, 0.1)',
+    background: pkg.popular
+      ? 'linear-gradient(180deg, rgba(219,39,119,0.1), rgba(147,51,234,0.1))'
+      : 'rgba(255, 255, 255, 0.05)',
+    textAlign: 'center',
+    transition: 'border-color 0.2s',
+    transform: pkg.popular ? 'scale(1.03)' : undefined,
+  };
+
   return (
-    <div
-      className={`relative rounded-2xl sm:rounded-3xl p-5 sm:p-6 border transition-all ${
-        pkg.popular
-          ? 'bg-gradient-to-b from-pink-600/10 to-purple-600/10 border-pink-500/50 sm:scale-105'
-          : 'bg-white/5 border-white/10 hover:border-white/20'
-      }`}
-    >
+    <div style={cardStyle}>
       {pkg.popular && (
-        <div className="absolute -top-2.5 sm:-top-3 left-1/2 -translate-x-1/2 px-3 sm:px-4 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-[10px] sm:text-xs font-black uppercase tracking-wider text-white">
-          Popular
-        </div>
+        <div style={styles.popularBadge}>Popular</div>
       )}
 
-      <div className="text-center">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-          <span className="text-2xl sm:text-3xl">🪙</span>
-        </div>
-
-        <h3 className="text-lg sm:text-xl font-black uppercase italic mb-1">{pkg.name}</h3>
-
-        <p className="text-3xl sm:text-4xl font-black mb-1.5 sm:mb-2">
-          {pkg.credits.toLocaleString()}{' '}
-          <span className="text-sm sm:text-base text-gray-400">créditos</span>
-        </p>
-
-        <p className="text-2xl sm:text-3xl font-bold mb-0.5 sm:mb-1">${priceInDollars}</p>
-
-        <p className="text-[10px] sm:text-xs text-gray-500 mb-3 sm:mb-4">
-          ${pricePerCredit} por crédito
-        </p>
-
-        <p className="text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6">{pkg.description}</p>
-
-        <button
-          onClick={() => onSelect(pkg.packageId)}
-          disabled={loading}
-          className={`w-full px-5 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base transition-all ${
-            pkg.popular
-              ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-xl shadow-pink-500/20 hover:shadow-pink-500/30'
-              : 'bg-white/10 text-white hover:bg-white/20'
-          } active:scale-95 flex items-center justify-center gap-2 ${
-            loading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-        >
-          {loading ? 'Procesando...' : 'Comprar'}
-        </button>
+      <div style={styles.iconWrap}>
+        <span style={{ fontSize: '1.6rem' }}>🪙</span>
       </div>
+
+      <h3 style={styles.name}>{pkg.name}</h3>
+
+      <p style={styles.credits}>
+        {pkg.credits.toLocaleString()}{' '}
+        <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>créditos</span>
+      </p>
+
+      <p style={styles.price}>${priceInDollars}</p>
+
+      <p style={styles.perCredit}>${pricePerCredit} por crédito</p>
+
+      <p style={styles.description}>{pkg.description}</p>
+
+      <button
+        onClick={() => onSelect(pkg.packageId)}
+        disabled={loading}
+        style={{
+          ...styles.button,
+          background: pkg.popular
+            ? 'linear-gradient(135deg, #db2777, #9333ea)'
+            : 'rgba(255, 255, 255, 0.1)',
+          opacity: loading ? 0.5 : 1,
+          cursor: loading ? 'not-allowed' : 'pointer',
+          boxShadow: pkg.popular ? '0 8px 30px rgba(219, 39, 119, 0.2)' : 'none',
+        }}
+      >
+        {loading ? 'Procesando...' : 'Comprar'}
+      </button>
     </div>
   );
 }
+
+const styles: Record<string, React.CSSProperties> = {
+  popularBadge: {
+    position: 'absolute',
+    top: '-10px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    padding: '3px 14px',
+    borderRadius: '100px',
+    background: 'linear-gradient(135deg, #ec4899, #9333ea)',
+    fontSize: '0.65rem',
+    fontWeight: 900,
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    color: '#fff',
+  },
+  iconWrap: {
+    width: '56px',
+    height: '56px',
+    borderRadius: '14px',
+    background: 'linear-gradient(135deg, #ec4899, #9333ea)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 12px',
+  },
+  name: {
+    fontSize: '1.1rem',
+    fontWeight: 900,
+    textTransform: 'uppercase',
+    fontStyle: 'italic',
+    marginBottom: '4px',
+  },
+  credits: {
+    fontSize: '1.8rem',
+    fontWeight: 900,
+    marginBottom: '4px',
+  },
+  price: {
+    fontSize: '1.5rem',
+    fontWeight: 700,
+    marginBottom: '2px',
+  },
+  perCredit: {
+    fontSize: '0.7rem',
+    color: '#6b7280',
+    marginBottom: '10px',
+  },
+  description: {
+    fontSize: '0.85rem',
+    color: '#9ca3af',
+    marginBottom: '1.2rem',
+  },
+  button: {
+    width: '100%',
+    padding: '14px',
+    borderRadius: '14px',
+    border: 'none',
+    fontWeight: 700,
+    fontSize: '0.9rem',
+    color: '#fff',
+    cursor: 'pointer',
+    transition: 'opacity 0.2s',
+  },
+};
