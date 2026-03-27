@@ -171,6 +171,15 @@ export const translations = {
     creditsRetry: "Volver a Intentar",
     creditsBackHome: "Volver al Inicio",
 
+    // Toolbar / Menu
+    menuTitle: "Menú",
+    menuPhotoStudio: "Estudio de Fotos",
+    menuTokens: "Tokens",
+    menuViewSite: "Ver Sitio",
+    menuShowcase: "Showcase",
+    menuLanguage: "Idioma",
+    menuLogout: "Cerrar Sesión",
+
     // Shared / errors
     loginRequiredPhotos: "Debes iniciar sesión para generar imágenes",
     loginRequiredVideos: "Debes iniciar sesión para generar videos",
@@ -349,6 +358,15 @@ export const translations = {
     creditsCancelledMsg: "No charge was made. You can try again anytime.",
     creditsRetry: "Try Again",
     creditsBackHome: "Back to Home",
+
+    // Toolbar / Menu
+    menuTitle: "Menu",
+    menuPhotoStudio: "Photo Studio",
+    menuTokens: "Tokens",
+    menuViewSite: "View Site",
+    menuShowcase: "Showcase",
+    menuLanguage: "Language",
+    menuLogout: "Sign Out",
 
     // Shared / errors
     loginRequiredPhotos: "You must sign in to generate images",

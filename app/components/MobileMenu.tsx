@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import type { Language } from "@/lib/translations";
+import type { Language, TranslationKeys } from "@/lib/translations";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -13,6 +13,7 @@ interface MobileMenuProps {
   language: Language;
   onChangeLanguage: (lang: Language) => void;
   onLogout: () => void;
+  t: TranslationKeys;
 }
 
 export default function MobileMenu({
@@ -24,14 +25,15 @@ export default function MobileMenu({
   language,
   onChangeLanguage,
   onLogout,
+  t,
 }: MobileMenuProps) {
   if (!isOpen) return null;
 
   const navItems = [
-    { href: "/photos", label: "Photo Studio", icon: "camera" },
-    { href: "/credits", label: "Tokens", icon: "coin" },
-    { href: username ? `/${username}` : "/", label: "Ver Sitio", icon: "eye" },
-    { href: username ? `/${username}/showcase` : "/", label: "Showcase", icon: "grid" },
+    { href: "/photos", label: t.menuPhotoStudio, icon: "camera" },
+    { href: "/credits", label: t.menuTokens, icon: "coin" },
+    { href: username ? `/${username}` : "/", label: t.menuViewSite, icon: "eye" },
+    { href: username ? `/${username}/showcase` : "/", label: t.menuShowcase, icon: "grid" },
   ];
 
   const icons: Record<string, React.ReactNode> = {
@@ -69,7 +71,7 @@ export default function MobileMenu({
       <div className="mmenu">
         {/* Header */}
         <div className="mmenu-header">
-          <h2 className="mmenu-title">Menu</h2>
+          <h2 className="mmenu-title">{t.menuTitle}</h2>
           <button className="mmenu-close" onClick={onClose}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
@@ -114,7 +116,7 @@ export default function MobileMenu({
               <line x1="2" y1="12" x2="22" y2="12" />
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
-            Idioma
+            {t.menuLanguage}
           </p>
           <div className="mmenu-lang-grid">
             <button
@@ -139,7 +141,7 @@ export default function MobileMenu({
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          Cerrar Sesión
+          {t.menuLogout}
         </button>
       </div>
     </>

@@ -603,6 +603,7 @@ export default function AdminPage() {
         language={language}
         onChangeLanguage={(lang) => { setLanguage(lang); setShowMenu(false); }}
         onLogout={() => { setShowMenu(false); handleLogout(); }}
+        t={t}
       />
 
       {/* ── Header ────────────────────────────────── */}
