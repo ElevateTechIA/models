@@ -8,21 +8,22 @@ export async function GET(request: NextRequest) {
     const packagesSnapshot = await db
       .collection('model-credit-packages')
       .where('active', '==', true)
-      .orderBy('priceUSD', 'asc')
       .get();
 
-    const packages = packagesSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        packageId: doc.id,
-        name: data.name,
-        credits: data.credits,
-        priceUSD: data.priceUSD,
-        stripePriceId: data.stripePriceId,
-        description: data.description,
-        popular: data.popular || false,
-      };
-    });
+    const packages = packagesSnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          packageId: doc.id,
+          name: data.name,
+          credits: data.credits,
+          priceUSD: data.priceUSD,
+          stripePriceId: data.stripePriceId,
+          description: data.description,
+          popular: data.popular || false,
+        };
+      })
+      .sort((a, b) => a.priceUSD - b.priceUSD);
 
     return NextResponse.json({ packages });
   } catch (error: any) {
