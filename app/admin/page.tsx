@@ -10,6 +10,8 @@ import { signOut, onAuthStateChanged } from "firebase/auth";
 import { PRESET_ICONS } from "@/lib/preset-icons";
 import { translations, type Language } from "@/lib/translations";
 import CropModal from "@/app/components/CropModal";
+import AppToolbar from "@/app/components/AppToolbar";
+import MobileMenu from "@/app/components/MobileMenu";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -69,6 +71,9 @@ export default function AdminPage() {
   const [showcaseLayout, setShowcaseLayout] = useState<"classic" | "compact" | "immersive">("classic");
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
+
+  // Menu state
+  const [showMenu, setShowMenu] = useState(false);
 
   // QR modal state
   const [showQrModal, setShowQrModal] = useState(false);
@@ -585,32 +590,25 @@ export default function AdminPage() {
         onChange={handleEditLinkPhotoUpload}
       />
 
+      {/* ── Toolbar ────────────────────────────────── */}
+      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} />
+
+      {/* ── Mobile Menu ──────────────────────────────── */}
+      <MobileMenu
+        isOpen={showMenu}
+        onClose={() => setShowMenu(false)}
+        username={username}
+        email={auth.currentUser?.email ?? null}
+        profilePicture={picture || null}
+        language={language}
+        onChangeLanguage={(lang) => { setLanguage(lang); setShowMenu(false); }}
+        onLogout={() => { setShowMenu(false); handleLogout(); }}
+      />
+
       {/* ── Header ────────────────────────────────── */}
       <header className="adm-header">
         <h1 className="adm-title">{t.adminTitle}</h1>
         <p className="adm-subtitle">{t.adminSubtitle}</p>
-        <nav className="adm-nav">
-          <Link href={`/${username}`} className="adm-nav-link">
-            {t.viewSite}
-          </Link>
-          <Link href={`/${username}/showcase`} className="adm-nav-link">
-            {t.viewShowcase}
-          </Link>
-          <Link href="/photos" className="adm-nav-link">
-            {t.photos}
-          </Link>
-          <Link href="/credits" className="adm-nav-link">
-            Tokens
-          </Link>
-          {(username === "cesarvegacol" || username === "wendypradaoficial11" || username === "deejanehannah") && (
-            <Link href="/model-design" className="adm-nav-link">
-              {t.photoStudio}
-            </Link>
-          )}
-          <button className="adm-btn adm-btn-logout" onClick={handleLogout}>
-            {t.logout}
-          </button>
-        </nav>
       </header>
 
       {/* ── Profile Section ───────────────────────── */}
