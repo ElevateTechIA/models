@@ -7,7 +7,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { translations } from "@/lib/translations";
 import { InsufficientCreditsModal } from "@/components/credits/InsufficientCreditsModal";
 
-const ALLOWED_USERNAMES = ["cesarvegacol"];
+// Access is now open to all authenticated users (controlled by credits)
 
 type Tab = "photos" | "videos" | "library";
 type LibraryFilter = "photos" | "videos";
@@ -89,7 +89,7 @@ export default function PhotosClient() {
 
   useEffect(() => {
     const username = localStorage.getItem("username");
-    if (!username || !ALLOWED_USERNAMES.includes(username)) { router.replace("/"); return; }
+    if (!username) { router.replace("/"); return; }
     setAuthorized(true);
     // Detect language from config
     function loadLang() {
