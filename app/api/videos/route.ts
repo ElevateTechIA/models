@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db, verifyAuthWithUser } from "@/lib/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 function extractBase64(dataUrl: string): string {
   return dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
@@ -28,15 +30,103 @@ const VEO_MODELS = [
   "veo-2.0-generate-001",
 ];
 
+/* ---------- Credit helpers ---------- */
+
+async function deductCredits(username: string): Promise<{ ok: boolean; creditsRemaining: number }> {
+  const creditsPerVideo = parseInt(process.env.CREDITS_PER_VIDEO || "500");
+  const userRef = db.collection("user-credits").doc(username);
+
+  return db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    if (!userDoc.exists) return { ok: false, creditsRemaining: 0 };
+
+    const currentCredits = userDoc.data()!.credits || 0;
+    if (currentCredits < creditsPerVideo) return { ok: false, creditsRemaining: currentCredits };
+
+    const newCredits = currentCredits - creditsPerVideo;
+
+    transaction.update(userRef, {
+      credits: newCredits,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    const txRef = db.collection("model-transactions").doc();
+    transaction.set(txRef, {
+      username,
+      type: "usage",
+      credits: -creditsPerVideo,
+      balanceBefore: currentCredits,
+      balanceAfter: newCredits,
+      description: "Video generation",
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
+    return { ok: true, creditsRemaining: newCredits };
+  });
+}
+
+async function refundCredits(username: string): Promise<void> {
+  const creditsPerVideo = parseInt(process.env.CREDITS_PER_VIDEO || "500");
+  const userRef = db.collection("user-credits").doc(username);
+
+  await db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    if (!userDoc.exists) return;
+
+    const currentCredits = userDoc.data()!.credits || 0;
+    const newCredits = currentCredits + creditsPerVideo;
+
+    transaction.update(userRef, {
+      credits: newCredits,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    const txRef = db.collection("model-transactions").doc();
+    transaction.set(txRef, {
+      username,
+      type: "bonus",
+      credits: creditsPerVideo,
+      balanceBefore: currentCredits,
+      balanceAfter: newCredits,
+      description: "Refund: video generation failed",
+      createdAt: FieldValue.serverTimestamp(),
+    });
+  });
+}
+
+/* ---------- Route handler ---------- */
+
 export async function POST(req: NextRequest) {
+  // Auth check
+  const authHeader = req.headers.get("authorization");
+  const authResult = await verifyAuthWithUser(authHeader);
+
+  if (!authResult) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const { username } = authResult;
+
+  // Deduct credits before processing
+  const { ok, creditsRemaining } = await deductCredits(username);
+
+  if (!ok) {
+    return NextResponse.json(
+      { error: "INSUFFICIENT_CREDITS", creditsRemaining },
+      { status: 402 }
+    );
+  }
+
   const { prompt, image, aspect_ratio } = await req.json();
 
   if (!image || typeof image !== "string") {
+    await refundCredits(username);
     return NextResponse.json({ error: "Se requiere una imagen" }, { status: 400 });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
+    await refundCredits(username);
     return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 });
   }
 
@@ -121,6 +211,7 @@ export async function POST(req: NextRequest) {
 
         if (pollData.error) {
           console.error(`[videos] Operation error:`, JSON.stringify(pollData.error).substring(0, 300));
+          await refundCredits(username);
           return NextResponse.json(
             { error: pollData.error.message || "Error generating video" },
             { status: 500 }
@@ -137,6 +228,7 @@ export async function POST(req: NextRequest) {
 
             if (!videoRes.ok) {
               console.error(`[videos] Failed to download video: HTTP ${videoRes.status}`);
+              await refundCredits(username);
               return NextResponse.json(
                 { error: "Failed to download generated video" },
                 { status: 500 }
@@ -156,12 +248,14 @@ export async function POST(req: NextRequest) {
           if (filtered) {
             const reasons = pollData.response?.generateVideoResponse?.raiMediaFilteredReasons;
             console.warn(`[videos] Filtered by safety:`, reasons);
+            await refundCredits(username);
             return NextResponse.json(
               { error: "Video bloqueado por filtros de seguridad. Intenta con otro prompt o imagen." },
               { status: 500 }
             );
           }
           console.warn(`[videos] Done but no video URI:`, JSON.stringify(pollData).substring(0, 500));
+          await refundCredits(username);
           return NextResponse.json(
             { error: "No se genero el video. Intenta de nuevo." },
             { status: 500 }
@@ -171,6 +265,7 @@ export async function POST(req: NextRequest) {
         console.log(`[videos] Polling... attempt ${i + 1}`);
       }
 
+      await refundCredits(username);
       return NextResponse.json(
         { error: "El video tomo demasiado tiempo. Intenta de nuevo." },
         { status: 504 }
@@ -182,6 +277,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // All models failed — refund credits
+  await refundCredits(username);
   return NextResponse.json(
     { error: "No se pudo generar el video. Intenta de nuevo." },
     { status: 500 }

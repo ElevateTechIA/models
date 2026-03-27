@@ -172,6 +172,8 @@ export const translations = {
     creditsBackHome: "Volver al Inicio",
 
     // Shared / errors
+    loginRequiredPhotos: "Debes iniciar sesión para generar imágenes",
+    loginRequiredVideos: "Debes iniciar sesión para generar videos",
     imageTooLarge: "La imagen es muy grande. Usa una foto menor a 4 MB.",
     networkError: "Error de red. Intenta de nuevo.",
     somethingWrong: "Algo salio mal",
@@ -349,6 +351,8 @@ export const translations = {
     creditsBackHome: "Back to Home",
 
     // Shared / errors
+    loginRequiredPhotos: "You must sign in to generate images",
+    loginRequiredVideos: "You must sign in to generate videos",
     imageTooLarge: "Image is too large. Use a photo under 4 MB.",
     networkError: "Network error. Please try again.",
     somethingWrong: "Something went wrong",

@@ -34,45 +34,45 @@ const db = getFirestore();
 const packages = [
   {
     packageId: 'starter',
-    name: 'Starter',
+    name: 'ONE LINK Starter',
     credits: 1000,
     priceUSD: 800, // $8.00
     stripePriceId: 'price_REPLACE_WITH_STARTER_PRICE_ID',
     stripeProductId: 'prod_REPLACE_WITH_STARTER_PRODUCT_ID',
-    description: '~10 Generaciones',
+    description: '~10 Fotos o ~2 Videos',
     popular: false,
     active: true,
   },
   {
     packageId: 'creator',
-    name: 'Creator',
+    name: 'ONE LINK Creator',
     credits: 2200,
     priceUSD: 1500, // $15.00
     stripePriceId: 'price_REPLACE_WITH_CREATOR_PRICE_ID',
     stripeProductId: 'prod_REPLACE_WITH_CREATOR_PRODUCT_ID',
-    description: '~22 Generaciones',
+    description: '~22 Fotos o ~4 Videos',
     popular: false,
     active: true,
   },
   {
     packageId: 'pro',
-    name: 'Pro',
+    name: 'ONE LINK Pro',
     credits: 4000,
     priceUSD: 2500, // $25.00
     stripePriceId: 'price_REPLACE_WITH_PRO_PRICE_ID',
     stripeProductId: 'prod_REPLACE_WITH_PRO_PRODUCT_ID',
-    description: '~40 Generaciones',
+    description: '~40 Fotos o ~8 Videos',
     popular: true,
     active: true,
   },
   {
     packageId: 'ultra',
-    name: 'Ultra',
+    name: 'ONE LINK Ultra',
     credits: 8000,
     priceUSD: 4500, // $45.00
     stripePriceId: 'price_REPLACE_WITH_ULTRA_PRICE_ID',
     stripeProductId: 'prod_REPLACE_WITH_ULTRA_PRODUCT_ID',
-    description: '~80 Generaciones',
+    description: '~80 Fotos o ~16 Videos',
     popular: false,
     active: true,
   },

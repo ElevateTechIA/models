@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { translations } from "@/lib/translations";
+import { InsufficientCreditsModal } from "@/components/credits/InsufficientCreditsModal";
 
 const ALLOWED_USERNAMES = ["cesarvegacol"];
 
@@ -57,6 +58,9 @@ export default function PhotosClient() {
   const [vidError, setVidError] = useState("");
   const [vidElapsed, setVidElapsed] = useState(0);
   const [showVidRatioPanel, setShowVidRatioPanel] = useState(false);
+
+  // ── Credits state ──
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
 
   // ── Fullscreen state ──
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
@@ -148,15 +152,17 @@ export default function PhotosClient() {
 
   async function generate() {
     if (!prompt.trim() || !referenceImage) return;
+    const token = await getToken();
+    if (!token) { setError(t.loginRequiredPhotos); return; }
     const currentPrompt = prompt;
     const currentAR = aspectRatio;
     setLoading(true); setError(""); setElapsed(0);
     const start = Date.now();
     timerRef.current = setInterval(() => setElapsed((Date.now() - start) / 1000), 100);
     try {
-      const res = await fetch("/api/photos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: currentPrompt, image: referenceImage, aspect_ratio: currentAR }) });
+      const res = await fetch("/api/photos", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ prompt: currentPrompt, image: referenceImage, aspect_ratio: currentAR }) });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Algo salio mal"); return; }
+      if (!res.ok) { if (data.error === "INSUFFICIENT_CREDITS") { setShowCreditsModal(true); return; } setError(data.error || "Algo salio mal"); return; }
       setResultImages(prev => [...prev, { id: Date.now().toString(), url: data.image, prompt: currentPrompt, aspectRatio: currentAR }]);
       savePhotoToLibrary(data.image, currentPrompt, currentAR);
       setTimeout(() => resultsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -176,15 +182,17 @@ export default function PhotosClient() {
 
   async function generateVideo() {
     if (!vidSourceImage) return;
+    const token = await getToken();
+    if (!token) { setVidError(t.loginRequiredVideos); return; }
     const currentPrompt = vidPrompt;
     const currentAR = vidAspectRatio;
     setVidLoading(true); setVidError(""); setVidElapsed(0);
     const start = Date.now();
     vidTimerRef.current = setInterval(() => setVidElapsed((Date.now() - start) / 1000), 100);
     try {
-      const res = await fetch("/api/videos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: currentPrompt || undefined, image: vidSourceImage, aspect_ratio: currentAR }) });
+      const res = await fetch("/api/videos", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ prompt: currentPrompt || undefined, image: vidSourceImage, aspect_ratio: currentAR }) });
       const data = await res.json();
-      if (!res.ok) { setVidError(data.error || "Algo salio mal"); return; }
+      if (!res.ok) { if (data.error === "INSUFFICIENT_CREDITS") { setShowCreditsModal(true); return; } setVidError(data.error || "Algo salio mal"); return; }
       setResultVideos(prev => [...prev, { id: Date.now().toString(), url: data.video, prompt: currentPrompt || "Auto-animated", aspectRatio: currentAR }]);
       saveVideoToLibrary(data.video, currentPrompt, currentAR, vidSourceImage);
       setTimeout(() => vidResultsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -504,6 +512,12 @@ export default function PhotosClient() {
           </div>
         </div>
       )}
+
+      <InsufficientCreditsModal
+        isOpen={showCreditsModal}
+        onClose={() => setShowCreditsModal(false)}
+        onBuyCredits={() => { setShowCreditsModal(false); router.push("/credits"); }}
+      />
     </div>
   );
 }
