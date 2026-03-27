@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { CreditPackageCard } from '@/components/credits/CreditPackageCard';
+import { translations, type Language } from '@/lib/translations';
 
 interface CreditPackage {
   packageId: string;
@@ -21,8 +22,17 @@ export default function CreditsPage() {
   const [currentCredits, setCurrentCredits] = useState(0);
   const [loading, setLoading] = useState(true);
   const [processingPackage, setProcessingPackage] = useState<string | null>(null);
+  const [lang, setLang] = useState<Language>('es');
+  const t = translations[lang] || translations.es;
 
   useEffect(() => {
+    const username = localStorage.getItem('username');
+    if (username) {
+      fetch(`/api/admin/config?username=${username}`).then(r => r.json()).then(d => {
+        if (d?.settings?.language) setLang(d.settings.language);
+      }).catch(() => {});
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         router.push('/login');
@@ -75,13 +85,13 @@ export default function CreditsPage() {
         body: JSON.stringify({ packageId }),
       });
 
-      if (!response.ok) throw new Error('Error creando sesión de checkout');
+      if (!response.ok) throw new Error('Error');
 
       const { url } = await response.json();
       if (url) window.location.href = url;
     } catch (error) {
       console.error('Error en compra:', error);
-      alert('Error al procesar la compra. Intenta de nuevo.');
+      alert(t.somethingWrong);
       setProcessingPackage(null);
     }
   };
@@ -103,22 +113,22 @@ export default function CreditsPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Volver
+          {t.mdBack}
         </button>
 
         <div className="credits-header">
-          <h1 className="credits-title">Comprar Tokens</h1>
-          <p className="credits-subtitle">Elige el paquete perfecto para ti</p>
+          <h1 className="credits-title">{t.creditsTitle}</h1>
+          <p className="credits-subtitle">{t.creditsSubtitle}</p>
 
           <div className="credits-balance-badge">
             <span className="credits-coin">🪙</span>
-            Tienes <strong>{currentCredits.toLocaleString()}</strong> tokens
+            {t.creditsYouHave} <strong>{currentCredits.toLocaleString()}</strong> {t.creditsLabel}
           </div>
         </div>
 
         {packages.length === 0 ? (
           <div className="credits-empty">
-            <p>No hay paquetes disponibles en este momento.</p>
+            <p>{t.creditsNoPackages}</p>
           </div>
         ) : (
           <div className="credits-grid">
@@ -128,14 +138,15 @@ export default function CreditsPage() {
                 pkg={pkg}
                 onSelect={handleBuyPackage}
                 loading={processingPackage === pkg.packageId}
+                t={t}
               />
             ))}
           </div>
         )}
 
         <div className="credits-footer">
-          <p>Pagos procesados de forma segura por Stripe</p>
-          <p>Los tokens no caducan y puedes usarlos en cualquier momento</p>
+          <p>{t.creditsFooter1}</p>
+          <p>{t.creditsFooter2}</p>
         </div>
       </div>
     </div>

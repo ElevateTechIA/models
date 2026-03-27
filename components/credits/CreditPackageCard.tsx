@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import type { TranslationKeys } from '@/lib/translations';
 
 interface CreditPackage {
   packageId: string;
@@ -15,12 +16,14 @@ interface CreditPackageCardProps {
   pkg: CreditPackage;
   onSelect: (packageId: string) => void;
   loading?: boolean;
+  t: TranslationKeys;
 }
 
 export function CreditPackageCard({
   pkg,
   onSelect,
   loading = false,
+  t,
 }: CreditPackageCardProps) {
   const priceInDollars = (pkg.priceUSD / 100).toFixed(2);
   const pricePerCredit = (pkg.priceUSD / 100 / pkg.credits).toFixed(2);
@@ -38,11 +41,11 @@ export function CreditPackageCard({
         <h3 className="cpkg-name">{pkg.name}</h3>
 
         <p className="cpkg-tokens">
-          {pkg.credits.toLocaleString()} <span className="cpkg-tokens-label">tokens</span>
+          {pkg.credits.toLocaleString()} <span className="cpkg-tokens-label">{t.creditsLabel}</span>
         </p>
 
         <p className="cpkg-price">${priceInDollars}</p>
-        <p className="cpkg-per-token">${pricePerCredit} por token</p>
+        <p className="cpkg-per-token">${pricePerCredit} {t.creditsPerCredit}</p>
         <p className="cpkg-desc">{pkg.description}</p>
 
         <button
@@ -51,7 +54,7 @@ export function CreditPackageCard({
           className={`cpkg-btn ${pkg.popular ? 'cpkg-btn-primary' : ''}`}
           style={{ opacity: loading ? 0.5 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
         >
-          {loading ? 'Procesando...' : 'Comprar'}
+          {loading ? t.creditsProcessing : t.creditsBuy}
         </button>
       </div>
     </>

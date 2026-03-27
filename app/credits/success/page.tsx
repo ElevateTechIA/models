@@ -3,14 +3,24 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
+import { translations, type Language } from '@/lib/translations';
 
 function SuccessContent() {
   const router = useRouter();
   const [credits, setCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(5);
+  const [lang, setLang] = useState<Language>('es');
+  const t = translations[lang] || translations.es;
 
   useEffect(() => {
+    const username = localStorage.getItem('username');
+    if (username) {
+      fetch(`/api/admin/config?username=${username}`).then(r => r.json()).then(d => {
+        if (d?.settings?.language) setLang(d.settings.language);
+      }).catch(() => {});
+    }
+
     loadCredits();
 
     const timer = setInterval(() => {
@@ -55,32 +65,29 @@ function SuccessContent() {
           </svg>
         </div>
 
-        <h1 className="cs-title">Pago Exitoso!</h1>
+        <h1 className="cs-title">{t.creditsPaymentSuccess}</h1>
 
         {loading ? (
           <div className="cs-loading">
             <div className="credits-spinner" />
-            <p>Cargando tokens...</p>
           </div>
         ) : (
           <div className="cs-balance-section">
-            <p className="cs-label">Ahora tienes</p>
+            <p className="cs-label">{t.creditsNowYouHave}</p>
             <div className="cs-balance-badge">
               <span style={{ fontSize: '1.8rem' }}>🪙</span>
               <span className="cs-balance-num">{credits?.toLocaleString()}</span>
-              <span className="cs-balance-label">tokens</span>
+              <span className="cs-balance-label">{t.creditsLabel}</span>
             </div>
           </div>
         )}
 
-        <p className="cs-subtext">Tus tokens ya están disponibles para usar.</p>
-
         <button onClick={() => router.push('/admin')} className="cs-main-btn">
-          Empezar a Crear
+          {t.creditsStartCreating}
         </button>
 
         <p className="cs-countdown">
-          Redirigiendo en {countdown} segundos...
+          {t.creditsRedirecting} {countdown} {t.creditsSeconds}
         </p>
       </div>
     </div>
@@ -141,10 +148,7 @@ const css = `
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
     margin-bottom: 1.5rem;
-    color: #6b6b6b;
-    font-size: 0.9rem;
   }
   .cs-balance-section { margin-bottom: 1.5rem; }
   .cs-label {
@@ -171,11 +175,6 @@ const css = `
   .cs-balance-label {
     font-size: 0.9rem;
     color: #6b6b6b;
-  }
-  .cs-subtext {
-    color: #6b6b6b;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
   }
   .cs-main-btn {
     width: 100%;

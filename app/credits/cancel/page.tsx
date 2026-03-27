@@ -1,10 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { translations, type Language } from '@/lib/translations';
 
 export default function CancelPage() {
   const router = useRouter();
+  const [lang, setLang] = useState<Language>('es');
+  const t = translations[lang] || translations.es;
+
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    if (username) {
+      fetch(`/api/admin/config?username=${username}`).then(r => r.json()).then(d => {
+        if (d?.settings?.language) setLang(d.settings.language);
+      }).catch(() => {});
+    }
+  }, []);
 
   return (
     <div className="cc-page">
@@ -17,22 +29,20 @@ export default function CancelPage() {
           </svg>
         </div>
 
-        <h1 className="cc-title">Pago Cancelado</h1>
+        <h1 className="cc-title">{t.creditsPaymentCancelled}</h1>
 
-        <p className="cc-message">
-          No se realizó ningún cargo. Puedes intentar de nuevo cuando quieras.
-        </p>
+        <p className="cc-message">{t.creditsCancelledMsg}</p>
 
         <div className="cc-actions">
           <button onClick={() => router.push('/credits')} className="cc-retry-btn">
-            Volver a Intentar
+            {t.creditsRetry}
           </button>
 
           <button onClick={() => router.push('/admin')} className="cc-back-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
-            Volver al Inicio
+            {t.creditsBackHome}
           </button>
         </div>
       </div>
