@@ -13,6 +13,7 @@ const RESERVED_USERNAMES = [
   "favicon",
   "icons",
   "uploads",
+  "credits",
 ];
 
 // ── User operations ────────────────────────────────

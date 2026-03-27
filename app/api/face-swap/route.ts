@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db, verifyAuthWithUser } from "@/lib/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 type Provider = "gemini" | "replicate";
 
@@ -186,18 +188,110 @@ async function replicateSwap(targetImage: string, swapImage: string) {
   );
 }
 
+/* ---------- Credit helpers ---------- */
+
+async function deductCredits(username: string): Promise<{ ok: boolean; creditsRemaining: number }> {
+  const creditsPerGen = parseInt(process.env.CREDITS_PER_GENERATION || "100");
+  const userRef = db.collection("user-credits").doc(username);
+
+  return db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+
+    if (!userDoc.exists) {
+      return { ok: false, creditsRemaining: 0 };
+    }
+
+    const currentCredits = userDoc.data()!.credits || 0;
+
+    if (currentCredits < creditsPerGen) {
+      return { ok: false, creditsRemaining: currentCredits };
+    }
+
+    const newCredits = currentCredits - creditsPerGen;
+
+    transaction.update(userRef, {
+      credits: newCredits,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    const txRef = db.collection("model-transactions").doc();
+    transaction.set(txRef, {
+      username,
+      type: "usage",
+      credits: -creditsPerGen,
+      balanceBefore: currentCredits,
+      balanceAfter: newCredits,
+      description: "Face swap generation",
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
+    return { ok: true, creditsRemaining: newCredits };
+  });
+}
+
+async function refundCredits(username: string): Promise<void> {
+  const creditsPerGen = parseInt(process.env.CREDITS_PER_GENERATION || "100");
+  const userRef = db.collection("user-credits").doc(username);
+
+  await db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    if (!userDoc.exists) return;
+
+    const currentCredits = userDoc.data()!.credits || 0;
+    const newCredits = currentCredits + creditsPerGen;
+
+    transaction.update(userRef, {
+      credits: newCredits,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    const txRef = db.collection("model-transactions").doc();
+    transaction.set(txRef, {
+      username,
+      type: "bonus",
+      credits: creditsPerGen,
+      balanceBefore: currentCredits,
+      balanceAfter: newCredits,
+      description: "Refund: face swap failed",
+      createdAt: FieldValue.serverTimestamp(),
+    });
+  });
+}
+
 /* ---------- Route handler ---------- */
 
 export async function POST(req: NextRequest) {
+  // Auth check
+  const authHeader = req.headers.get("authorization");
+  const authResult = await verifyAuthWithUser(authHeader);
+
+  if (!authResult) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const { username } = authResult;
+
+  // Deduct credits before processing
+  const { ok, creditsRemaining } = await deductCredits(username);
+
+  if (!ok) {
+    return NextResponse.json(
+      { error: "INSUFFICIENT_CREDITS", creditsRemaining },
+      { status: 402 }
+    );
+  }
+
   const { target_image, swap_image } = await req.json();
 
   if (!target_image || typeof target_image !== "string") {
+    await refundCredits(username);
     return NextResponse.json(
       { error: "Se requiere una imagen objetivo" },
       { status: 400 }
     );
   }
   if (!swap_image || typeof swap_image !== "string") {
+    await refundCredits(username);
     return NextResponse.json(
       { error: "Se requiere una imagen de cara" },
       { status: 400 }
@@ -205,10 +299,19 @@ export async function POST(req: NextRequest) {
   }
 
   const provider = getProvider();
-  console.log(`[face-swap] provider: ${provider}`);
+  console.log(`[face-swap] provider: ${provider}, user: ${username}`);
 
+  let result: NextResponse;
   if (provider === "gemini") {
-    return geminiSwap(target_image, swap_image);
+    result = (await geminiSwap(target_image, swap_image)) as NextResponse;
+  } else {
+    result = (await replicateSwap(target_image, swap_image)) as NextResponse;
   }
-  return replicateSwap(target_image, swap_image);
+
+  // If generation failed, refund credits
+  if (result.status !== 200) {
+    await refundCredits(username);
+  }
+
+  return result;
 }
