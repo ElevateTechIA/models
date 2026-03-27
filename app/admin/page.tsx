@@ -596,17 +596,16 @@ export default function AdminPage() {
           <Link href={`/${username}/showcase`} className="adm-nav-link">
             {t.viewShowcase}
           </Link>
+          <Link href="/photos" className="adm-nav-link">
+            {t.photos}
+          </Link>
+          <Link href="/credits" className="adm-nav-link">
+            Tokens
+          </Link>
           {(username === "cesarvegacol" || username === "wendypradaoficial11" || username === "deejanehannah") && (
-            <>
-              <Link href="/model-design" className="adm-nav-link">
-                {t.photoStudio}
-              </Link>
-              {username === "cesarvegacol" && (
-                <Link href="/photos" className="adm-nav-link">
-                  {t.photos}
-                </Link>
-              )}
-            </>
+            <Link href="/model-design" className="adm-nav-link">
+              {t.photoStudio}
+            </Link>
           )}
           <button className="adm-btn adm-btn-logout" onClick={handleLogout}>
             {t.logout}
