@@ -45,42 +45,41 @@ function SuccessContent() {
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <div style={styles.iconWrap}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
+    <div className="cs-page">
+      <style>{css}</style>
+      <div className="cs-container">
+        <div className="cs-icon-wrap">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
         </div>
 
-        <h1 style={styles.title}>
-          Pago <span style={{ color: '#db2777' }}>Exitoso!</span>
-        </h1>
+        <h1 className="cs-title">Pago Exitoso!</h1>
 
         {loading ? (
-          <div style={styles.loadingWrap}>
-            <div style={styles.spinnerSmall} />
-            <p style={{ color: '#9ca3af' }}>Cargando créditos...</p>
+          <div className="cs-loading">
+            <div className="credits-spinner" />
+            <p>Cargando tokens...</p>
           </div>
         ) : (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <p style={{ color: '#9ca3af', marginBottom: '12px' }}>Ahora tienes</p>
-            <div style={styles.creditsBadge}>
-              <span style={{ fontSize: '2rem' }}>🪙</span>
-              <span style={{ fontSize: '2rem', fontWeight: 900 }}>{credits?.toLocaleString()}</span>
-              <span style={{ fontSize: '1rem', color: '#9ca3af' }}>créditos</span>
+          <div className="cs-balance-section">
+            <p className="cs-label">Ahora tienes</p>
+            <div className="cs-balance-badge">
+              <span style={{ fontSize: '1.8rem' }}>🪙</span>
+              <span className="cs-balance-num">{credits?.toLocaleString()}</span>
+              <span className="cs-balance-label">tokens</span>
             </div>
           </div>
         )}
 
-        <p style={styles.subtext}>Tus créditos ya están disponibles para usar.</p>
+        <p className="cs-subtext">Tus tokens ya están disponibles para usar.</p>
 
-        <button onClick={() => router.push('/admin')} style={styles.mainBtn}>
+        <button onClick={() => router.push('/admin')} className="cs-main-btn">
           Empezar a Crear
         </button>
 
-        <p style={styles.countdown}>
+        <p className="cs-countdown">
           Redirigiendo en {countdown} segundos...
         </p>
       </div>
@@ -92,8 +91,9 @@ export default function SuccessPage() {
   return (
     <Suspense
       fallback={
-        <div style={styles.page}>
-          <div style={styles.spinner} />
+        <div className="cs-page">
+          <style>{css}</style>
+          <div className="credits-spinner" />
         </div>
       }
     >
@@ -102,93 +102,111 @@ export default function SuccessPage() {
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  page: {
-    minHeight: '100vh',
-    background: '#050505',
-    color: '#fff',
-    fontFamily: "'Poppins', sans-serif",
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '1.5rem',
-  },
-  container: {
-    maxWidth: '420px',
-    width: '100%',
-    textAlign: 'center' as const,
-  },
-  iconWrap: {
-    width: '96px',
-    height: '96px',
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15))',
-    border: '2px solid rgba(34,197,94,0.4)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0 auto 1.5rem',
-    animation: 'bounce 1s ease infinite',
-  },
-  title: {
-    fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
-    fontWeight: 900,
-    textTransform: 'uppercase' as const,
-    fontStyle: 'italic',
-    marginBottom: '1rem',
-  },
-  loadingWrap: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    marginBottom: '1.5rem',
-  },
-  spinner: {
-    width: '40px',
-    height: '40px',
-    border: '4px solid rgba(219,39,119,0.3)',
-    borderTopColor: '#db2777',
-    borderRadius: '50%',
-    animation: 'spin 0.8s linear infinite',
-    margin: 'auto',
-  },
-  spinnerSmall: {
-    width: '20px',
-    height: '20px',
-    border: '2px solid rgba(156,163,175,0.3)',
-    borderTopColor: '#9ca3af',
-    borderRadius: '50%',
-    animation: 'spin 0.8s linear infinite',
-  },
-  creditsBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '16px 32px',
-    borderRadius: '1rem',
-    background: 'linear-gradient(135deg, rgba(219,39,119,0.15), rgba(147,51,234,0.15))',
-    border: '1px solid rgba(219,39,119,0.3)',
-  },
-  subtext: {
-    color: '#6b7280',
-    marginBottom: '2rem',
-  },
-  mainBtn: {
-    width: '100%',
-    padding: '16px',
-    borderRadius: '1rem',
-    border: 'none',
-    fontWeight: 700,
-    fontSize: '1rem',
-    background: 'linear-gradient(135deg, #db2777, #9333ea)',
-    color: '#fff',
-    cursor: 'pointer',
-    boxShadow: '0 8px 30px rgba(219,39,119,0.2)',
-  },
-  countdown: {
-    fontSize: '0.85rem',
-    color: '#6b7280',
-    marginTop: '1rem',
-  },
-};
+const css = `
+  .cs-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #fdfcfa 0%, #f3efe8 50%, #fdfcfa 100%);
+    font-family: 'Poppins', sans-serif;
+    color: #2d2d2d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .cs-container {
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+  .cs-icon-wrap {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.08);
+    border: 2px solid rgba(34, 197, 94, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    animation: bounce 1s ease infinite;
+  }
+  .cs-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 1.2rem;
+  }
+  .cs-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    color: #6b6b6b;
+    font-size: 0.9rem;
+  }
+  .cs-balance-section { margin-bottom: 1.5rem; }
+  .cs-label {
+    color: #6b6b6b;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+  .cs-balance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1.5px solid #d4b96a;
+    box-shadow: 0 4px 20px rgba(180, 160, 120, 0.15);
+    backdrop-filter: blur(8px);
+  }
+  .cs-balance-num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #c9a84c;
+  }
+  .cs-balance-label {
+    font-size: 0.9rem;
+    color: #6b6b6b;
+  }
+  .cs-subtext {
+    color: #6b6b6b;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+  .cs-main-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 50px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, #c9a84c, #b8942f);
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+    transition: all 0.25s ease;
+  }
+  .cs-main-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 168, 76, 0.4);
+  }
+  .cs-countdown {
+    font-size: 0.8rem;
+    color: #6b6b6b;
+    margin-top: 1rem;
+  }
+  .credits-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #e8d5a0;
+    border-top-color: #c9a84c;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: auto;
+  }
+`;

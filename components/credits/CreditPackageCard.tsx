@@ -25,124 +25,146 @@ export function CreditPackageCard({
   const priceInDollars = (pkg.priceUSD / 100).toFixed(2);
   const pricePerCredit = (pkg.priceUSD / 100 / pkg.credits).toFixed(2);
 
-  const cardStyle: React.CSSProperties = {
-    position: 'relative',
-    borderRadius: '1.2rem',
-    padding: '1.5rem',
-    border: pkg.popular
-      ? '1px solid rgba(219, 39, 119, 0.5)'
-      : '1px solid rgba(255, 255, 255, 0.1)',
-    background: pkg.popular
-      ? 'linear-gradient(180deg, rgba(219,39,119,0.1), rgba(147,51,234,0.1))'
-      : 'rgba(255, 255, 255, 0.05)',
-    textAlign: 'center',
-    transition: 'border-color 0.2s',
-    transform: pkg.popular ? 'scale(1.03)' : undefined,
-  };
-
   return (
-    <div style={cardStyle}>
-      {pkg.popular && (
-        <div style={styles.popularBadge}>Popular</div>
-      )}
+    <>
+      <style>{css}</style>
+      <div className={`cpkg-card ${pkg.popular ? 'cpkg-popular' : ''}`}>
+        {pkg.popular && <div className="cpkg-badge">Popular</div>}
 
-      <div style={styles.iconWrap}>
-        <span style={{ fontSize: '1.6rem' }}>🪙</span>
+        <div className="cpkg-icon-wrap">
+          <span className="cpkg-icon">🪙</span>
+        </div>
+
+        <h3 className="cpkg-name">{pkg.name}</h3>
+
+        <p className="cpkg-tokens">
+          {pkg.credits.toLocaleString()} <span className="cpkg-tokens-label">tokens</span>
+        </p>
+
+        <p className="cpkg-price">${priceInDollars}</p>
+        <p className="cpkg-per-token">${pricePerCredit} por token</p>
+        <p className="cpkg-desc">{pkg.description}</p>
+
+        <button
+          onClick={() => onSelect(pkg.packageId)}
+          disabled={loading}
+          className={`cpkg-btn ${pkg.popular ? 'cpkg-btn-primary' : ''}`}
+          style={{ opacity: loading ? 0.5 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
+        >
+          {loading ? 'Procesando...' : 'Comprar'}
+        </button>
       </div>
-
-      <h3 style={styles.name}>{pkg.name}</h3>
-
-      <p style={styles.credits}>
-        {pkg.credits.toLocaleString()}{' '}
-        <span style={{ fontSize: '0.85rem', color: '#9ca3af' }}>créditos</span>
-      </p>
-
-      <p style={styles.price}>${priceInDollars}</p>
-
-      <p style={styles.perCredit}>${pricePerCredit} por crédito</p>
-
-      <p style={styles.description}>{pkg.description}</p>
-
-      <button
-        onClick={() => onSelect(pkg.packageId)}
-        disabled={loading}
-        style={{
-          ...styles.button,
-          background: pkg.popular
-            ? 'linear-gradient(135deg, #db2777, #9333ea)'
-            : 'rgba(255, 255, 255, 0.1)',
-          opacity: loading ? 0.5 : 1,
-          cursor: loading ? 'not-allowed' : 'pointer',
-          boxShadow: pkg.popular ? '0 8px 30px rgba(219, 39, 119, 0.2)' : 'none',
-        }}
-      >
-        {loading ? 'Procesando...' : 'Comprar'}
-      </button>
-    </div>
+    </>
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  popularBadge: {
-    position: 'absolute',
-    top: '-10px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '3px 14px',
-    borderRadius: '100px',
-    background: 'linear-gradient(135deg, #ec4899, #9333ea)',
-    fontSize: '0.65rem',
-    fontWeight: 900,
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    color: '#fff',
-  },
-  iconWrap: {
-    width: '56px',
-    height: '56px',
-    borderRadius: '14px',
-    background: 'linear-gradient(135deg, #ec4899, #9333ea)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0 auto 12px',
-  },
-  name: {
-    fontSize: '1.1rem',
-    fontWeight: 900,
-    textTransform: 'uppercase',
-    fontStyle: 'italic',
-    marginBottom: '4px',
-  },
-  credits: {
-    fontSize: '1.8rem',
-    fontWeight: 900,
-    marginBottom: '4px',
-  },
-  price: {
-    fontSize: '1.5rem',
-    fontWeight: 700,
-    marginBottom: '2px',
-  },
-  perCredit: {
-    fontSize: '0.7rem',
-    color: '#6b7280',
-    marginBottom: '10px',
-  },
-  description: {
-    fontSize: '0.85rem',
-    color: '#9ca3af',
-    marginBottom: '1.2rem',
-  },
-  button: {
-    width: '100%',
-    padding: '14px',
-    borderRadius: '14px',
-    border: 'none',
-    fontWeight: 700,
-    fontSize: '0.9rem',
-    color: '#fff',
-    cursor: 'pointer',
-    transition: 'opacity 0.2s',
-  },
-};
+const css = `
+  .cpkg-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 1.4rem;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1.5px solid #d4b96a;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(180, 160, 120, 0.15);
+    backdrop-filter: blur(8px);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .cpkg-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(180, 160, 120, 0.25);
+  }
+  .cpkg-popular {
+    border-color: #c9a84c;
+    background: linear-gradient(180deg, rgba(201,168,76,0.08), rgba(232,213,160,0.12));
+    transform: scale(1.02);
+  }
+  .cpkg-popular:hover { transform: scale(1.02) translateY(-2px); }
+  .cpkg-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 3px 16px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #c9a84c, #b8942f);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+  }
+  .cpkg-icon-wrap {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #c9a84c, #e8d5a0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .cpkg-icon { font-size: 1.4rem; }
+  .cpkg-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 4px;
+  }
+  .cpkg-tokens {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 2px;
+  }
+  .cpkg-tokens-label {
+    font-size: 0.8rem;
+    color: #6b6b6b;
+    font-weight: 400;
+  }
+  .cpkg-price {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #c9a84c;
+    margin-bottom: 2px;
+  }
+  .cpkg-per-token {
+    font-size: 0.68rem;
+    color: #6b6b6b;
+    margin-bottom: 8px;
+  }
+  .cpkg-desc {
+    font-size: 0.8rem;
+    color: #6b6b6b;
+    margin-bottom: 1rem;
+  }
+  .cpkg-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 50px;
+    border: 1.5px solid #d4b96a;
+    background: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #2d2d2d;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.25s ease;
+  }
+  .cpkg-btn:hover {
+    background: #c9a84c;
+    color: #fff;
+    border-color: #c9a84c;
+  }
+  .cpkg-btn-primary {
+    background: linear-gradient(135deg, #c9a84c, #b8942f);
+    color: #fff;
+    border-color: #c9a84c;
+    box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+  }
+  .cpkg-btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(201, 168, 76, 0.4);
+  }
+`;

@@ -88,42 +88,40 @@ export default function CreditsPage() {
 
   if (loading) {
     return (
-      <div style={styles.page}>
-        <div style={styles.spinner} />
+      <div className="credits-page">
+        <div className="credits-spinner" />
+        <style>{cssText}</style>
       </div>
     );
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <button onClick={() => router.back()} style={styles.backBtn}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <div className="credits-page">
+      <style>{cssText}</style>
+      <div className="credits-container">
+        <button onClick={() => router.back()} className="credits-back-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          <span>Volver</span>
+          Volver
         </button>
 
-        <div style={styles.header}>
-          <h1 style={styles.title}>
-            Comprar <span style={{ color: '#db2777' }}>Créditos</span>
-          </h1>
-          <p style={styles.subtitle}>Elige el paquete perfecto para ti</p>
+        <div className="credits-header">
+          <h1 className="credits-title">Comprar Tokens</h1>
+          <p className="credits-subtitle">Elige el paquete perfecto para ti</p>
 
-          <div style={styles.balanceBadge}>
-            <span style={{ fontSize: '1.4rem' }}>🪙</span>
-            <span>
-              Tienes <strong>{currentCredits.toLocaleString()}</strong> créditos
-            </span>
+          <div className="credits-balance-badge">
+            <span className="credits-coin">🪙</span>
+            Tienes <strong>{currentCredits.toLocaleString()}</strong> tokens
           </div>
         </div>
 
         {packages.length === 0 ? (
-          <div style={styles.emptyState}>
+          <div className="credits-empty">
             <p>No hay paquetes disponibles en este momento.</p>
           </div>
         ) : (
-          <div style={styles.grid}>
+          <div className="credits-grid">
             {packages.map((pkg) => (
               <CreditPackageCard
                 key={pkg.packageId}
@@ -135,91 +133,97 @@ export default function CreditsPage() {
           </div>
         )}
 
-        <div style={styles.footer}>
+        <div className="credits-footer">
           <p>Pagos procesados de forma segura por Stripe</p>
-          <p style={{ marginTop: '4px' }}>Los créditos no caducan y puedes usarlos en cualquier momento</p>
+          <p>Los tokens no caducan y puedes usarlos en cualquier momento</p>
         </div>
       </div>
     </div>
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  page: {
-    minHeight: '100vh',
-    background: '#050505',
-    color: '#fff',
-    fontFamily: "'Poppins', sans-serif",
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  container: {
-    maxWidth: '460px',
-    width: '100%',
-    padding: '2rem 1.2rem 3rem',
-  },
-  spinner: {
-    width: '48px',
-    height: '48px',
-    border: '4px solid rgba(219, 39, 119, 0.3)',
-    borderTopColor: '#db2777',
-    borderRadius: '50%',
-    animation: 'spin 0.8s linear infinite',
-    margin: 'auto',
-  },
-  backBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    background: 'none',
-    border: 'none',
-    color: '#9ca3af',
-    fontSize: '0.875rem',
-    cursor: 'pointer',
-    marginBottom: '1.5rem',
-    padding: 0,
-  },
-  header: {
-    textAlign: 'center' as const,
-    marginBottom: '2rem',
-  },
-  title: {
-    fontSize: 'clamp(1.8rem, 5vw, 2.8rem)',
-    fontWeight: 900,
-    letterSpacing: '-0.03em',
-    textTransform: 'uppercase' as const,
-    fontStyle: 'italic',
-    marginBottom: '0.5rem',
-  },
-  subtitle: {
-    color: '#9ca3af',
-    fontSize: '1rem',
-    marginBottom: '1.2rem',
-  },
-  balanceBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '10px 20px',
-    borderRadius: '100px',
-    background: 'linear-gradient(135deg, rgba(219,39,119,0.15), rgba(147,51,234,0.15))',
-    border: '1px solid rgba(219,39,119,0.3)',
-    fontSize: '0.95rem',
-  },
-  grid: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '1.2rem',
-  },
-  emptyState: {
-    textAlign: 'center' as const,
-    color: '#6b7280',
-    padding: '3rem 0',
-  },
-  footer: {
-    textAlign: 'center' as const,
-    marginTop: '2.5rem',
-    fontSize: '0.8rem',
-    color: '#6b7280',
-  },
-};
+const cssText = `
+  .credits-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #fdfcfa 0%, #f3efe8 50%, #fdfcfa 100%);
+    font-family: 'Poppins', sans-serif;
+    color: #2d2d2d;
+    display: flex;
+    justify-content: center;
+  }
+  .credits-container {
+    max-width: 460px;
+    width: 100%;
+    padding: 2rem 1.2rem 3rem;
+  }
+  .credits-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e8d5a0;
+    border-top-color: #c9a84c;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: auto;
+  }
+  .credits-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #6b6b6b;
+    font-size: 0.875rem;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    padding: 0;
+    transition: color 0.2s;
+  }
+  .credits-back-btn:hover { color: #2d2d2d; }
+  .credits-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .credits-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 0.4rem;
+  }
+  .credits-subtitle {
+    color: #6b6b6b;
+    font-size: 0.95rem;
+    margin-bottom: 1.2rem;
+  }
+  .credits-balance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.85);
+    border: 1.5px solid #d4b96a;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 20px rgba(180,160,120,0.15);
+    backdrop-filter: blur(8px);
+  }
+  .credits-coin { font-size: 1.2rem; }
+  .credits-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .credits-empty {
+    text-align: center;
+    color: #6b6b6b;
+    padding: 3rem 0;
+  }
+  .credits-footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.75rem;
+    color: #6b6b6b;
+    line-height: 1.6;
+  }
+`;
