@@ -3,7 +3,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import { translations } from "@/lib/translations";
+import AppToolbar from "@/app/components/AppToolbar";
+import MobileMenu from "@/app/components/MobileMenu";
 
 type WallPhoto = { id: string; imageUrl: string; username: string; prompt: string };
 type Comment = { id: string; username: string; text: string; createdAt: number };
@@ -19,8 +22,20 @@ export default function WallPage() {
   const [newComment, setNewComment] = useState("");
   const [sending, setSending] = useState(false);
   const [authed, setAuthed] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const [lang, setLang] = useState<"es" | "en">("es");
+  const t = translations[lang] || translations.es;
 
   useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) setUsername(storedUsername);
+    // Load language
+    if (storedUsername) {
+      fetch(`/api/admin/config?username=${storedUsername}`).then(r => r.json()).then(d => {
+        if (d?.settings?.language) setLang(d.settings.language);
+      }).catch(() => {});
+    }
     const unsub = onAuthStateChanged(auth, (u) => setAuthed(!!u));
     fetch("/api/photos/gallery")
       .then((r) => r.json())
@@ -75,17 +90,49 @@ export default function WallPage() {
     } catch {} finally { setSending(false); }
   }
 
-  // Assign random animation class to each photo
-  const animations = ["wall-float-1", "wall-float-2", "wall-float-3", "wall-wobble-1", "wall-wobble-2"];
+  // Split photos into rows for carousel
+  const ROWS = Math.max(3, Math.ceil(photos.length / 4));
+  const rows: WallPhoto[][] = [];
+  const perRow = Math.max(4, Math.ceil(photos.length / ROWS));
+  for (let i = 0; i < ROWS; i++) {
+    const row = photos.slice(i * perRow, (i + 1) * perRow);
+    if (row.length > 0) rows.push(row);
+  }
+
+  const wobbles = ["wall-wobble-1", "", "wall-wobble-2", "", "wall-wobble-1"];
 
   return (
     <div className="wall-page">
-      <header className="wall-header">
-        <button className="wall-back" onClick={() => router.back()}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <h1 className="wall-title">Wall</h1>
-      </header>
+      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} />
+      <MobileMenu
+        isOpen={showMenu}
+        onClose={() => setShowMenu(false)}
+        username={username}
+        email={auth.currentUser?.email ?? null}
+        profilePicture={null}
+        language={lang}
+        onChangeLanguage={async (newLang) => {
+          setLang(newLang);
+          setShowMenu(false);
+          try {
+            const token = await getToken();
+            if (token) {
+              await fetch("/api/admin/config", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ settings: { language: newLang } }),
+              });
+            }
+          } catch {}
+        }}
+        onLogout={async () => {
+          setShowMenu(false);
+          try { await signOut(auth); } catch {}
+          localStorage.removeItem("username");
+          router.replace("/");
+        }}
+        t={t}
+      />
 
       {loading && <div className="wall-loading"><div className="ph-spinner-small" /></div>}
 
@@ -94,18 +141,23 @@ export default function WallPage() {
       )}
 
       {!loading && photos.length > 0 && (
-        <div className="wall-mosaic">
-          {photos.map((photo, i) => (
-            <div
-              key={photo.id}
-              className={`wall-card ${animations[i % animations.length]}`}
-              style={{ animationDelay: `${(i * 0.3) % 2}s` }}
-              onClick={() => openPhoto(photo)}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.imageUrl} alt="" className="wall-card-img" loading="lazy" />
-              <div className="wall-card-overlay">
-                <span>@{photo.username}</span>
+        <div className="wall-carousel-container">
+          {rows.map((row, ri) => (
+            <div key={ri} className="wall-carousel-row">
+              <div className={`wall-carousel-track ${ri % 2 === 1 ? "wall-carousel-reverse" : ""}`} style={{ animationDuration: `${25 + ri * 5}s` }}>
+                {[...row, ...row].map((photo, j) => (
+                  <div
+                    key={`${photo.id}-${j}`}
+                    className={`wall-card ${wobbles[j % wobbles.length]}`}
+                    onClick={() => openPhoto(photo)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photo.imageUrl} alt="" className="wall-card-img" loading="lazy" />
+                    <div className="wall-card-overlay">
+                      <span>@{photo.username}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
