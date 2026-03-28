@@ -72,9 +72,9 @@ export default function AdminPage() {
   const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("color-mode");
-      if (saved === "dark" || saved === "auto") return saved;
+      if (saved === "dark" || saved === "light") return saved;
     }
-    return "light";
+    return "auto";
   });
   const [footerText, setFooterText] = useState("");
   const [showcaseLayout, setShowcaseLayout] = useState<"classic" | "compact" | "immersive">("classic");
@@ -155,7 +155,7 @@ export default function AdminPage() {
         setToolbarFont(data.settings.toolbarFont || "elegant");
         const theme = data.settings.appTheme || "gold";
         const localMode = typeof window !== "undefined" ? localStorage.getItem("color-mode") : null;
-        const mode = data.settings.colorMode || (localMode as "light" | "dark" | "auto") || "light";
+        const mode = data.settings.colorMode || (localMode as "light" | "dark" | "auto") || "auto";
         setAppTheme(theme);
         setColorMode(mode);
         import("@/lib/theme/colors").then(m => { m.applyTheme(theme as any); m.applyColorMode(mode); });
