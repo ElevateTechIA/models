@@ -5230,9 +5230,23 @@ body:has(.sc-page) {
 .ph-page .toolbar-name,
 .wall-page .toolbar-name { color: #fff; }
 .ph-page .toolbar-icon-btn,
-.wall-page .toolbar-icon-btn { color: #ccc; }
+.wall-page .toolbar-icon-btn {
+  color: #e8d48b;
+  border-color: rgba(201, 168, 76, 0.4);
+  background: rgba(201, 168, 76, 0.1);
+}
 .ph-page .toolbar-icon-btn:hover,
-.wall-page .toolbar-icon-btn:hover { color: #fff; }
+.wall-page .toolbar-icon-btn:hover {
+  color: #fff;
+  background: rgba(201, 168, 76, 0.25);
+}
+.ph-page .toolbar-tokens,
+.wall-page .toolbar-tokens {
+  border-color: rgba(201, 168, 76, 0.4);
+  background: rgba(201, 168, 76, 0.1);
+}
+.ph-page .toolbar-token-count,
+.wall-page .toolbar-token-count { color: #e8d48b; }
 
 .toolbar-brand {
   display: flex;
@@ -5240,6 +5254,8 @@ body:has(.sc-page) {
   gap: 8px;
   text-decoration: none;
   color: var(--text-dark);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .toolbar-logo {
@@ -5284,12 +5300,12 @@ body:has(.sc-page) {
 .toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .toolbar-icon-btn {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 1.5px solid var(--gold-border);
   background: var(--card-bg);
@@ -5312,8 +5328,8 @@ body:has(.sc-page) {
 .toolbar-tokens {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 4px;
+  padding: 4px 10px;
   border-radius: 50px;
   border: 1.5px solid var(--gold-border);
   background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(232,213,160,0.15));

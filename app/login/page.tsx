@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth, googleProvider } from "../../lib/firebase";
 
 type GalleryPhoto = { id: string; imageUrl: string; username: string; prompt: string };
@@ -221,6 +221,25 @@ export default function LoginPage() {
   useEffect(() => {
     const isLoggedIn = !!(localStorage.getItem("firebase-token") && localStorage.getItem("username"));
 
+    // Handle redirect result (mobile login fallback)
+    getRedirectResult(auth).then(async (result) => {
+      if (result?.user) {
+        const idToken = await result.user.getIdToken();
+        const displayName = result.user.displayName || "";
+        const registerRes = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${idToken}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ displayName }),
+        });
+        if (registerRes.ok) {
+          const data = await registerRes.json();
+          localStorage.setItem("firebase-token", idToken);
+          localStorage.setItem("username", data.username);
+          window.location.href = "/admin";
+        }
+      }
+    }).catch(() => {});
+
     // Fetch gallery photos first, then redirect if logged in
     fetch("/api/photos/gallery")
       .then((r) => r.json())
@@ -261,10 +280,15 @@ export default function LoginPage() {
       localStorage.setItem("firebase-token", idToken);
       localStorage.setItem("username", data.username);
       window.location.href = "/admin";
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t.loginError;
-      setError(message);
-      setLoading(false);
+    } catch {
+      // Popup blocked or failed on mobile — fallback to redirect
+      try {
+        await signInWithRedirect(auth, googleProvider);
+      } catch (err2: unknown) {
+        const message = err2 instanceof Error ? err2.message : t.loginError;
+        setError(message);
+        setLoading(false);
+      }
     }
   }
 
