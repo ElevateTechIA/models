@@ -13,7 +13,7 @@ interface AppToolbarProps {
   logoHref?: string;
 }
 
-export default function AppToolbar({ username, onMenuClick, font = "elegant", logoHref }: AppToolbarProps) {
+export default function AppToolbar({ username, onMenuClick, logoHref }: AppToolbarProps) {
   const [tokens, setTokens] = useState<number | null>(null);
   const [loadingTokens, setLoadingTokens] = useState(true);
 
@@ -41,8 +41,9 @@ export default function AppToolbar({ username, onMenuClick, font = "elegant", lo
 
   return (
     <div className="toolbar">
-      {/* Left: Logo + Name — logo jumps to random page */}
-      <div className="toolbar-brand">
+      {/* All items in one flex row */}
+      <div className="toolbar-actions">
+        {/* Logo */}
         <div
           className="toolbar-logo toolbar-logo-jump"
           onClick={() => {
@@ -58,13 +59,7 @@ export default function AppToolbar({ username, onMenuClick, font = "elegant", lo
             <path d="M50 0 C52 30 70 48 100 50 C70 52 52 70 50 100 C48 70 30 52 0 50 C30 48 48 30 50 0Z" />
           </svg>
         </div>
-        <a href={username ? `/${username}` : "/"} className="toolbar-brand-link">
-          <span className={`toolbar-name font-${font}`}>ONE LINK</span>
-        </a>
-      </div>
 
-      {/* Right: Actions */}
-      <div className="toolbar-actions">
         {/* Gallery button */}
         <a href="/photos" className="toolbar-icon-btn" title="Photos">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
