@@ -67,7 +67,7 @@ export default function AdminPage() {
 
   // Settings state
   const [language, setLanguage] = useState<Language>("es");
-  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
+  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("clean");
   const [appTheme, setAppTheme] = useState<string>("gold");
   const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">(() => {
     if (typeof window !== "undefined") {
@@ -152,7 +152,7 @@ export default function AdminPage() {
         setPictureAspect(data.profile.pictureAspect);
         setLinks(data.links);
         setLanguage(data.settings.language);
-        setToolbarFont(data.settings.toolbarFont || "elegant");
+        setToolbarFont(data.settings.toolbarFont || "clean");
         const theme = data.settings.appTheme || "gold";
         const localMode = typeof window !== "undefined" ? localStorage.getItem("color-mode") : null;
         const mode = data.settings.colorMode || (localMode as "light" | "dark" | "auto") || "auto";

@@ -99,6 +99,8 @@ export default function PhotosClient() {
   const [wallComments, setWallComments] = useState<WallComment[]>([]);
   const [wallNewComment, setWallNewComment] = useState("");
   const [wallSending, setWallSending] = useState(false);
+  const [wallFollowing, setWallFollowing] = useState(false);
+  const [wallFollowCount, setWallFollowCount] = useState(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const vidFileInputRef = useRef<HTMLInputElement>(null);
@@ -345,13 +347,21 @@ export default function PhotosClient() {
     setWallLikeCount(0);
     setWallComments([]);
     setWallNewComment("");
-    // Fetch likes + comments
-    fetch(`/api/photos/like?photoId=${photo.id}`).then(r => r.json()).then(d => {
+    setWallFollowing(false);
+    setWallFollowCount(0);
+    // Fetch likes + comments + follow status
+    const token = localStorage.getItem("firebase-token");
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+    fetch(`/api/photos/like?photoId=${photo.id}`, { headers }).then(r => r.json()).then(d => {
       setWallLikeCount(d.count || 0);
       setWallLiked(d.liked || false);
     }).catch(() => {});
     fetch(`/api/photos/comments?photoId=${photo.id}`).then(r => r.json()).then(d => {
       setWallComments(d.comments || []);
+    }).catch(() => {});
+    fetch(`/api/follow?username=${photo.username}`, { headers }).then(r => r.json()).then(d => {
+      setWallFollowing(d.following || false);
+      setWallFollowCount(d.count || 0);
     }).catch(() => {});
   }
 
@@ -369,6 +379,24 @@ export default function PhotosClient() {
       const d = await res.json();
       setWallLiked(d.liked);
       setWallLikeCount(d.count);
+    } catch {}
+  }
+
+  async function handleWallFollow() {
+    if (!wallSelected) return;
+    const token = await getToken(); if (!token) return;
+    // Optimistic
+    setWallFollowing(!wallFollowing);
+    setWallFollowCount(c => wallFollowing ? c - 1 : c + 1);
+    try {
+      const res = await fetch("/api/follow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ username: wallSelected.username }),
+      });
+      const d = await res.json();
+      setWallFollowing(d.following);
+      setWallFollowCount(d.count);
     } catch {}
   }
 
@@ -805,7 +833,22 @@ export default function PhotosClient() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={wallSelected.imageUrl} alt="" className="ph-wall-modal-img" />
             <div className="ph-wall-modal-body">
-              <p className="ph-wall-modal-author">{t.wallBy} <strong>@{wallSelected.username}</strong></p>
+              <div className="ph-wall-author-row">
+                <p className="ph-wall-modal-author">{t.wallBy} <strong>@{wallSelected.username}</strong></p>
+                <button
+                  className={`ph-wall-follow-toggle ${wallFollowing ? "ph-wall-follow-active" : ""}`}
+                  onClick={handleWallFollow}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {wallFollowing ? (
+                      <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></>
+                    ) : (
+                      <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></>
+                    )}
+                  </svg>
+                  {wallFollowing ? "Following" : "Follow"} {wallFollowCount > 0 && <span className="ph-wall-follow-count">{wallFollowCount}</span>}
+                </button>
+              </div>
               <div className="ph-wall-modal-actions">
                 <button className={`ph-wall-like-btn ${wallLiked ? "ph-wall-liked" : ""}`} onClick={handleWallLike}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={wallLiked ? "#ef4444" : "none"} stroke={wallLiked ? "#ef4444" : "currentColor"} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>

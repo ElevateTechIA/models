@@ -2524,12 +2524,51 @@ body:has(.ph-theme-pink) { background: #140a0d; }
 .ph-wall-modal-body {
   padding: 16px;
 }
+.ph-wall-author-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
 .ph-wall-modal-author {
-  margin: 0 0 12px;
+  margin: 0;
   font-size: 13px;
   color: #888;
 }
 .ph-wall-modal-author strong { color: #e0e0e0; }
+.ph-wall-follow-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 1.5px solid #3b82f6;
+  background: transparent;
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.1);
+}
+.ph-wall-follow-toggle:hover {
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5), 0 0 30px rgba(59, 130, 246, 0.2);
+}
+.ph-wall-follow-active {
+  background: #3b82f6;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.3);
+}
+.ph-wall-follow-active:hover {
+  background: #2563eb;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.35);
+}
+.ph-wall-follow-count {
+  font-size: 11px;
+  opacity: 0.8;
+}
 .ph-wall-modal-actions {
   display: flex;
   align-items: center;
@@ -3181,13 +3220,38 @@ body:has(.landing-page) {
 .gm-body {
   padding: 16px;
 }
+.gm-author-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
 .gm-author {
-  margin: 0 0 12px;
+  margin: 0;
   font-size: 13px;
   color: #7a7062;
 }
 .gm-author strong {
   color: var(--text-dark);
+}
+.gm-follow-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #c9a84c, #b8942f);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(201, 168, 76, 0.3);
+}
+.gm-follow-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(201, 168, 76, 0.4);
 }
 .gm-actions {
   display: flex;
