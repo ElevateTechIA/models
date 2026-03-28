@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
@@ -37,6 +37,7 @@ function getAspectNumber(ratio: string): number {
 
 export default function PhotosClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [authorized, setAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("library");
   const [authReady, setAuthReady] = useState(false);
@@ -45,6 +46,8 @@ export default function PhotosClient() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
+  const [templateImage, setTemplateImage] = useState<string | null>(null);
 
   // ── Photo state ──
   const [prompt, setPrompt] = useState("");
@@ -116,6 +119,7 @@ export default function PhotosClient() {
     function loadLang() {
       fetch(`/api/admin/config?username=${storedUsername}`).then(r => r.json()).then(d => {
         if (d?.settings?.language) setLang(d.settings.language);
+        if (d?.settings?.toolbarFont) setToolbarFont(d.settings.toolbarFont);
       }).catch(() => {});
     }
     loadLang();
@@ -125,6 +129,16 @@ export default function PhotosClient() {
     const unsub = onAuthStateChanged(auth, (u) => { if (u) setAuthReady(true); });
     return () => { unsub(); window.removeEventListener("focus", handleFocus); };
   }, [router]);
+
+  // ── Handle "Make your own" from wall ──
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    const promptParam = searchParams.get("prompt");
+    const templateParam = searchParams.get("template");
+    if (tab === "photos") setActiveTab("photos");
+    if (promptParam) setPrompt(decodeURIComponent(promptParam));
+    if (templateParam) setTemplateImage(decodeURIComponent(templateParam));
+  }, [searchParams]);
 
   // ── Library fetch ──
   const fetchLibraryPhotos = useCallback(async () => {
@@ -483,7 +497,7 @@ export default function PhotosClient() {
           <span><strong>-{creditToast.used}</strong> {t.creditsConsumed} &middot; {creditToast.remaining} {t.creditsRemaining}</span>
         </div>
       )}
-      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} />
+      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} font={toolbarFont} />
       <MobileMenu
         isOpen={showMenu}
         onClose={() => setShowMenu(false)}
@@ -524,7 +538,25 @@ export default function PhotosClient() {
               </div>
             )}
 
-            {!referenceImage && resultImages.length === 0 && !loading && (
+            {!referenceImage && resultImages.length === 0 && !loading && templateImage && (
+              <div className="ph-preview ph-template-preview" style={{ aspectRatio: `${getAspectNumber(aspectRatio)}` }}>
+                <div className="ph-template-container">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={templateImage} alt="Template" className="ph-template-img" />
+                  <div className="ph-template-overlay">
+                    <p className="ph-template-title">{lang === "es" ? "Crea la tuya" : "Make your own"}</p>
+                    <p className="ph-template-hint">{lang === "es" ? "Sube tu foto y generaremos una version con tu estilo" : "Upload your photo and we'll generate your version"}</p>
+                    <label className="ph-template-upload-btn">
+                      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      {lang === "es" ? "Subir mi foto" : "Upload my photo"}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!referenceImage && resultImages.length === 0 && !loading && !templateImage && (
               <div className="ph-preview ph-ideas-preview" style={{ aspectRatio: `${getAspectNumber(aspectRatio)}` }}>
                 <div className="ph-ideas-container">
                   <p className="ph-ideas-title">{t.promptIdeasTitle}</p>

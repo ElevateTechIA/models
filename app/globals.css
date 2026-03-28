@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Poppins:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Poppins:wght@300;400;500;600&family=UnifrakturMaguntia&family=Open+Sans:wght@400;600;700&display=swap');
 
 * {
   margin: 0;
@@ -1736,6 +1736,89 @@ body:has(.ph-theme-pink) { background: #140a0d; }
   to { opacity: 0; transform: translateX(-50%) translateY(-12px); }
 }
 
+/* Template preview (Make your own) */
+.ph-template-preview {
+  overflow: hidden;
+}
+.ph-template-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.ph-template-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.5);
+}
+.ph-template-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  text-align: center;
+}
+.ph-template-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.ph-template-hint {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+  max-width: 260px;
+}
+.ph-template-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #c9a84c, #b8942f);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(201,168,76,0.4);
+}
+.ph-template-upload-btn:hover {
+  transform: scale(1.04);
+}
+
+/* Wall "Make your own" button */
+.wall-make-own-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #c9a84c, #b8942f);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+}
+.wall-make-own-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(201,168,76,0.4);
+}
+
 .ph-error {
   padding: 0 16px;
   font-size: 13px;
@@ -2444,11 +2527,6 @@ body:has(.wall-page) {
   min-height: 100dvh;
   max-width: 600px;
   margin: 0 auto;
-}
-.wall-page .toolbar {
-  background: rgba(10, 10, 10, 0.9);
-  border-bottom: 1px solid rgba(236, 72, 153, 0.15);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 .wall-loading {
   display: flex;
@@ -5116,11 +5194,19 @@ body:has(.sc-page) {
   border-bottom: 1px solid var(--gold-border);
   box-shadow: 0 2px 12px rgba(180, 160, 120, 0.1);
 }
-.ph-page .toolbar {
+.ph-page .toolbar,
+.wall-page .toolbar {
   background: rgba(15, 13, 9, 0.9);
   border-bottom: 1px solid rgba(201, 168, 76, 0.15);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  color: #fff;
 }
+.ph-page .toolbar-name,
+.wall-page .toolbar-name { color: #fff; }
+.ph-page .toolbar-icon-btn,
+.wall-page .toolbar-icon-btn { color: #ccc; }
+.ph-page .toolbar-icon-btn:hover,
+.wall-page .toolbar-icon-btn:hover { color: #fff; }
 
 .toolbar-brand {
   display: flex;
@@ -5149,6 +5235,24 @@ body:has(.sc-page) {
   font-size: 18px;
   font-style: italic;
   letter-spacing: 0.5px;
+}
+.toolbar-name.font-gothic {
+  font-family: 'UnifrakturMaguntia', cursive;
+  font-style: normal;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+.toolbar-name.font-elegant {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+}
+.toolbar-name.font-clean {
+  font-family: 'Open Sans', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  font-size: 16px;
+  text-transform: uppercase;
 }
 
 .toolbar-actions {
@@ -5422,6 +5526,49 @@ body:has(.sc-page) {
   font-size: 12px;
   color: #a0a0a0;
   text-align: center;
+}
+
+/* Font picker */
+.mmenu-font-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.mmenu-font-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border: 1.5px solid var(--gold-border);
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mmenu-font-btn:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.05);
+}
+.mmenu-font-active {
+  background: linear-gradient(135deg, var(--gold), #b8942f) !important;
+  border-color: var(--gold) !important;
+}
+.mmenu-font-active .mmenu-font-preview,
+.mmenu-font-active .mmenu-font-label { color: #fff !important; }
+.mmenu-font-preview {
+  font-size: 22px;
+  color: var(--text-dark);
+  line-height: 1;
+}
+.mmenu-font-preview.font-gothic { font-family: 'UnifrakturMaguntia', cursive; }
+.mmenu-font-preview.font-elegant { font-family: 'Playfair Display', serif; font-style: italic; }
+.mmenu-font-preview.font-clean { font-family: 'Open Sans', sans-serif; font-weight: 700; }
+.mmenu-font-label {
+  font-size: 10px;
+  color: #7a7062;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .mmenu-logout {

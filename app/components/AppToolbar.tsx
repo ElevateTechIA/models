@@ -3,12 +3,15 @@
 import React, { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 
+export type ToolbarFont = "gothic" | "elegant" | "clean";
+
 interface AppToolbarProps {
   username: string | null;
   onMenuClick: () => void;
+  font?: ToolbarFont;
 }
 
-export default function AppToolbar({ username, onMenuClick }: AppToolbarProps) {
+export default function AppToolbar({ username, onMenuClick, font = "elegant" }: AppToolbarProps) {
   const [tokens, setTokens] = useState<number | null>(null);
   const [loadingTokens, setLoadingTokens] = useState(true);
 
@@ -38,7 +41,7 @@ export default function AppToolbar({ username, onMenuClick }: AppToolbarProps) {
       {/* Left: Logo + Name */}
       <a href={username ? `/${username}` : "/"} className="toolbar-brand">
         <div className="toolbar-logo">✦</div>
-        <span className="toolbar-name">ONE LINK</span>
+        <span className={`toolbar-name font-${font}`}>ONE LINK</span>
       </a>
 
       {/* Right: Actions */}

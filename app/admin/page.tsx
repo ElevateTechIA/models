@@ -67,6 +67,7 @@ export default function AdminPage() {
 
   // Settings state
   const [language, setLanguage] = useState<Language>("es");
+  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
   const [footerText, setFooterText] = useState("");
   const [showcaseLayout, setShowcaseLayout] = useState<"classic" | "compact" | "immersive">("classic");
   const [savingSettings, setSavingSettings] = useState(false);
@@ -143,6 +144,7 @@ export default function AdminPage() {
         setPictureAspect(data.profile.pictureAspect);
         setLinks(data.links);
         setLanguage(data.settings.language);
+        setToolbarFont(data.settings.toolbarFont || "elegant");
         setFooterText(data.settings.footerText);
         setShowcaseLayout(data.settings.showcaseLayout || "classic");
         setLoading(false);
@@ -591,7 +593,7 @@ export default function AdminPage() {
       />
 
       {/* ── Toolbar ────────────────────────────────── */}
-      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} />
+      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} font={toolbarFont} />
 
       {/* ── Mobile Menu ──────────────────────────────── */}
       <MobileMenu
@@ -608,7 +610,18 @@ export default function AdminPage() {
             await fetch("/api/admin/config", {
               method: "PUT",
               headers: await authHeaders(),
-              body: JSON.stringify({ settings: { language: lang, footerText, showcaseLayout } }),
+              body: JSON.stringify({ settings: { language: lang, footerText, showcaseLayout, toolbarFont } }),
+            });
+          } catch {}
+        }}
+        font={toolbarFont}
+        onChangeFont={async (f) => {
+          setToolbarFont(f);
+          try {
+            await fetch("/api/admin/config", {
+              method: "PUT",
+              headers: await authHeaders(),
+              body: JSON.stringify({ settings: { language, footerText, showcaseLayout, toolbarFont: f } }),
             });
           } catch {}
         }}

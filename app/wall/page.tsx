@@ -24,6 +24,7 @@ export default function WallPage() {
   const [authed, setAuthed] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
   const [lang, setLang] = useState<"es" | "en">("es");
   const t = translations[lang] || translations.es;
 
@@ -34,6 +35,7 @@ export default function WallPage() {
     if (storedUsername) {
       fetch(`/api/admin/config?username=${storedUsername}`).then(r => r.json()).then(d => {
         if (d?.settings?.language) setLang(d.settings.language);
+        if (d?.settings?.toolbarFont) setToolbarFont(d.settings.toolbarFont);
       }).catch(() => {});
     }
     const unsub = onAuthStateChanged(auth, (u) => setAuthed(!!u));
@@ -103,7 +105,7 @@ export default function WallPage() {
 
   return (
     <div className="wall-page">
-      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} />
+      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} font={toolbarFont} />
       <MobileMenu
         isOpen={showMenu}
         onClose={() => setShowMenu(false)}
@@ -198,6 +200,17 @@ export default function WallPage() {
               ) : (
                 <p className="wall-modal-hint">Sign in to like and comment</p>
               )}
+              <button
+                className="wall-make-own-btn"
+                onClick={() => {
+                  const prompt = selected?.prompt || "";
+                  const templateImg = encodeURIComponent(selected?.imageUrl || "");
+                  router.push(`/photos?tab=photos&prompt=${encodeURIComponent(prompt)}&template=${templateImg}`);
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                {lang === "es" ? "Crea la tuya" : "Make your own"}
+              </button>
             </div>
           </div>
         </div>

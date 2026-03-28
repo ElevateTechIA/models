@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import type { Language, TranslationKeys } from "@/lib/translations";
+import type { ToolbarFont } from "./AppToolbar";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -14,6 +15,8 @@ interface MobileMenuProps {
   onChangeLanguage: (lang: Language) => void;
   onLogout: () => void;
   t: TranslationKeys;
+  font?: ToolbarFont;
+  onChangeFont?: (font: ToolbarFont) => void;
 }
 
 export default function MobileMenu({
@@ -26,6 +29,8 @@ export default function MobileMenu({
   onChangeLanguage,
   onLogout,
   t,
+  font = "elegant",
+  onChangeFont,
 }: MobileMenuProps) {
   if (!isOpen) return null;
 
@@ -134,6 +139,37 @@ export default function MobileMenu({
           </div>
           <p className="mmenu-version">v1.0.2</p>
         </div>
+
+        {/* Font */}
+        {onChangeFont && (
+          <>
+            <div className="mmenu-divider" />
+            <div className="mmenu-section">
+              <p className="mmenu-section-label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="4 7 4 4 20 4 20 7" />
+                  <line x1="9" y1="20" x2="15" y2="20" />
+                  <line x1="12" y1="4" x2="12" y2="20" />
+                </svg>
+                {language === "es" ? "TIPOGRAFIA" : "FONT"}
+              </p>
+              <div className="mmenu-font-grid">
+                <button className={`mmenu-font-btn ${font === "gothic" ? "mmenu-font-active" : ""}`} onClick={() => onChangeFont("gothic")}>
+                  <span className="mmenu-font-preview font-gothic">Aa</span>
+                  <span className="mmenu-font-label">Gothic</span>
+                </button>
+                <button className={`mmenu-font-btn ${font === "elegant" ? "mmenu-font-active" : ""}`} onClick={() => onChangeFont("elegant")}>
+                  <span className="mmenu-font-preview font-elegant">Aa</span>
+                  <span className="mmenu-font-label">Elegant</span>
+                </button>
+                <button className={`mmenu-font-btn ${font === "clean" ? "mmenu-font-active" : ""}`} onClick={() => onChangeFont("clean")}>
+                  <span className="mmenu-font-preview font-clean">Aa</span>
+                  <span className="mmenu-font-label">Clean</span>
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Logout */}
         <button className="mmenu-logout" onClick={onLogout}>
