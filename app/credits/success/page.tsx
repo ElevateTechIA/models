@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
+import { getDeviceId } from '@/lib/device-fingerprint';
 import { translations, type Language } from '@/lib/translations';
 
 function SuccessContent() {
@@ -39,8 +40,9 @@ function SuccessContent() {
   const loadCredits = async () => {
     try {
       const token = await auth.currentUser?.getIdToken();
+      const deviceId = await getDeviceId();
       const response = await fetch('/api/credits/balance', {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, 'x-device-id': deviceId },
       });
 
       if (response.ok) {

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
+import { getDeviceId } from '@/lib/device-fingerprint';
 import { onAuthStateChanged } from 'firebase/auth';
 import { CreditPackageCard } from '@/components/credits/CreditPackageCard';
 import { translations, type Language } from '@/lib/translations';
@@ -50,9 +51,11 @@ export default function CreditsPage() {
 
       const [packagesRes, balanceRes] = await Promise.all([
         fetch('/api/credits/packages'),
-        fetch('/api/credits/balance', {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        getDeviceId().then((deviceId) =>
+          fetch('/api/credits/balance', {
+            headers: { Authorization: `Bearer ${token}`, 'x-device-id': deviceId },
+          })
+        ),
       ]);
 
       if (packagesRes.ok) {

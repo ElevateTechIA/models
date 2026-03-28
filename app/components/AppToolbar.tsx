@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
+import { getDeviceId } from "@/lib/device-fingerprint";
 
 export type ToolbarFont = "gothic" | "elegant" | "clean";
 
@@ -23,8 +24,9 @@ export default function AppToolbar({ username, onMenuClick, font = "elegant" }: 
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
+      const deviceId = await getDeviceId();
       const res = await fetch("/api/credits/balance", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "x-device-id": deviceId },
       });
       if (res.ok) {
         const data = await res.json();
