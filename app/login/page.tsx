@@ -27,6 +27,7 @@ const t_es = {
   addComment: "Escribe un comentario...",
   send: "Enviar",
   loginToInteract: "Inicia sesion para dar like y comentar",
+  joinNow: "Unete ahora",
   by: "por",
   inviteFriend: "Invita un amigo",
   inviteMsg: "Mira esta app para crear tu pagina de enlaces con IA! ",
@@ -52,6 +53,7 @@ const t_en = {
   addComment: "Write a comment...",
   send: "Send",
   loginToInteract: "Sign in to like and comment",
+  joinNow: "Join now",
   by: "by",
   inviteFriend: "Invite a friend",
   inviteMsg: "Check out this app to create your link page with AI! ",
@@ -194,7 +196,13 @@ function PhotoModal({ photo, t, onClose }: { photo: GalleryPhoto; t: Translation
               </button>
             </div>
           ) : (
-            <p className="gm-login-hint">{t.loginToInteract}</p>
+            <div className="gm-join-section">
+              <p className="gm-login-hint">{t.loginToInteract}</p>
+              <a href="/login" className="gm-join-btn" onClick={(e) => { e.stopPropagation(); onClose(); }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                {t.joinNow}
+              </a>
+            </div>
           )}
         </div>
       </div>

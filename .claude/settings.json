@@ -26,10 +26,12 @@
       "Bash(grep -r INSUFFICIENT_CREDITS /Users/cesarvega/Movies/CapCut/Models/app --include=*.tsx --include=*.ts -B 2 -A 2)",
       "Bash(find /Users/cesarvega/Movies/CapCut/Models/lib -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(ls /Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public/money-bag*)"
     ],
     "additionalDirectories": [
-      "/Users/cesarvega/Movies/CapCut/Models/app/[username]"
+      "/Users/cesarvega/Movies/CapCut/Models/app/[username]",
+      "/Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public"
     ]
   }
 }
