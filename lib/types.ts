@@ -28,6 +28,7 @@ export interface SiteSettings {
   sectionOrder?: ShowcaseSection[];
   toolbarFont?: "gothic" | "elegant" | "clean";
   appTheme?: string;
+  colorMode?: "light" | "dark" | "auto";
 }
 
 export interface SiteConfig {

@@ -49,7 +49,11 @@ export default function AppToolbar({ username, onMenuClick, font = "elegant" }: 
           }}
           role="button"
           tabIndex={0}
-        >✦</div>
+        >
+          <svg width="16" height="16" viewBox="0 0 100 100" fill="#fff">
+            <path d="M50 0 C52 30 70 48 100 50 C70 52 52 70 50 100 C48 70 30 52 0 50 C30 48 48 30 50 0Z" />
+          </svg>
+        </div>
         <a href={username ? `/${username}` : "/"} className="toolbar-brand-link">
           <span className={`toolbar-name font-${font}`}>ONE LINK</span>
         </a>

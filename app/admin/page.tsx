@@ -69,6 +69,7 @@ export default function AdminPage() {
   const [language, setLanguage] = useState<Language>("es");
   const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
   const [appTheme, setAppTheme] = useState<string>("gold");
+  const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">("light");
   const [footerText, setFooterText] = useState("");
   const [showcaseLayout, setShowcaseLayout] = useState<"classic" | "compact" | "immersive">("classic");
   const [savingSettings, setSavingSettings] = useState(false);
@@ -146,7 +147,11 @@ export default function AdminPage() {
         setLinks(data.links);
         setLanguage(data.settings.language);
         setToolbarFont(data.settings.toolbarFont || "elegant");
-        setAppTheme(data.settings.appTheme || "gold");
+        const theme = data.settings.appTheme || "gold";
+        const mode = data.settings.colorMode || "light";
+        setAppTheme(theme);
+        setColorMode(mode);
+        import("@/lib/theme/colors").then(m => { m.applyTheme(theme as any); m.applyColorMode(mode); });
         setFooterText(data.settings.footerText);
         setShowcaseLayout(data.settings.showcaseLayout || "classic");
         setLoading(false);
@@ -630,11 +635,24 @@ export default function AdminPage() {
         theme={appTheme as any}
         onChangeTheme={async (th) => {
           setAppTheme(th);
+          (await import("@/lib/theme/colors")).applyTheme(th);
           try {
             await fetch("/api/admin/config", {
               method: "PUT",
               headers: await authHeaders(),
               body: JSON.stringify({ settings: { language, footerText, showcaseLayout, toolbarFont, appTheme: th } }),
+            });
+          } catch {}
+        }}
+        colorMode={colorMode}
+        onChangeColorMode={async (mode) => {
+          setColorMode(mode);
+          (await import("@/lib/theme/colors")).applyColorMode(mode);
+          try {
+            await fetch("/api/admin/config", {
+              method: "PUT",
+              headers: await authHeaders(),
+              body: JSON.stringify({ settings: { language, footerText, showcaseLayout, toolbarFont, appTheme, colorMode: mode } }),
             });
           } catch {}
         }}

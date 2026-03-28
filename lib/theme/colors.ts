@@ -212,3 +212,28 @@ export const themes = {
 export const defaultTheme = "gold";
 export type ThemeName = keyof typeof themes;
 export type ThemeColors = (typeof themes)[typeof defaultTheme]["colors"];
+
+export type ColorMode = "light" | "dark" | "auto";
+
+/** Apply theme colors as CSS custom properties on <html> */
+export function applyTheme(themeName: ThemeName) {
+  const theme = themes[themeName] || themes[defaultTheme];
+  const root = document.documentElement;
+  for (const [key, value] of Object.entries(theme.colors)) {
+    root.style.setProperty(`--theme-${key}`, value);
+  }
+  root.setAttribute("data-theme", themeName);
+}
+
+/** Apply color mode (light/dark/auto) */
+export function applyColorMode(mode: ColorMode) {
+  const root = document.documentElement;
+  root.removeAttribute("data-color-mode");
+
+  if (mode === "auto") {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.setAttribute("data-color-mode", prefersDark ? "dark" : "light");
+  } else {
+    root.setAttribute("data-color-mode", mode);
+  }
+}

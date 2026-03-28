@@ -28,11 +28,13 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(ls /Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public/money-bag*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Read(//Users/cesarvega/**)"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]",
-      "/Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public"
+      "/Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public",
+      "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain"
     ]
   }
 }
