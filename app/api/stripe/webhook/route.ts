@@ -50,21 +50,30 @@ export async function POST(request: NextRequest) {
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const { id: sessionId, metadata } = session;
 
-  if (!metadata?.username || !metadata?.packageId || !metadata?.credits) {
+  if (!metadata?.username || !metadata?.packageId) {
     console.error('❌ Missing metadata in checkout session:', sessionId);
     return;
   }
 
-  const { username, packageId, credits: creditsStr } = metadata;
-  const credits = parseInt(creditsStr);
+  const { username, packageId } = metadata;
 
-  // Idempotency check
-  const sessionDoc = await db.collection('model-checkout-sessions').doc(sessionId).get();
-  if (!sessionDoc.exists) return;
-  if (sessionDoc.data()!.status === 'completed') return;
-
-  // Atomic transaction
+  // All checks + credit grant inside ONE transaction to prevent double-processing
   await db.runTransaction(async (transaction) => {
+    const sessionRef = db.collection('model-checkout-sessions').doc(sessionId);
+    const sessionDoc = await transaction.get(sessionRef);
+
+    // Session must exist and be pending — if already completed, skip (idempotent)
+    if (!sessionDoc.exists) return;
+    if (sessionDoc.data()!.status === 'completed') return;
+
+    // Verify credits from the checkout session doc (set at creation time from DB),
+    // NOT from Stripe metadata which could theoretically be tampered with
+    const credits = sessionDoc.data()!.credits;
+    if (!credits || typeof credits !== 'number' || credits <= 0) {
+      console.error('❌ Invalid credits in session doc:', sessionId, credits);
+      return;
+    }
+
     const userRef = db.collection('user-credits').doc(username);
     const userDoc = await transaction.get(userRef);
 
@@ -95,8 +104,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       createdAt: FieldValue.serverTimestamp(),
     });
 
-    // Update session status
-    transaction.update(db.collection('model-checkout-sessions').doc(sessionId), {
+    // Mark session as completed (inside transaction = atomic with credit grant)
+    transaction.update(sessionRef, {
       status: 'completed',
       completedAt: FieldValue.serverTimestamp(),
     });

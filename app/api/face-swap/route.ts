@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, verifyAuthWithUser } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { rateLimit } from "@/lib/rate-limit";
 
 type Provider = "gemini" | "replicate";
 
@@ -270,6 +271,15 @@ export async function POST(req: NextRequest) {
   }
 
   const { username } = authResult;
+
+  // Rate limit: max 5 face swaps per 60 seconds per user
+  const rl = rateLimit(`faceswap:${username}`, 5, 60_000);
+  if (rl.limited) {
+    return NextResponse.json(
+      { error: "TOO_MANY_REQUESTS", retryAfterMs: rl.retryAfterMs },
+      { status: 429 }
+    );
+  }
 
   // Deduct credits before processing
   const { ok, creditsRemaining } = await deductCredits(username);

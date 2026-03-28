@@ -69,7 +69,13 @@ export default function AdminPage() {
   const [language, setLanguage] = useState<Language>("es");
   const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
   const [appTheme, setAppTheme] = useState<string>("gold");
-  const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">("light");
+  const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("color-mode");
+      if (saved === "dark" || saved === "auto") return saved;
+    }
+    return "light";
+  });
   const [footerText, setFooterText] = useState("");
   const [showcaseLayout, setShowcaseLayout] = useState<"classic" | "compact" | "immersive">("classic");
   const [savingSettings, setSavingSettings] = useState(false);
@@ -148,7 +154,8 @@ export default function AdminPage() {
         setLanguage(data.settings.language);
         setToolbarFont(data.settings.toolbarFont || "elegant");
         const theme = data.settings.appTheme || "gold";
-        const mode = data.settings.colorMode || "light";
+        const localMode = typeof window !== "undefined" ? localStorage.getItem("color-mode") : null;
+        const mode = data.settings.colorMode || (localMode as "light" | "dark" | "auto") || "light";
         setAppTheme(theme);
         setColorMode(mode);
         import("@/lib/theme/colors").then(m => { m.applyTheme(theme as any); m.applyColorMode(mode); });

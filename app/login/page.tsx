@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth, googleProvider } from "../../lib/firebase";
+import { getDeviceId } from "@/lib/device-fingerprint";
 
 type GalleryPhoto = { id: string; imageUrl: string; username: string; prompt: string };
 type Comment = { id: string; username: string; text: string; createdAt: number };
@@ -231,10 +232,11 @@ export default function LoginPage() {
       if (result?.user) {
         const idToken = await result.user.getIdToken();
         const displayName = result.user.displayName || "";
+        const deviceId = await getDeviceId();
         const registerRes = await fetch("/api/auth/register", {
           method: "POST",
           headers: { Authorization: `Bearer ${idToken}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ displayName }),
+          body: JSON.stringify({ displayName, deviceId }),
         });
         if (registerRes.ok) {
           const data = await registerRes.json();
@@ -265,6 +267,7 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const displayName = result.user.displayName || "";
+      const deviceId = await getDeviceId();
 
       const registerRes = await fetch("/api/auth/register", {
         method: "POST",
@@ -272,7 +275,7 @@ export default function LoginPage() {
           Authorization: `Bearer ${idToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ displayName }),
+        body: JSON.stringify({ displayName, deviceId }),
       });
 
       if (!registerRes.ok) {

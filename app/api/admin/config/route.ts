@@ -44,6 +44,12 @@ export async function PUT(req: NextRequest) {
       config.settings.carouselPhotos = body.settings.carouselPhotos;
     if (body.settings.sectionOrder !== undefined)
       config.settings.sectionOrder = body.settings.sectionOrder;
+    if (body.settings.toolbarFont !== undefined)
+      config.settings.toolbarFont = body.settings.toolbarFont;
+    if (body.settings.appTheme !== undefined)
+      config.settings.appTheme = body.settings.appTheme;
+    if (body.settings.colorMode !== undefined)
+      config.settings.colorMode = body.settings.colorMode;
   }
 
   await writeUserConfig(authed.username, config);

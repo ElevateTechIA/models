@@ -236,4 +236,7 @@ export function applyColorMode(mode: ColorMode) {
   } else {
     root.setAttribute("data-color-mode", mode);
   }
+
+  // Persist so it can be restored instantly on next page load
+  try { localStorage.setItem("color-mode", mode); } catch {}
 }

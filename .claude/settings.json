@@ -30,7 +30,8 @@
       "Bash(ls /Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public/money-bag*)",
       "Bash(git push:*)",
       "Read(//Users/cesarvega/**)",
-      "Bash(find /Users/cesarvega/Movies/CapCut/Models -type f -name .env* -o -name *.env)"
+      "Bash(find /Users/cesarvega/Movies/CapCut/Models -type f -name .env* -o -name *.env)",
+      "Bash(grep fill= /Users/cesarvega/Movies/CapCut/Models/public/*_icon.svg)"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]",

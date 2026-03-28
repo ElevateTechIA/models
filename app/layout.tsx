@@ -27,11 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/app-icon-192.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=localStorage.getItem("color-mode");if(m==="dark")document.documentElement.setAttribute("data-color-mode","dark");else if(m==="auto"&&window.matchMedia("(prefers-color-scheme:dark)").matches)document.documentElement.setAttribute("data-color-mode","dark");}catch(e){}})();`,
+          }}
+        />
       </head>
       <body suppressHydrationWarning>
         {children}

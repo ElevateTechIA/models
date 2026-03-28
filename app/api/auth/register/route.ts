@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAuth } from "@/lib/firebase-admin";
+import { verifyAuth, db } from "@/lib/firebase-admin";
 import { findUserByEmail, registerUser } from "@/lib/data";
 
 export async function POST(req: NextRequest) {
@@ -17,11 +17,13 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Extract display name from request body or fall back to email prefix
+  // Extract display name and deviceId from request body
   let displayName = "";
+  let deviceId = "";
   try {
     const body = await req.json();
     displayName = body.displayName || "";
+    deviceId = body.deviceId || "";
   } catch {
     // No body provided
   }
@@ -29,13 +31,30 @@ export async function POST(req: NextRequest) {
     displayName = email.split("@")[0];
   }
 
+  // Check if this device already claimed welcome credits
+  let deviceAlreadyClaimed = false;
+  if (deviceId) {
+    const deviceDoc = await db.collection("device-claims").doc(deviceId).get();
+    deviceAlreadyClaimed = deviceDoc.exists;
+  }
+
   const record = await registerUser(email, displayName);
+
+  // Mark device as claimed (for future registrations on same device)
+  if (deviceId) {
+    await db.collection("device-claims").doc(deviceId).set({
+      username: record.username,
+      email,
+      claimedAt: new Date().toISOString(),
+    });
+  }
 
   return NextResponse.json(
     {
       username: record.username,
       displayName: record.displayName,
       isNew: true,
+      deviceAlreadyClaimed,
     },
     { status: 201 }
   );

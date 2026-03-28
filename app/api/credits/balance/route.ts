@@ -21,29 +21,53 @@ export async function GET(request: NextRequest) {
     if (!userDoc.exists) {
       const welcomeCredits = parseInt(process.env.WELCOME_CREDITS || '100');
 
+      // Check if this device already claimed welcome credits
+      const deviceId = request.headers.get('x-device-id');
+      let deviceAlreadyClaimed = false;
+      if (deviceId) {
+        const deviceDoc = await db.collection('device-claims').doc(deviceId).get();
+        deviceAlreadyClaimed = deviceDoc.exists;
+      }
+
+      const creditsToGrant = deviceAlreadyClaimed ? 0 : welcomeCredits;
+
       await userCreditsRef.set({
         username,
         email,
-        credits: welcomeCredits,
-        totalCreditsEarned: welcomeCredits,
+        credits: creditsToGrant,
+        totalCreditsEarned: creditsToGrant,
+        deviceId: deviceId || null,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });
 
-      // Create welcome bonus transaction
-      await db.collection('model-transactions').add({
-        username,
-        type: 'bonus',
-        credits: welcomeCredits,
-        balanceBefore: 0,
-        balanceAfter: welcomeCredits,
-        description: 'Créditos de bienvenida',
-        createdAt: FieldValue.serverTimestamp(),
-      });
+      // Create welcome bonus transaction (only if credits granted)
+      if (creditsToGrant > 0) {
+        await db.collection('model-transactions').add({
+          username,
+          type: 'bonus',
+          credits: creditsToGrant,
+          balanceBefore: 0,
+          balanceAfter: creditsToGrant,
+          description: 'Créditos de bienvenida',
+          createdAt: FieldValue.serverTimestamp(),
+        });
 
-      console.log(`✅ New credits user: ${username} with ${welcomeCredits} credits`);
+        // Mark device as claimed
+        if (deviceId) {
+          await db.collection('device-claims').doc(deviceId).set({
+            username,
+            email,
+            claimedAt: new Date().toISOString(),
+          });
+        }
 
-      return NextResponse.json({ credits: welcomeCredits, username });
+        console.log(`✅ New credits user: ${username} with ${creditsToGrant} credits`);
+      } else {
+        console.log(`⚠️ Device already claimed credits. ${username} gets 0 welcome credits (deviceId: ${deviceId})`);
+      }
+
+      return NextResponse.json({ credits: creditsToGrant, username });
     }
 
     const userData = userDoc.data();
