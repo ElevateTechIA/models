@@ -27,6 +27,7 @@ export interface SiteSettings {
   carouselPhotos?: string[];
   sectionOrder?: ShowcaseSection[];
   toolbarFont?: "gothic" | "elegant" | "clean";
+  appTheme?: string;
 }
 
 export interface SiteConfig {

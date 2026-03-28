@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import type { Language, TranslationKeys } from "@/lib/translations";
 import type { ToolbarFont } from "./AppToolbar";
+import { themes, type ThemeName } from "@/lib/theme/colors";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ interface MobileMenuProps {
   t: TranslationKeys;
   font?: ToolbarFont;
   onChangeFont?: (font: ToolbarFont) => void;
+  theme?: ThemeName;
+  onChangeTheme?: (theme: ThemeName) => void;
 }
 
 export default function MobileMenu({
@@ -31,6 +34,8 @@ export default function MobileMenu({
   t,
   font = "elegant",
   onChangeFont,
+  theme = "gold",
+  onChangeTheme,
 }: MobileMenuProps) {
   if (!isOpen) return null;
 
@@ -166,6 +171,38 @@ export default function MobileMenu({
                   <span className="mmenu-font-preview font-clean">Aa</span>
                   <span className="mmenu-font-label">Clean</span>
                 </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Theme */}
+        {onChangeTheme && (
+          <>
+            <div className="mmenu-divider" />
+            <div className="mmenu-section">
+              <p className="mmenu-section-label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+                {language === "es" ? "TEMA" : "THEME"}
+              </p>
+              <div className="mmenu-theme-grid">
+                {(Object.keys(themes) as ThemeName[]).map((key) => (
+                  <button
+                    key={key}
+                    className={`mmenu-theme-btn ${theme === key ? "mmenu-theme-active" : ""}`}
+                    onClick={() => onChangeTheme(key)}
+                    title={themes[key].name}
+                  >
+                    <span
+                      className="mmenu-theme-swatch"
+                      style={{ background: themes[key].colors.primary }}
+                    />
+                    <span className="mmenu-theme-label">{themes[key].emoji}</span>
+                  </button>
+                ))}
               </div>
             </div>
           </>

@@ -68,6 +68,7 @@ export default function AdminPage() {
   // Settings state
   const [language, setLanguage] = useState<Language>("es");
   const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
+  const [appTheme, setAppTheme] = useState<string>("gold");
   const [footerText, setFooterText] = useState("");
   const [showcaseLayout, setShowcaseLayout] = useState<"classic" | "compact" | "immersive">("classic");
   const [savingSettings, setSavingSettings] = useState(false);
@@ -145,6 +146,7 @@ export default function AdminPage() {
         setLinks(data.links);
         setLanguage(data.settings.language);
         setToolbarFont(data.settings.toolbarFont || "elegant");
+        setAppTheme(data.settings.appTheme || "gold");
         setFooterText(data.settings.footerText);
         setShowcaseLayout(data.settings.showcaseLayout || "classic");
         setLoading(false);
@@ -610,7 +612,7 @@ export default function AdminPage() {
             await fetch("/api/admin/config", {
               method: "PUT",
               headers: await authHeaders(),
-              body: JSON.stringify({ settings: { language: lang, footerText, showcaseLayout, toolbarFont } }),
+              body: JSON.stringify({ settings: { language: lang, footerText, showcaseLayout, toolbarFont, appTheme } }),
             });
           } catch {}
         }}
@@ -621,7 +623,18 @@ export default function AdminPage() {
             await fetch("/api/admin/config", {
               method: "PUT",
               headers: await authHeaders(),
-              body: JSON.stringify({ settings: { language, footerText, showcaseLayout, toolbarFont: f } }),
+              body: JSON.stringify({ settings: { language, footerText, showcaseLayout, toolbarFont: f, appTheme } }),
+            });
+          } catch {}
+        }}
+        theme={appTheme as any}
+        onChangeTheme={async (th) => {
+          setAppTheme(th);
+          try {
+            await fetch("/api/admin/config", {
+              method: "PUT",
+              headers: await authHeaders(),
+              body: JSON.stringify({ settings: { language, footerText, showcaseLayout, toolbarFont, appTheme: th } }),
             });
           } catch {}
         }}

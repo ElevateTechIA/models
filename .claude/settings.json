@@ -27,7 +27,8 @@
       "Bash(find /Users/cesarvega/Movies/CapCut/Models/lib -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(ls /Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public/money-bag*)"
+      "Bash(ls /Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public/money-bag*)",
+      "Bash(git push:*)"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]",
