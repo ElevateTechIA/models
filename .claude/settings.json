@@ -31,7 +31,11 @@
       "Bash(git push:*)",
       "Read(//Users/cesarvega/**)",
       "Bash(find /Users/cesarvega/Movies/CapCut/Models -type f -name .env* -o -name *.env)",
-      "Bash(grep fill= /Users/cesarvega/Movies/CapCut/Models/public/*_icon.svg)"
+      "Bash(grep fill= /Users/cesarvega/Movies/CapCut/Models/public/*_icon.svg)",
+      "Bash(\"/Users/cesarvega/Documents/Obsidian Vault/Claude:*)",
+      "Bash(node -e \"const {themes} = require\\(''./lib/theme/colors''\\); console.log\\(Object.keys\\(themes\\)\\)\")",
+      "Bash(npx tsx:*)",
+      "Bash(kill 83658)"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]",
