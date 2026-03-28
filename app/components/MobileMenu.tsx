@@ -208,7 +208,8 @@ export default function MobileMenu({
                       className="mmenu-theme-swatch"
                       style={{ background: themes[key].colors.primary }}
                     />
-                    <span className="mmenu-theme-label">{themes[key].emoji}</span>
+                    <span className="mmenu-theme-emoji">{themes[key].emoji}</span>
+                    <span className="mmenu-theme-label">{themes[key].name}</span>
                   </button>
                 ))}
               </div>
