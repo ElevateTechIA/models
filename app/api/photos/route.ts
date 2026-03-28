@@ -200,9 +200,12 @@ The output must be a single image.`;
 
       if (imagePart?.inlineData) {
         const b64 = imagePart.inlineData.data;
+        const creditsPerPhoto = parseInt(process.env.CREDITS_PER_PHOTO || "100");
         console.log(`[photos] Success with model: ${model}`);
         return NextResponse.json({
           image: `data:image/png;base64,${b64}`,
+          creditsUsed: creditsPerPhoto,
+          creditsRemaining,
         });
       }
 

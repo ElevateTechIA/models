@@ -132,6 +132,7 @@ export default function MobileMenu({
               🇺🇸 EN
             </button>
           </div>
+          <p className="mmenu-version">v1.0.2</p>
         </div>
 
         {/* Logout */}

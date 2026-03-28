@@ -3,9 +3,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { translations } from "@/lib/translations";
 import { InsufficientCreditsModal } from "@/components/credits/InsufficientCreditsModal";
+import AppToolbar from "@/app/components/AppToolbar";
+import MobileMenu from "@/app/components/MobileMenu";
 
 // Access is now open to all authenticated users (controlled by credits)
 
@@ -33,11 +36,13 @@ function getAspectNumber(ratio: string): number {
 export default function PhotosClient() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>("photos");
+  const [activeTab, setActiveTab] = useState<Tab>("library");
   const [authReady, setAuthReady] = useState(false);
   const [lang, setLang] = useState<"es" | "en">("es");
   const t = translations[lang] || translations.es;
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   // ── Photo state ──
   const [prompt, setPrompt] = useState("");
@@ -61,6 +66,9 @@ export default function PhotosClient() {
 
   // ── Credits state ──
   const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [creditToast, setCreditToast] = useState<{ used: number; remaining: number } | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const confettiRef = useRef<HTMLCanvasElement>(null);
 
   // ── Fullscreen state ──
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
@@ -88,12 +96,13 @@ export default function PhotosClient() {
   }
 
   useEffect(() => {
-    const username = localStorage.getItem("username");
-    if (!username) { router.replace("/"); return; }
+    const storedUsername = localStorage.getItem("username");
+    if (!storedUsername) { router.replace("/"); return; }
+    setUsername(storedUsername);
     setAuthorized(true);
     // Detect language from config
     function loadLang() {
-      fetch(`/api/admin/config?username=${username}`).then(r => r.json()).then(d => {
+      fetch(`/api/admin/config?username=${storedUsername}`).then(r => r.json()).then(d => {
         if (d?.settings?.language) setLang(d.settings.language);
       }).catch(() => {});
     }
@@ -139,6 +148,66 @@ export default function PhotosClient() {
     try { await navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); } catch {}
   }
 
+  async function handleLogout() {
+    try { await signOut(auth); } catch {}
+    localStorage.removeItem("username");
+    router.replace("/");
+  }
+
+  // ── Confetti + toast ──
+  function celebrate(creditsUsed: number, creditsRemaining: number) {
+    setCreditToast({ used: creditsUsed, remaining: creditsRemaining });
+    setTimeout(() => setCreditToast(null), 4000);
+    setShowConfetti(true);
+    const canvas = confettiRef.current;
+    if (!canvas) { setTimeout(() => setShowConfetti(false), 2500); return; }
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    const colors = ["#c9a84c", "#e8d48b", "#f5e6a3", "#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#ffeaa7", "#dfe6e9", "#fd79a8"];
+    const particles: { x: number; y: number; vx: number; vy: number; r: number; color: string; rot: number; vr: number; life: number }[] = [];
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: canvas.width * Math.random(),
+        y: -10 - Math.random() * 40,
+        vx: (Math.random() - 0.5) * 6,
+        vy: Math.random() * 3 + 2,
+        r: Math.random() * 5 + 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.2,
+        life: 1,
+      });
+    }
+    let frame = 0;
+    function draw() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      for (const p of particles) {
+        if (p.life <= 0) continue;
+        alive = true;
+        p.x += p.vx;
+        p.vy += 0.08;
+        p.y += p.vy;
+        p.rot += p.vr;
+        p.life -= 0.008;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.r / 2, -p.r, p.r, p.r * 2);
+        ctx.restore();
+      }
+      frame++;
+      if (alive && frame < 180) requestAnimationFrame(draw);
+      else { ctx.clearRect(0, 0, canvas.width, canvas.height); setShowConfetti(false); }
+    }
+    requestAnimationFrame(draw);
+  }
+
   // ── Photo handlers ──
   function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
@@ -165,6 +234,7 @@ export default function PhotosClient() {
       if (!res.ok) { if (data.error === "INSUFFICIENT_CREDITS") { setShowCreditsModal(true); return; } setError(data.error || "Algo salio mal"); return; }
       setResultImages(prev => [...prev, { id: Date.now().toString(), url: data.image, prompt: currentPrompt, aspectRatio: currentAR }]);
       savePhotoToLibrary(data.image, currentPrompt, currentAR);
+      if (data.creditsUsed) celebrate(data.creditsUsed, data.creditsRemaining ?? 0);
       setTimeout(() => resultsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch { setError(t.networkError); } finally { setLoading(false); if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; } }
   }
@@ -319,10 +389,38 @@ export default function PhotosClient() {
 
   return (
     <div className={`ph-page ${activeTab === "videos" ? "ph-theme-blue" : activeTab === "library" ? "ph-theme-purple" : ""}`}>
-      <header className="ph-header">
-        <a href="/admin" className="ph-back">&larr;</a>
-        <a href="/admin" className="ph-title">{t.goToAdmin}</a>
-      </header>
+      {showConfetti && <canvas ref={confettiRef} className="ph-confetti-canvas" />}
+      {creditToast && (
+        <div className="ph-credit-toast">
+          <span className="ph-credit-toast-icon">&#x2728;</span>
+          <span><strong>-{creditToast.used}</strong> {t.creditsConsumed} &middot; {creditToast.remaining} {t.creditsRemaining}</span>
+        </div>
+      )}
+      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} />
+      <MobileMenu
+        isOpen={showMenu}
+        onClose={() => setShowMenu(false)}
+        username={username}
+        email={auth.currentUser?.email ?? null}
+        profilePicture={null}
+        language={lang}
+        onChangeLanguage={async (newLang) => {
+          setLang(newLang);
+          setShowMenu(false);
+          try {
+            const token = await getToken();
+            if (token) {
+              await fetch("/api/admin/config", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ settings: { language: newLang } }),
+              });
+            }
+          } catch {}
+        }}
+        onLogout={() => { setShowMenu(false); handleLogout(); }}
+        t={t}
+      />
 
       {/* ═══ PHOTOS TAB ═══ */}
       {activeTab === "photos" && (
@@ -340,12 +438,24 @@ export default function PhotosClient() {
             )}
 
             {!referenceImage && resultImages.length === 0 && !loading && (
-              <div className="ph-preview" style={{ aspectRatio: `${getAspectNumber(aspectRatio)}` }}>
-                <label className="ph-upload-zone">
-                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                  <p className="ph-upload-text">{t.uploadPhotoHint}</p>
-                </label>
+              <div className="ph-preview ph-ideas-preview" style={{ aspectRatio: `${getAspectNumber(aspectRatio)}` }}>
+                <div className="ph-ideas-container">
+                  <p className="ph-ideas-title">{t.promptIdeasTitle}</p>
+                  <p className="ph-ideas-subtitle">{t.promptIdeasTap}</p>
+                  <div className="ph-ideas-list">
+                    {t.promptIdeas.map((idea, i) => (
+                      <button key={i} className="ph-idea-chip" onClick={() => setPrompt(idea)}>
+                        <span className="ph-idea-text">{idea}</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      </button>
+                    ))}
+                  </div>
+                  <label className="ph-upload-link">
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>{t.uploadPhotoHint}</span>
+                  </label>
+                </div>
               </div>
             )}
 
@@ -455,7 +565,27 @@ export default function PhotosClient() {
 
           {!libraryLoading && libraryFilter === "photos" && (
             libraryImages.length === 0 ? (
-              <div className="ph-library-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,247,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><p>{t.noPhotosYet}</p><p className="ph-library-empty-hint">{t.generateFirstPhoto}</p></div>
+              <div className="ph-onboarding">
+                <p className="ph-onboarding-title">{t.onboardingTitle}</p>
+                <div className="ph-onboarding-tips">
+                  {t.onboardingTips.map((tip, i) => (
+                    <div key={i} className="ph-onboarding-tip">
+                      <span className="ph-onboarding-icon">{
+                        tip.icon === "instagram" ? "\uD83D\uDCF8" :
+                        tip.icon === "showcase" ? "\u2728" :
+                        tip.icon === "link" ? "\uD83D\uDD17" :
+                        tip.icon === "brand" ? "\uD83C\uDFA8" :
+                        "\uD83C\uDFAC"
+                      }</span>
+                      <span className="ph-onboarding-text">{tip.text}</span>
+                    </div>
+                  ))}
+                </div>
+                <button className="ph-onboarding-cta" onClick={() => setActiveTab("photos")}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  {t.goToPhotos}
+                </button>
+              </div>
             ) : (
               <div className="ph-library-grid">
                 {libraryImages.map((img) => (
@@ -470,7 +600,12 @@ export default function PhotosClient() {
 
           {!libraryLoading && libraryFilter === "videos" && (
             libraryVideos.length === 0 ? (
-              <div className="ph-library-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,247,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><p>{t.noVideosYet}</p><p className="ph-library-empty-hint">{t.generateFirstVideo}</p></div>
+              <div className="ph-library-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,247,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><p>{t.noVideosYet}</p><p className="ph-library-empty-hint">{t.generateFirstVideo}</p>
+                <button className="ph-onboarding-cta" onClick={() => setActiveTab("videos")} style={{ marginTop: "16px" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                  {t.generateVideo}
+                </button>
+              </div>
             ) : (
               <div className="ph-library-grid">
                 {libraryVideos.map((vid) => (
@@ -487,9 +622,9 @@ export default function PhotosClient() {
 
       {/* ═══ BOTTOM TAB BAR ═══ */}
       <nav className="ph-tab-bar">
+        <button className={`ph-tab ${activeTab === "library" ? "ph-tab-active-purple" : ""}`} onClick={() => setActiveTab("library")}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>{t.libraryTab}</span></button>
         <button className={`ph-tab ${activeTab === "photos" ? "ph-tab-active" : ""}`} onClick={() => setActiveTab("photos")}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>{t.photosTab}</span></button>
         <button className={`ph-tab ${activeTab === "videos" ? "ph-tab-active-blue" : ""}`} onClick={() => setActiveTab("videos")}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><span>{t.videosTab}</span></button>
-        <button className={`ph-tab ${activeTab === "library" ? "ph-tab-active-purple" : ""}`} onClick={() => setActiveTab("library")}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>{t.libraryTab}</span></button>
       </nav>
 
       {/* ═══ FULLSCREEN IMAGE ═══ */}
@@ -516,7 +651,7 @@ export default function PhotosClient() {
       <InsufficientCreditsModal
         isOpen={showCreditsModal}
         onClose={() => setShowCreditsModal(false)}
-        onBuyCredits={() => { setShowCreditsModal(false); router.push("/credits"); }}
+        onBuyCredits={() => { setShowCreditsModal(false); window.location.href = "https://elevate-social-links.vercel.app/credits"; }}
       />
     </div>
   );

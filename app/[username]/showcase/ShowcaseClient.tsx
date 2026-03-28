@@ -759,9 +759,11 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
 
       {config.settings.footerText && <div className="sc-footer">{config.settings.footerText}</div>}
 
-      <div className="pearl-container">
-        <a href="/admin" className="pearl-btn" title="Configuracion" aria-label="Configuracion" />
-        <span style={{ fontSize: "9px", color: "#b0a99a", opacity: 0.5, display: "block", textAlign: "center", marginTop: "-2px", letterSpacing: "0.5px" }}>v1.0.2</span>
+      <div className="cta-container">
+        <a href="/login" className="cta-create-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          {t.ctaCreateYours}
+        </a>
       </div>
     </div>
   );

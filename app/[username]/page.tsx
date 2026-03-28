@@ -4,6 +4,7 @@ import { findUserByUsername, readUserConfig } from "@/lib/data";
 import LinksNav from "./links-nav";
 import OfflineProfile from "./offline-profile";
 import type { SiteConfig } from "@/lib/types";
+import { translations } from "@/lib/translations";
 
 export const dynamic = "force-dynamic";
 
@@ -74,9 +75,11 @@ export default async function UserBioPage({ params }: Props) {
             <footer className="footer">{config.settings.footerText}</footer>
           )}
 
-          <div className="pearl-container">
-            <a href="/login" className="pearl-btn" title="Acceder" aria-label="Acceder" />
-            <span style={{ fontSize: "9px", color: "#b0a99a", opacity: 0.5, display: "block", textAlign: "center", marginTop: "-2px", letterSpacing: "0.5px" }}>v1.0.2</span>
+          <div className="cta-container">
+            <a href="/login" className="cta-create-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              {translations[config.settings.language || "es"].ctaCreateYours}
+            </a>
           </div>
 
         </main>

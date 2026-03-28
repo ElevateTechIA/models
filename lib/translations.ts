@@ -26,6 +26,18 @@ export const translations = {
     sourceImage: "Imagen de referencia",
     changeBtn: "Cambiar",
     uploadPhotoHint: "Toca para subir una foto de referencia",
+    creditsConsumed: "tokens usados",
+    creditsRemaining: "restantes",
+    promptIdeasTitle: "Ideas para crear",
+    promptIdeasTap: "Toca una idea para copiarla al prompt",
+    promptIdeas: [
+      "Retrato profesional con fondo de ciudad al atardecer, luz dorada cinematica",
+      "Foto editorial de moda en un jardin de rosas, estilo revista Vogue",
+      "Selfie natural en una cafeteria acogedora con luz suave de ventana",
+      "Look glamuroso en alfombra roja con vestido elegante y luces bokeh",
+      "Foto artistica en blanco y negro con sombras dramaticas",
+      "Escena de playa tropical al amanecer con colores pastel en el cielo",
+    ],
     uploadVideoHint: "Toca para subir una imagen para animar",
     describeImage: "Describe la imagen que quieres crear...",
     describeMotion: "Describe el movimiento (opcional)...",
@@ -35,6 +47,15 @@ export const translations = {
     noVideosYet: "No hay videos aun",
     generateFirstPhoto: "Genera tu primera foto para verla aqui",
     generateFirstVideo: "Genera tu primer video para verlo aqui",
+    onboardingTips: [
+      { icon: "instagram", text: "Crea una foto profesional para tu link de Instagram" },
+      { icon: "showcase", text: "Genera fotos unicas para tu Showcase y destaca tu perfil" },
+      { icon: "link", text: "Diseña una imagen llamativa para cada uno de tus enlaces" },
+      { icon: "brand", text: "Crea contenido visual para tus redes sociales con tu estilo" },
+      { icon: "video", text: "Anima tus fotos y convierte imagenes en videos cortos" },
+    ],
+    onboardingTitle: "Que puedes hacer",
+    goToPhotos: "Crear mi primera foto",
     generateVideo: "Generar Video",
     copyPrompt: "Copiar Prompt",
     copied: "Copiado!",
@@ -186,6 +207,7 @@ export const translations = {
     imageTooLarge: "La imagen es muy grande. Usa una foto menor a 4 MB.",
     networkError: "Error de red. Intenta de nuevo.",
     somethingWrong: "Algo salio mal",
+    ctaCreateYours: "Crea tu pagina gratis",
   },
   en: {
     // Main page
@@ -214,6 +236,18 @@ export const translations = {
     sourceImage: "Reference image",
     changeBtn: "Change",
     uploadPhotoHint: "Tap to upload a reference photo",
+    creditsConsumed: "tokens used",
+    creditsRemaining: "remaining",
+    promptIdeasTitle: "Ideas to create",
+    promptIdeasTap: "Tap an idea to copy it to your prompt",
+    promptIdeas: [
+      "Professional portrait with a city skyline at sunset, cinematic golden light",
+      "Fashion editorial in a rose garden, Vogue magazine style",
+      "Natural selfie in a cozy coffee shop with soft window light",
+      "Glamorous red carpet look with elegant dress and bokeh lights",
+      "Artistic black and white photo with dramatic shadows",
+      "Tropical beach scene at sunrise with pastel sky colors",
+    ],
     uploadVideoHint: "Tap to upload an image to animate",
     describeImage: "Describe the image you want to create...",
     describeMotion: "Describe the motion (optional)...",
@@ -223,6 +257,15 @@ export const translations = {
     noVideosYet: "No videos yet",
     generateFirstPhoto: "Generate your first photo to see it here",
     generateFirstVideo: "Generate your first video to see it here",
+    onboardingTips: [
+      { icon: "instagram", text: "Create a professional photo for your Instagram link" },
+      { icon: "showcase", text: "Generate unique photos for your Showcase and stand out" },
+      { icon: "link", text: "Design an eye-catching image for each of your links" },
+      { icon: "brand", text: "Create visual content for your social media with your style" },
+      { icon: "video", text: "Animate your photos and turn images into short videos" },
+    ],
+    onboardingTitle: "What you can do",
+    goToPhotos: "Create my first photo",
     generateVideo: "Generate Video",
     copyPrompt: "Copy Prompt",
     copied: "Copied!",
@@ -374,11 +417,13 @@ export const translations = {
     imageTooLarge: "Image is too large. Use a photo under 4 MB.",
     networkError: "Network error. Please try again.",
     somethingWrong: "Something went wrong",
+    ctaCreateYours: "Create your page for free",
   },
 } as const;
 
 export type Language = keyof typeof translations;
-export type TranslationKeys = { [K in keyof typeof translations["es"]]: string };
+type EsTranslations = typeof translations["es"];
+export type TranslationKeys = { [K in keyof EsTranslations]: EsTranslations[K] extends readonly { icon: string; text: string }[] ? readonly { icon: string; text: string }[] : EsTranslations[K] extends readonly string[] ? readonly string[] : string };
 
 export function getTranslations(lang: Language): TranslationKeys {
   return (translations[lang] || translations.es) as TranslationKeys;
