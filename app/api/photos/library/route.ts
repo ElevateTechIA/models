@@ -84,6 +84,24 @@ export async function POST(req: NextRequest) {
   });
 }
 
+// PATCH — toggle isPublic on a photo
+export async function PATCH(req: NextRequest) {
+  const authed = await verifyAuthWithUser(req.headers.get("authorization"));
+  if (!authed)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id, isPublic } = await req.json();
+  if (!id || typeof isPublic !== "boolean")
+    return NextResponse.json({ error: "Invalid params" }, { status: 400 });
+
+  const doc = await db.collection(COLLECTION).doc(id).get();
+  if (!doc.exists || doc.data()?.username !== authed.username)
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  await db.collection(COLLECTION).doc(id).update({ isPublic });
+  return NextResponse.json({ success: true, isPublic });
+}
+
 // DELETE — remove an image
 export async function DELETE(req: NextRequest) {
   const authed = await verifyAuthWithUser(req.headers.get("authorization"));

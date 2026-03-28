@@ -12,10 +12,12 @@ import MobileMenu from "@/app/components/MobileMenu";
 
 // Access is now open to all authenticated users (controlled by credits)
 
-type Tab = "photos" | "videos" | "library";
+type Tab = "photos" | "videos" | "library" | "wall";
 type LibraryFilter = "photos" | "videos";
 type ResultItem = { id: string; url: string; prompt: string; aspectRatio: string };
-type LibraryImage = { id: string; imageUrl: string; prompt: string; aspectRatio: string; createdAt: number };
+type LibraryImage = { id: string; imageUrl: string; prompt: string; aspectRatio: string; createdAt: number; isPublic?: boolean };
+type WallPhoto = { id: string; imageUrl: string; username: string; prompt: string };
+type WallComment = { id: string; username: string; text: string; createdAt: number };
 type LibraryVideo = { id: string; videoUrl: string; thumbnailUrl: string; prompt: string; aspectRatio: string; createdAt: number };
 
 const ASPECT_RATIOS = [
@@ -82,6 +84,16 @@ export default function PhotosClient() {
   const [libraryLoading, setLibraryLoading] = useState(false);
   const [libraryPhotosFetched, setLibraryPhotosFetched] = useState(false);
   const [libraryVideosFetched, setLibraryVideosFetched] = useState(false);
+
+  // ── Wall state ──
+  const [wallPhotos, setWallPhotos] = useState<WallPhoto[]>([]);
+  const [wallLoading, setWallLoading] = useState(false);
+  const [wallSelected, setWallSelected] = useState<WallPhoto | null>(null);
+  const [wallLiked, setWallLiked] = useState(false);
+  const [wallLikeCount, setWallLikeCount] = useState(0);
+  const [wallComments, setWallComments] = useState<WallComment[]>([]);
+  const [wallNewComment, setWallNewComment] = useState("");
+  const [wallSending, setWallSending] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const vidFileInputRef = useRef<HTMLInputElement>(null);
@@ -299,6 +311,81 @@ export default function PhotosClient() {
   function openFullscreenImage(url: string, p: string) { setFullscreenImage(url); setFullscreenPrompt(p); }
   function openFullscreenVideo(url: string, p: string) { setFullscreenVideo(url); setFullscreenPrompt(p); }
 
+  // ── Wall handlers ──
+  useEffect(() => {
+    if (activeTab === "wall" && wallPhotos.length === 0 && !wallLoading) {
+      setWallLoading(true);
+      fetch("/api/photos/gallery").then(r => r.json()).then(d => {
+        if (d.photos?.length) setWallPhotos(d.photos);
+      }).catch(() => {}).finally(() => setWallLoading(false));
+    }
+  }, [activeTab, wallPhotos.length, wallLoading]);
+
+  function openWallPhoto(photo: WallPhoto) {
+    setWallSelected(photo);
+    setWallLiked(false);
+    setWallLikeCount(0);
+    setWallComments([]);
+    setWallNewComment("");
+    // Fetch likes + comments
+    fetch(`/api/photos/like?photoId=${photo.id}`).then(r => r.json()).then(d => {
+      setWallLikeCount(d.count || 0);
+      setWallLiked(d.liked || false);
+    }).catch(() => {});
+    fetch(`/api/photos/comments?photoId=${photo.id}`).then(r => r.json()).then(d => {
+      setWallComments(d.comments || []);
+    }).catch(() => {});
+  }
+
+  async function handleWallLike() {
+    if (!wallSelected) return;
+    const token = await getToken(); if (!token) return;
+    setWallLiked(!wallLiked);
+    setWallLikeCount(c => wallLiked ? c - 1 : c + 1);
+    try {
+      const res = await fetch("/api/photos/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ photoId: wallSelected.id }),
+      });
+      const d = await res.json();
+      setWallLiked(d.liked);
+      setWallLikeCount(d.count);
+    } catch {}
+  }
+
+  async function handleWallComment() {
+    if (!wallSelected || !wallNewComment.trim() || wallSending) return;
+    const token = await getToken(); if (!token) return;
+    setWallSending(true);
+    try {
+      const res = await fetch("/api/photos/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ photoId: wallSelected.id, text: wallNewComment.trim() }),
+      });
+      const d = await res.json();
+      if (d.id) { setWallComments(prev => [...prev, d]); setWallNewComment(""); }
+    } catch {} finally { setWallSending(false); }
+  }
+
+  async function togglePublish(img: LibraryImage) {
+    const token = await getToken(); if (!token) return;
+    const newVal = !img.isPublic;
+    // Optimistic update
+    setLibraryImages(prev => prev.map(i => i.id === img.id ? { ...i, isPublic: newVal } : i));
+    try {
+      await fetch("/api/photos/library", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id: img.id, isPublic: newVal }),
+      });
+    } catch {
+      // Revert on error
+      setLibraryImages(prev => prev.map(i => i.id === img.id ? { ...i, isPublic: !newVal } : i));
+    }
+  }
+
   if (!authorized) return null;
 
   // ── Copy button SVG ──
@@ -388,7 +475,7 @@ export default function PhotosClient() {
   }
 
   return (
-    <div className={`ph-page ${activeTab === "videos" ? "ph-theme-blue" : activeTab === "library" ? "ph-theme-purple" : ""}`}>
+    <div className={`ph-page ${activeTab === "videos" ? "ph-theme-blue" : activeTab === "library" ? "ph-theme-purple" : activeTab === "wall" ? "ph-theme-pink" : ""}`}>
       {showConfetti && <canvas ref={confettiRef} className="ph-confetti-canvas" />}
       {creditToast && (
         <div className="ph-credit-toast">
@@ -589,9 +676,18 @@ export default function PhotosClient() {
             ) : (
               <div className="ph-library-grid">
                 {libraryImages.map((img) => (
-                  <div key={img.id} className="ph-library-item" onClick={() => openFullscreenImage(img.imageUrl, img.prompt)}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.imageUrl} alt={img.prompt} className="ph-library-img" />
+                  <div key={img.id} className="ph-library-item">
+                    <div className="ph-library-img-wrap" onClick={() => openFullscreenImage(img.imageUrl, img.prompt)}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img.imageUrl} alt={img.prompt} className="ph-library-img" />
+                    </div>
+                    <button
+                      className={`ph-publish-btn ${img.isPublic ? "ph-publish-active" : ""}`}
+                      onClick={(e) => { e.stopPropagation(); togglePublish(img); }}
+                      title={img.isPublic ? (lang === "es" ? "Publicada" : "Published") : (lang === "es" ? "Publicar" : "Publish")}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill={img.isPublic ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </button>
                   </div>
                 ))}
               </div>
@@ -620,10 +716,69 @@ export default function PhotosClient() {
         </div>
       )}
 
+      {/* ═══ WALL TAB ═══ */}
+      {activeTab === "wall" && (
+        <div className="ph-wall">
+          {wallLoading && <div className="ph-library-loading"><div className="ph-spinner-small" /><p>{lang === "es" ? "Cargando..." : "Loading..."}</p></div>}
+          {!wallLoading && wallPhotos.length === 0 && (
+            <div className="ph-library-empty"><p>{t.wallEmpty}</p></div>
+          )}
+          {!wallLoading && wallPhotos.length > 0 && (
+            <div className="ph-wall-grid">
+              {wallPhotos.map((photo) => (
+                <div key={photo.id} className="ph-wall-item" onClick={() => openWallPhoto(photo)}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={photo.imageUrl} alt="" className="ph-wall-img" loading="lazy" />
+                  <div className="ph-wall-overlay">
+                    <span className="ph-wall-user">@{photo.username}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══ WALL PHOTO MODAL ═══ */}
+      {wallSelected && (
+        <div className="ph-fullscreen" onClick={() => setWallSelected(null)}>
+          <div className="ph-wall-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="ph-wall-modal-close" onClick={() => setWallSelected(null)}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={wallSelected.imageUrl} alt="" className="ph-wall-modal-img" />
+            <div className="ph-wall-modal-body">
+              <p className="ph-wall-modal-author">{t.wallBy} <strong>@{wallSelected.username}</strong></p>
+              <div className="ph-wall-modal-actions">
+                <button className={`ph-wall-like-btn ${wallLiked ? "ph-wall-liked" : ""}`} onClick={handleWallLike}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill={wallLiked ? "#ef4444" : "none"} stroke={wallLiked ? "#ef4444" : "currentColor"} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  <span>{wallLikeCount}</span>
+                </button>
+                <span className="ph-wall-comment-count">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  {wallComments.length}
+                </span>
+              </div>
+              <div className="ph-wall-comments">
+                {wallComments.map(c => (
+                  <div key={c.id} className="ph-wall-comment"><strong>@{c.username}</strong> {c.text}</div>
+                ))}
+              </div>
+              <div className="ph-wall-comment-input">
+                <input value={wallNewComment} onChange={e => setWallNewComment(e.target.value)} placeholder={t.wallComment} onKeyDown={e => e.key === "Enter" && handleWallComment()} maxLength={500} />
+                <button onClick={handleWallComment} disabled={wallSending || !wallNewComment.trim()}>{t.wallSend}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ═══ BOTTOM TAB BAR ═══ */}
       <nav className="ph-tab-bar">
         <button className={`ph-tab ${activeTab === "library" ? "ph-tab-active-purple" : ""}`} onClick={() => setActiveTab("library")}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>{t.libraryTab}</span></button>
         <button className={`ph-tab ${activeTab === "photos" ? "ph-tab-active" : ""}`} onClick={() => setActiveTab("photos")}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>{t.photosTab}</span></button>
+
         <button className={`ph-tab ${activeTab === "videos" ? "ph-tab-active-blue" : ""}`} onClick={() => setActiveTab("videos")}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><span>{t.videosTab}</span></button>
       </nav>
 

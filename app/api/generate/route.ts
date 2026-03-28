@@ -1,9 +1,98 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db, verifyAuthWithUser } from "@/lib/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
+
+/* ---------- Credit helpers ---------- */
+
+async function deductCredits(username: string): Promise<{ ok: boolean; creditsRemaining: number }> {
+  const creditsPerGen = parseInt(process.env.CREDITS_PER_GENERATION || "100");
+  const userRef = db.collection("user-credits").doc(username);
+
+  return db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    if (!userDoc.exists) return { ok: false, creditsRemaining: 0 };
+
+    const currentCredits = userDoc.data()!.credits || 0;
+    if (currentCredits < creditsPerGen) return { ok: false, creditsRemaining: currentCredits };
+
+    const newCredits = currentCredits - creditsPerGen;
+
+    transaction.update(userRef, {
+      credits: newCredits,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    const txRef = db.collection("model-transactions").doc();
+    transaction.set(txRef, {
+      username,
+      type: "usage",
+      credits: -creditsPerGen,
+      balanceBefore: currentCredits,
+      balanceAfter: newCredits,
+      description: "Image generation (Replicate)",
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
+    return { ok: true, creditsRemaining: newCredits };
+  });
+}
+
+async function refundCredits(username: string): Promise<void> {
+  const creditsPerGen = parseInt(process.env.CREDITS_PER_GENERATION || "100");
+  const userRef = db.collection("user-credits").doc(username);
+
+  await db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    if (!userDoc.exists) return;
+
+    const currentCredits = userDoc.data()!.credits || 0;
+    const newCredits = currentCredits + creditsPerGen;
+
+    transaction.update(userRef, {
+      credits: newCredits,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    const txRef = db.collection("model-transactions").doc();
+    transaction.set(txRef, {
+      username,
+      type: "bonus",
+      credits: creditsPerGen,
+      balanceBefore: currentCredits,
+      balanceAfter: newCredits,
+      description: "Refund: image generation failed",
+      createdAt: FieldValue.serverTimestamp(),
+    });
+  });
+}
+
+/* ---------- Route handler ---------- */
 
 export async function POST(req: NextRequest) {
+  // Auth check
+  const authHeader = req.headers.get("authorization");
+  const authResult = await verifyAuthWithUser(authHeader);
+
+  if (!authResult) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const { username } = authResult;
+
+  // Deduct credits before processing
+  const { ok, creditsRemaining } = await deductCredits(username);
+
+  if (!ok) {
+    return NextResponse.json(
+      { error: "INSUFFICIENT_CREDITS", creditsRemaining },
+      { status: 402 }
+    );
+  }
+
   const { prompt, aspect_ratio, quality, image, prompt_strength, model_version, token_env } = await req.json();
 
   if (!prompt || typeof prompt !== "string") {
+    await refundCredits(username);
     return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
   }
 
@@ -16,6 +105,7 @@ export async function POST(req: NextRequest) {
     : process.env.REPLICATE_API_TOKEN;
 
   if (!token) {
+    await refundCredits(username);
     return NextResponse.json(
       { error: "Server misconfigured" },
       { status: 500 }
@@ -55,6 +145,7 @@ export async function POST(req: NextRequest) {
 
   if (!createRes.ok) {
     const err = await createRes.json().catch(() => ({}));
+    await refundCredits(username);
     return NextResponse.json(
       { error: err.detail || "Failed to start generation" },
       { status: createRes.status }
@@ -68,6 +159,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (prediction.status === "failed") {
+    await refundCredits(username);
     return NextResponse.json(
       { error: prediction.error || "Generation failed" },
       { status: 500 }
@@ -91,6 +183,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (prediction.status === "failed" || prediction.status === "canceled") {
+      await refundCredits(username);
       return NextResponse.json(
         { error: prediction.error || "Generation failed" },
         { status: 500 }
@@ -98,5 +191,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  await refundCredits(username);
   return NextResponse.json({ error: "Generation timed out" }, { status: 504 });
 }

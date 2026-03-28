@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../../lib/firebase";
+
+type GalleryPhoto = { id: string; imageUrl: string; username: string; prompt: string };
+type Comment = { id: string; username: string; text: string; createdAt: number };
 
 const t_es = {
   hero: "Tu mundo digital en un solo enlace",
@@ -18,6 +21,15 @@ const t_es = {
   loginError: "Error al iniciar sesion",
   already: "Ya tienes cuenta?",
   signIn: "Inicia sesion",
+  gallery: "Galeria",
+  galleryDesc: "Mira lo que la comunidad esta creando con IA.",
+  likes: "Me gusta",
+  addComment: "Escribe un comentario...",
+  send: "Enviar",
+  loginToInteract: "Inicia sesion para dar like y comentar",
+  by: "por",
+  inviteFriend: "Invita un amigo",
+  inviteMsg: "Mira esta app para crear tu pagina de enlaces con IA! ",
 };
 
 const t_en = {
@@ -34,6 +46,15 @@ const t_en = {
   loginError: "Login failed",
   already: "Already have an account?",
   signIn: "Sign in",
+  gallery: "Gallery",
+  galleryDesc: "See what the community is creating with AI.",
+  likes: "Likes",
+  addComment: "Write a comment...",
+  send: "Send",
+  loginToInteract: "Sign in to like and comment",
+  by: "by",
+  inviteFriend: "Invite a friend",
+  inviteMsg: "Check out this app to create your link page with AI! ",
 };
 
 type Lang = "es" | "en";
@@ -41,19 +62,167 @@ type Translations = typeof t_es;
 
 const langMap: Record<Lang, Translations> = { es: t_es, en: t_en };
 
+function PhotoWall({ photos, onSelect }: { photos: GalleryPhoto[]; onSelect: (p: GalleryPhoto) => void }) {
+  const ROWS = 3;
+  const rows: GalleryPhoto[][] = [];
+  const perRow = Math.ceil(photos.length / ROWS);
+  for (let i = 0; i < ROWS; i++) {
+    rows.push(photos.slice(i * perRow, (i + 1) * perRow));
+  }
+
+  return (
+    <div className="photo-wall">
+      {rows.map((row, i) => (
+        <div key={i} className="photo-wall-row">
+          <div className={`photo-wall-track ${i % 2 === 1 ? "photo-wall-reverse" : ""}`}>
+            {[...row, ...row].map((photo, j) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={`${photo.id}-${j}`} src={photo.imageUrl} alt="" className="photo-wall-img" loading="lazy" onClick={() => onSelect(photo)} />
+            ))}
+          </div>
+        </div>
+      ))}
+      <div className="photo-wall-fade-left" />
+      <div className="photo-wall-fade-right" />
+    </div>
+  );
+}
+
+function PhotoModal({ photo, t, onClose }: { photo: GalleryPhoto; t: Translations; onClose: () => void }) {
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [sending, setSending] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  useEffect(() => {
+    setIsAuthed(!!localStorage.getItem("firebase-token"));
+    // Fetch likes
+    fetch(`/api/photos/like?photoId=${photo.id}`).then(r => r.json()).then(d => {
+      setLikeCount(d.count || 0);
+      setLiked(d.liked || false);
+    }).catch(() => {});
+    // Fetch comments
+    fetch(`/api/photos/comments?photoId=${photo.id}`).then(r => r.json()).then(d => {
+      setComments(d.comments || []);
+    }).catch(() => {});
+  }, [photo.id]);
+
+  async function getToken() {
+    try {
+      const { auth } = await import("../../lib/firebase");
+      return (await auth.currentUser?.getIdToken()) ?? null;
+    } catch { return null; }
+  }
+
+  async function handleLike() {
+    const token = await getToken();
+    if (!token) return;
+    // Optimistic
+    setLiked(!liked);
+    setLikeCount(c => liked ? c - 1 : c + 1);
+    try {
+      const res = await fetch("/api/photos/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ photoId: photo.id }),
+      });
+      const d = await res.json();
+      setLiked(d.liked);
+      setLikeCount(d.count);
+    } catch {}
+  }
+
+  async function handleComment() {
+    if (!newComment.trim() || sending) return;
+    const token = await getToken();
+    if (!token) return;
+    setSending(true);
+    try {
+      const res = await fetch("/api/photos/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ photoId: photo.id, text: newComment.trim() }),
+      });
+      const d = await res.json();
+      if (d.id) {
+        setComments(prev => [...prev, d]);
+        setNewComment("");
+      }
+    } catch {} finally { setSending(false); }
+  }
+
+  return (
+    <div className="gm-backdrop" onClick={onClose}>
+      <div className="gm-modal" onClick={e => e.stopPropagation()}>
+        <button className="gm-close" onClick={onClose}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={photo.imageUrl} alt="" className="gm-photo" />
+        <div className="gm-body">
+          <p className="gm-author">{t.by} <strong>@{photo.username}</strong></p>
+          <div className="gm-actions">
+            <button className={`gm-like-btn ${liked ? "gm-liked" : ""}`} onClick={handleLike} disabled={!isAuthed}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={liked ? "#ef4444" : "none"} stroke={liked ? "#ef4444" : "currentColor"} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span>{likeCount}</span>
+            </button>
+            <span className="gm-comment-count">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              {comments.length}
+            </span>
+          </div>
+          <div className="gm-comments">
+            {comments.map(c => (
+              <div key={c.id} className="gm-comment">
+                <strong>@{c.username}</strong> {c.text}
+              </div>
+            ))}
+          </div>
+          {isAuthed ? (
+            <div className="gm-comment-input">
+              <input
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                placeholder={t.addComment}
+                onKeyDown={e => e.key === "Enter" && handleComment()}
+                maxLength={500}
+              />
+              <button onClick={handleComment} disabled={sending || !newComment.trim()}>
+                {t.send}
+              </button>
+            </div>
+          ) : (
+            <p className="gm-login-hint">{t.loginToInteract}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [lang, setLang] = useState<Lang>("es");
+  const [galleryPhotos, setGalleryPhotos] = useState<GalleryPhoto[]>([]);
+  const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const t = langMap[lang];
 
   useEffect(() => {
-    if (
-      localStorage.getItem("firebase-token") &&
-      localStorage.getItem("username")
-    ) {
-      window.location.href = "/admin";
-    }
+    const isLoggedIn = !!(localStorage.getItem("firebase-token") && localStorage.getItem("username"));
+
+    // Fetch gallery photos first, then redirect if logged in
+    fetch("/api/photos/gallery")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.photos?.length) setGalleryPhotos(d.photos);
+        if (isLoggedIn) window.location.href = "/admin";
+      })
+      .catch(() => {
+        if (isLoggedIn) window.location.href = "/admin";
+      });
   }, []);
 
   async function handleGoogleLogin() {
@@ -92,7 +261,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="landing-page">
+    <div className="landing-page" suppressHydrationWarning>
       {/* Hero */}
       <section className="landing-hero">
         <img src="/ol_logo.png" alt="Logo" className="landing-logo-img" />
@@ -142,6 +311,18 @@ export default function LoginPage() {
         </div>
       </section>
 
+      {/* Photo Wall */}
+      {galleryPhotos.length > 0 && (
+        <section className="landing-gallery-section">
+          <h2 className="landing-gallery-title">{t.gallery}</h2>
+          <p className="landing-gallery-desc">{t.galleryDesc}</p>
+          <PhotoWall photos={galleryPhotos} onSelect={setSelectedPhoto} />
+        </section>
+      )}
+
+      {/* Photo Modal */}
+      {selectedPhoto && <PhotoModal photo={selectedPhoto} t={t} onClose={() => setSelectedPhoto(null)} />}
+
       {/* CTA */}
       <section className="landing-cta">
         <button
@@ -160,6 +341,22 @@ export default function LoginPage() {
 
         {error && <p className="login-error">{error}</p>}
 
+        <button
+          className="landing-invite-btn"
+          onClick={() => {
+            const url = window.location.origin + "/login";
+            const text = t.inviteMsg + url;
+            if (navigator.share) {
+              navigator.share({ title: "One Link", text, url }).catch(() => {});
+            } else {
+              navigator.clipboard.writeText(text);
+            }
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          {t.inviteFriend}
+        </button>
+
         <div className="landing-lang">
           <button
             className={`landing-lang-btn ${lang === "es" ? "landing-lang-active" : ""}`}
@@ -174,6 +371,7 @@ export default function LoginPage() {
             EN
           </button>
         </div>
+        <p className="landing-version">v1.0.2</p>
       </section>
     </div>
   );

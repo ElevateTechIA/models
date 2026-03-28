@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
 
 const ALLOWED_USERNAMES = ["cesarvegacol", "wendypradaoficial11", "deejanehannah"];
 
@@ -242,9 +243,11 @@ export default function ModelDesignClient() {
     setError("");
     setImages([]);
     try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) { setError("Debes iniciar sesión"); setLoading(false); return; }
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           prompt: promptText,
           aspect_ratio: aspectRatio,
@@ -255,7 +258,14 @@ export default function ModelDesignClient() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Something went wrong"); return; }
+      if (!res.ok) {
+        if (data.error === "INSUFFICIENT_CREDITS") {
+          window.location.href = "https://elevate-social-links.vercel.app/credits";
+          return;
+        }
+        setError(data.error || "Something went wrong");
+        return;
+      }
       setImages(data.images || []);
     } catch {
       setError("Error de red. Intenta de nuevo.");
@@ -301,16 +311,25 @@ export default function ModelDesignClient() {
     const model = MODELS.find((m) => m.id === selectedModel);
     setFaceSwapLoading(true); setFaceSwapError(""); setFaceSwapResult(null);
     try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) { setFaceSwapError("Debes iniciar sesión"); setFaceSwapLoading(false); return; }
       const res = await fetch("/api/face-swap", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           target_image: faceSwapImage,
           swap_image: model?.picture,
         }),
       });
       const data = await res.json();
-      if (!res.ok) { setFaceSwapError(data.error || "Algo salio mal"); return; }
+      if (!res.ok) {
+        if (data.error === "INSUFFICIENT_CREDITS") {
+          window.location.href = "https://elevate-social-links.vercel.app/credits";
+          return;
+        }
+        setFaceSwapError(data.error || "Algo salio mal");
+        return;
+      }
       setFaceSwapResult(data.image);
     } catch {
       setFaceSwapError("Error de red. Intenta de nuevo.");
