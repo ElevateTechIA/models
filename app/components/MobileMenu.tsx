@@ -175,6 +175,10 @@ export default function MobileMenu({
                   <span className="mmenu-font-preview font-clean">Aa</span>
                   <span className="mmenu-font-label">Clean</span>
                 </button>
+                <button className={`mmenu-font-btn ${font === "haute" ? "mmenu-font-active" : ""}`} onClick={() => onChangeFont("haute")}>
+                  <span className="mmenu-font-preview font-haute">Aa</span>
+                  <span className="mmenu-font-label">Haute</span>
+                </button>
               </div>
             </div>
           </>

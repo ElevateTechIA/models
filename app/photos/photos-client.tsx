@@ -46,7 +46,7 @@ export default function PhotosClient() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
-  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
+  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean" | "haute">("elegant");
   const [appTheme, setAppTheme] = useState<string>("gold");
   const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">("light");
   const [templateImage, setTemplateImage] = useState<string | null>(null);

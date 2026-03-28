@@ -67,7 +67,7 @@ export default function AdminPage() {
 
   // Settings state
   const [language, setLanguage] = useState<Language>("es");
-  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("clean");
+  const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean" | "haute">("clean");
   const [appTheme, setAppTheme] = useState<string>("gold");
   const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">(() => {
     if (typeof window !== "undefined") {
