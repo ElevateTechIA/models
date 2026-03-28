@@ -2776,8 +2776,45 @@ body:has(.wall-page) {
 }
 .wall-modal-img { width: 100%; display: block; }
 .wall-modal-body { padding: 16px; }
-.wall-modal-author { margin: 0 0 12px; font-size: 13px; color: #888; }
+.wall-modal-author-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.wall-modal-author { margin: 0; font-size: 13px; color: #888; }
 .wall-modal-author strong { color: #e0e0e0; }
+.wall-follow-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 1.5px solid #3b82f6;
+  background: transparent;
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.1);
+}
+.wall-follow-toggle:hover {
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5), 0 0 30px rgba(59, 130, 246, 0.2);
+}
+.wall-follow-active {
+  background: #3b82f6;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.3);
+}
+.wall-follow-active:hover {
+  background: #2563eb;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.7), 0 0 40px rgba(59, 130, 246, 0.35);
+}
+.wall-follow-toggle:disabled { opacity: 0.4; cursor: default; }
+.wall-follow-count { font-size: 11px; opacity: 0.8; }
 .wall-modal-actions { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
 .wall-modal-like {
   display: flex; align-items: center; gap: 6px;
@@ -2916,7 +2953,19 @@ body:has(.landing-page) {
   height: auto;
   overflow-y: visible;
   min-height: 100dvh;
-  background: var(--bg-cream);
+  background: linear-gradient(180deg, #fdfcfa 0%, #f3efe8 50%, #fdfcfa 100%);
+}
+/* Landing page always light — it's the public login page */
+[data-color-mode="dark"] body:has(.landing-page) {
+  background: linear-gradient(180deg, #fdfcfa 0%, #f3efe8 50%, #fdfcfa 100%);
+  color: #2d2d2d;
+}
+[data-color-mode="dark"] .landing-page {
+  --text-dark: #2d2d2d;
+  --text-muted: #6b6b6b;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --bg-cream: #f8f6f2;
+  --shadow-soft: 0 4px 20px rgba(180, 160, 120, 0.15);
 }
 
 .landing-page {

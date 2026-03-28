@@ -21,6 +21,8 @@ export default function WallPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [sending, setSending] = useState(false);
+  const [following, setFollowing] = useState(false);
+  const [followCount, setFollowCount] = useState(0);
   const [authed, setAuthed] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
@@ -58,11 +60,15 @@ export default function WallPage() {
   function openPhoto(photo: WallPhoto) {
     setSelected(photo);
     setLiked(false); setLikeCount(0); setComments([]); setNewComment("");
+    setFollowing(false); setFollowCount(0);
     const headers: Record<string, string> = {};
     getToken().then(t => {
       if (t) headers.Authorization = `Bearer ${t}`;
       fetch(`/api/photos/like?photoId=${photo.id}`, { headers }).then(r => r.json()).then(d => {
         setLikeCount(d.count || 0); setLiked(d.liked || false);
+      }).catch(() => {});
+      fetch(`/api/follow?username=${photo.username}`, { headers }).then(r => r.json()).then(d => {
+        setFollowing(d.following || false); setFollowCount(d.count || 0);
       }).catch(() => {});
     });
     fetch(`/api/photos/comments?photoId=${photo.id}`).then(r => r.json()).then(d => {
@@ -79,6 +85,23 @@ export default function WallPage() {
         body: JSON.stringify({ photoId: selected!.id }),
       });
       const d = await res.json(); setLiked(d.liked); setLikeCount(d.count);
+    } catch {}
+  }
+
+  async function handleFollow() {
+    if (!selected) return;
+    const token = await getToken(); if (!token) return;
+    setFollowing(!following);
+    setFollowCount(c => following ? c - 1 : c + 1);
+    try {
+      const res = await fetch("/api/follow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ username: selected.username }),
+      });
+      const d = await res.json();
+      setFollowing(d.following);
+      setFollowCount(d.count);
     } catch {}
   }
 
@@ -200,7 +223,23 @@ export default function WallPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={selected.imageUrl} alt="" className="wall-modal-img" />
             <div className="wall-modal-body">
-              <p className="wall-modal-author">by <strong>@{selected.username}</strong></p>
+              <div className="wall-modal-author-row">
+                <p className="wall-modal-author">by <strong>@{selected.username}</strong></p>
+                <button
+                  className={`wall-follow-toggle ${following ? "wall-follow-active" : ""}`}
+                  onClick={handleFollow}
+                  disabled={!authed}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    {following ? (
+                      <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></>
+                    ) : (
+                      <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></>
+                    )}
+                  </svg>
+                  {following ? "Following" : "Follow"} {followCount > 0 && <span className="wall-follow-count">{followCount}</span>}
+                </button>
+              </div>
               <div className="wall-modal-actions">
                 <button className={`wall-modal-like ${liked ? "wall-modal-liked" : ""}`} onClick={handleLike} disabled={!authed}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={liked ? "#ef4444" : "none"} stroke={liked ? "#ef4444" : "currentColor"} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
