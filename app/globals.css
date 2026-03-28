@@ -5282,10 +5282,21 @@ body:has(.sc-page) {
   display: flex;
   align-items: center;
   gap: 8px;
-  text-decoration: none;
-  color: var(--text-dark);
   min-width: 0;
   overflow: hidden;
+}
+.toolbar-brand-link {
+  text-decoration: none;
+  color: var(--text-dark);
+}
+.toolbar-logo-jump:active {
+  animation: toolbar-bounce 0.4s ease;
+}
+@keyframes toolbar-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.85); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
 .toolbar-logo {
@@ -5293,6 +5304,7 @@ body:has(.sc-page) {
   height: 30px;
   border-radius: 8px;
   flex-shrink: 0;
+  cursor: pointer;
   background: linear-gradient(135deg, var(--gold), #b8942f);
   display: flex;
   align-items: center;

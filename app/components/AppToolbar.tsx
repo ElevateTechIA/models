@@ -38,11 +38,22 @@ export default function AppToolbar({ username, onMenuClick, font = "elegant" }: 
 
   return (
     <div className="toolbar">
-      {/* Left: Logo + Name */}
-      <a href={username ? `/${username}` : "/"} className="toolbar-brand">
-        <div className="toolbar-logo">✦</div>
-        <span className={`toolbar-name font-${font}`}>ONE LINK</span>
-      </a>
+      {/* Left: Logo + Name — logo jumps to random page */}
+      <div className="toolbar-brand">
+        <div
+          className="toolbar-logo toolbar-logo-jump"
+          onClick={() => {
+            if (!username) return;
+            const pages = [`/${username}`, `/${username}/showcase`];
+            window.location.href = pages[Math.floor(Math.random() * pages.length)];
+          }}
+          role="button"
+          tabIndex={0}
+        >✦</div>
+        <a href={username ? `/${username}` : "/"} className="toolbar-brand-link">
+          <span className={`toolbar-name font-${font}`}>ONE LINK</span>
+        </a>
+      </div>
 
       {/* Right: Actions */}
       <div className="toolbar-actions">
