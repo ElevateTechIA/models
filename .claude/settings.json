@@ -29,7 +29,8 @@
       "Bash(git commit:*)",
       "Bash(ls /Users/cesarvega/Movies/CapCut/SMART-AI-REFERRALS/public/money-bag*)",
       "Bash(git push:*)",
-      "Read(//Users/cesarvega/**)"
+      "Read(//Users/cesarvega/**)",
+      "Bash(find /Users/cesarvega/Movies/CapCut/Models -type f -name .env* -o -name *.env)"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]",
@@ -37,7 +38,8 @@
       "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain",
       "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain/Aprendizajes",
       "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain/Snippets",
-      "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain/Proyectos"
+      "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain/Proyectos",
+      "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain/Decisiones"
     ]
   }
 }

@@ -869,6 +869,10 @@ export default function AdminPage() {
               <button className="adm-btn" onClick={() => setShowAddForm(false)}>
                 {t.cancel}
               </button>
+              <button className="adm-btn adm-btn-generate" onClick={() => window.open("/photos", "_blank")}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Generar Foto IA
+              </button>
             </div>
           </div>
         )}
@@ -1003,6 +1007,10 @@ export default function AdminPage() {
                     onClick={() => setEditingLinkId(null)}
                   >
                     {t.cancel}
+                  </button>
+                  <button className="adm-btn adm-btn-generate" onClick={() => window.open("/photos", "_blank")}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Generar Foto IA
                   </button>
                 </div>
               </div>

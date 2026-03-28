@@ -201,8 +201,8 @@ export const translations = {
     menuTitle: "Menú",
     menuPhotoStudio: "Estudio de Fotos",
     menuTokens: "Tokens",
-    menuViewSite: "Ver Sitio",
-    menuShowcase: "Showcase",
+    menuViewSite: "Social Links",
+    menuShowcase: "Show Time",
     menuLanguage: "Idioma",
     menuLogout: "Cerrar Sesión",
 
@@ -416,8 +416,8 @@ export const translations = {
     menuTitle: "Menu",
     menuPhotoStudio: "Photo Studio",
     menuTokens: "Tokens",
-    menuViewSite: "View Site",
-    menuShowcase: "Showcase",
+    menuViewSite: "Social Links",
+    menuShowcase: "Show Time",
     menuLanguage: "Language",
     menuLogout: "Sign Out",
 
