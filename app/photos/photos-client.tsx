@@ -14,7 +14,7 @@ import MobileMenu from "@/app/components/MobileMenu";
 
 type Tab = "photos" | "videos" | "library" | "wall";
 type LibraryFilter = "photos" | "videos";
-type ResultItem = { id: string; url: string; prompt: string; aspectRatio: string };
+type ResultItem = { id: string; url: string; prompt: string; aspectRatio: string; libraryId?: string; posted?: boolean };
 type LibraryImage = { id: string; imageUrl: string; prompt: string; aspectRatio: string; createdAt: number; isPublic?: boolean };
 type WallPhoto = { id: string; imageUrl: string; username: string; prompt: string };
 type WallComment = { id: string; username: string; text: string; createdAt: number };
@@ -167,8 +167,18 @@ export default function PhotosClient() {
   }, [activeTab, libraryFilter, libraryPhotosFetched, libraryVideosFetched, fetchLibraryPhotos, fetchLibraryVideos]);
 
   // ── Auto-save ──
-  async function savePhotoToLibrary(imageData: string, p: string, ar: string) {
-    try { const token = await getToken(); if (!token) return; const res = await fetch("/api/photos/library", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ image: imageData, prompt: p, aspectRatio: ar }) }); if (res.ok) setLibraryPhotosFetched(false); } catch {}
+  async function savePhotoToLibrary(imageData: string, p: string, ar: string, resultId?: string) {
+    try {
+      const token = await getToken(); if (!token) return;
+      const res = await fetch("/api/photos/library", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ image: imageData, prompt: p, aspectRatio: ar }) });
+      if (res.ok) {
+        const data = await res.json();
+        if (resultId && data.id) {
+          setResultImages(prev => prev.map(i => i.id === resultId ? { ...i, libraryId: data.id } : i));
+        }
+        setLibraryPhotosFetched(false);
+      }
+    } catch {}
   }
 
   async function saveVideoToLibrary(videoData: string, p: string, ar: string, thumb: string | null) {
@@ -264,8 +274,9 @@ export default function PhotosClient() {
       const res = await fetch("/api/photos", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ prompt: currentPrompt, image: referenceImage, aspect_ratio: currentAR }) });
       const data = await res.json();
       if (!res.ok) { if (data.error === "INSUFFICIENT_CREDITS") { setShowCreditsModal(true); return; } setError(data.error || "Algo salio mal"); return; }
-      setResultImages(prev => [...prev, { id: Date.now().toString(), url: data.image, prompt: currentPrompt, aspectRatio: currentAR }]);
-      savePhotoToLibrary(data.image, currentPrompt, currentAR);
+      const resultId = Date.now().toString();
+      setResultImages(prev => [...prev, { id: resultId, url: data.image, prompt: currentPrompt, aspectRatio: currentAR }]);
+      savePhotoToLibrary(data.image, currentPrompt, currentAR, resultId);
       if (data.creditsUsed) celebrate(data.creditsUsed, data.creditsRemaining ?? 0);
       setTimeout(() => resultsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch { setError(t.networkError); } finally { setLoading(false); if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; } }
@@ -322,6 +333,13 @@ export default function PhotosClient() {
 
   async function handlePost(url?: string) {
     const target = url || fullscreenImage || fullscreenVideo; if (!target) return;
+    // Try to find matching result item and post to wall
+    const matchingResult = resultImages.find(i => i.url === target);
+    if (matchingResult?.libraryId && !matchingResult.posted) {
+      postResultToWall(matchingResult);
+      return;
+    }
+    // Fallback to native share
     const isVid = target.includes("video/") || target.endsWith(".mp4");
     try { const blob = await fetchMediaBlob(target); const file = new File([blob], `photo-studio.${isVid ? "mp4" : "png"}`, { type: isVid ? "video/mp4" : "image/png" }); if (navigator.share && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: "Photo Studio", text: "Created with Photo Studio" }); return; } handleSave(target); } catch {}
   }
@@ -432,6 +450,22 @@ export default function PhotosClient() {
     }
   }
 
+  async function postResultToWall(item: ResultItem) {
+    if (!item.libraryId || item.posted) return;
+    const token = await getToken(); if (!token) return;
+    setResultImages(prev => prev.map(i => i.id === item.id ? { ...i, posted: true } : i));
+    try {
+      await fetch("/api/photos/library", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id: item.libraryId, isPublic: true }),
+      });
+      setLibraryPhotosFetched(false);
+    } catch {
+      setResultImages(prev => prev.map(i => i.id === item.id ? { ...i, posted: false } : i));
+    }
+  }
+
   if (!authorized) return null;
 
   // ── Copy button SVG ──
@@ -473,6 +507,18 @@ export default function PhotosClient() {
           </div>
         </div>
         {item.prompt && <p className="ph-result-prompt">{item.prompt}</p>}
+        <button
+          className={`ph-post-wall-fab ${item.posted ? "ph-post-wall-fab-posted" : ""} ${!item.libraryId ? "ph-post-wall-fab-loading" : ""}`}
+          onClick={(e) => { e.stopPropagation(); postResultToWall(item); }}
+          disabled={!item.libraryId || item.posted}
+          title={item.posted ? "Publicada en el Wall" : "Publicar en el Wall"}
+        >
+          {item.posted ? (
+            <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>{lang === "es" ? "Publicada" : "Posted"}</span></>
+          ) : (
+            <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span>{t.phPost}</span></>
+          )}
+        </button>
       </div>
     );
   }
@@ -529,7 +575,7 @@ export default function PhotosClient() {
           <span><strong>-{creditToast.used}</strong> {t.creditsConsumed} &middot; {creditToast.remaining} {t.creditsRemaining}</span>
         </div>
       )}
-      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} font={toolbarFont} />
+      <AppToolbar username={username} onMenuClick={() => setShowMenu(true)} font={toolbarFont} logoHref="/admin" />
       <MobileMenu
         isOpen={showMenu}
         onClose={() => setShowMenu(false)}

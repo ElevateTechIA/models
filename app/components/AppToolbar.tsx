@@ -4,15 +4,16 @@ import React, { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { getDeviceId } from "@/lib/device-fingerprint";
 
-export type ToolbarFont = "gothic" | "elegant" | "clean";
+export type ToolbarFont = "gothic" | "elegant" | "clean" | "haute";
 
 interface AppToolbarProps {
   username: string | null;
   onMenuClick: () => void;
   font?: ToolbarFont;
+  logoHref?: string;
 }
 
-export default function AppToolbar({ username, onMenuClick, font = "elegant" }: AppToolbarProps) {
+export default function AppToolbar({ username, onMenuClick, font = "elegant", logoHref }: AppToolbarProps) {
   const [tokens, setTokens] = useState<number | null>(null);
   const [loadingTokens, setLoadingTokens] = useState(true);
 
@@ -45,6 +46,7 @@ export default function AppToolbar({ username, onMenuClick, font = "elegant" }: 
         <div
           className="toolbar-logo toolbar-logo-jump"
           onClick={() => {
+            if (logoHref) { window.location.href = logoHref; return; }
             if (!username) return;
             const pages = [`/${username}`, `/${username}/showcase`];
             window.location.href = pages[Math.floor(Math.random() * pages.length)];
@@ -90,7 +92,7 @@ export default function AppToolbar({ username, onMenuClick, font = "elegant" }: 
         </a>
 
         {/* Menu button */}
-        <button className="toolbar-icon-btn" onClick={onMenuClick} title="Menu">
+        <button className="toolbar-icon-btn toolbar-menu-btn" onClick={onMenuClick} title="Menu">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="3" y1="6" x2="21" y2="6" />
             <line x1="3" y1="12" x2="21" y2="12" />
