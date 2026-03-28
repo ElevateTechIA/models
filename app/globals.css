@@ -5327,8 +5327,9 @@ body:has(.sc-page) {
   z-index: 40;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -5343,7 +5344,7 @@ body:has(.sc-page) {
   color: #fff;
 }
 .ph-page .toolbar-name,
-.wall-page .toolbar-name { color: #fff; }
+.wall-page .toolbar-name { display: none; }
 .ph-page .toolbar-icon-btn,
 .wall-page .toolbar-icon-btn {
   color: #e8d48b;
@@ -5364,15 +5365,10 @@ body:has(.sc-page) {
 .wall-page .toolbar-token-count { color: #e8d48b; }
 
 .toolbar-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  overflow: hidden;
+  display: contents;
 }
 .toolbar-brand-link {
-  text-decoration: none;
-  color: var(--text-dark);
+  display: none;
 }
 .toolbar-logo-jump:active {
   animation: toolbar-bounce 0.4s ease;
@@ -5424,15 +5420,12 @@ body:has(.sc-page) {
 }
 
 .toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
+  display: contents;
 }
 
 .toolbar-icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 1.5px solid var(--gold-border);
   background: var(--card-bg);
@@ -5482,12 +5475,15 @@ body:has(.sc-page) {
   font-size: 13px;
 }
 
-@media (max-width: 400px) {
-  .toolbar-name { display: none; }
-  .toolbar-actions { gap: 4px; }
-  .toolbar-icon-btn { width: 30px; height: 30px; }
-  .toolbar-tokens { padding: 3px 7px; font-size: 12px; }
-  .toolbar-coin { font-size: 12px; }
+@media (max-width: 480px) {
+  .ph-page .toolbar-name { display: none; }
+  .toolbar-actions { gap: 3px; }
+  .toolbar-icon-btn { width: 28px; height: 28px; }
+  .toolbar-icon-btn svg { width: 14px; height: 14px; }
+  .toolbar-tokens { padding: 3px 6px; }
+  .toolbar-coin { font-size: 11px; }
+  .toolbar-token-count { font-size: 11px; }
+  .toolbar-logo { width: 28px; height: 28px; }
 }
 
 /* ── Mobile Menu ─────────────────────────── */

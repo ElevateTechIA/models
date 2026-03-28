@@ -47,6 +47,8 @@ export default function PhotosClient() {
   const [username, setUsername] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean">("elegant");
+  const [appTheme, setAppTheme] = useState<string>("gold");
+  const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">("light");
   const [templateImage, setTemplateImage] = useState<string | null>(null);
 
   // ── Photo state ──
@@ -120,6 +122,8 @@ export default function PhotosClient() {
       fetch(`/api/admin/config?username=${storedUsername}`).then(r => r.json()).then(d => {
         if (d?.settings?.language) setLang(d.settings.language);
         if (d?.settings?.toolbarFont) setToolbarFont(d.settings.toolbarFont);
+        if (d?.settings?.appTheme) { setAppTheme(d.settings.appTheme); import("@/lib/theme/colors").then(m => m.applyTheme(d.settings.appTheme)); }
+        if (d?.settings?.colorMode) { setColorMode(d.settings.colorMode); import("@/lib/theme/colors").then(m => m.applyColorMode(d.settings.colorMode)); }
       }).catch(() => {});
     }
     loadLang();
@@ -518,6 +522,26 @@ export default function PhotosClient() {
               });
             }
           } catch {}
+        }}
+        font={toolbarFont}
+        onChangeFont={async (f) => {
+          setToolbarFont(f);
+          const token = await getToken(); if (!token) return;
+          try { await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ settings: { language: lang, toolbarFont: f, appTheme, colorMode } }) }); } catch {}
+        }}
+        theme={appTheme as any}
+        onChangeTheme={async (th) => {
+          setAppTheme(th);
+          (await import("@/lib/theme/colors")).applyTheme(th);
+          const token = await getToken(); if (!token) return;
+          try { await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ settings: { language: lang, toolbarFont, appTheme: th, colorMode } }) }); } catch {}
+        }}
+        colorMode={colorMode}
+        onChangeColorMode={async (mode) => {
+          setColorMode(mode);
+          (await import("@/lib/theme/colors")).applyColorMode(mode);
+          const token = await getToken(); if (!token) return;
+          try { await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ settings: { language: lang, toolbarFont, appTheme, colorMode: mode } }) }); } catch {}
         }}
         onLogout={() => { setShowMenu(false); handleLogout(); }}
         t={t}
