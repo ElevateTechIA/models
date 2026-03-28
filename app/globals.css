@@ -3058,8 +3058,8 @@ body:has(.landing-page) {
   animation: photo-wall-scroll-reverse 30s linear infinite;
 }
 .photo-wall-img {
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
   object-fit: cover;
   border-radius: 12px;
   flex-shrink: 0;
@@ -3091,6 +3091,15 @@ body:has(.landing-page) {
 }
 
 /* ── Gallery section ─────────────────────────────── */
+@media (min-width: 768px) {
+  .photo-wall-img { width: 220px; height: 220px; }
+  .photo-wall-fade-left, .photo-wall-fade-right { width: 80px; }
+}
+@media (min-width: 1200px) {
+  .photo-wall-img { width: 260px; height: 260px; }
+  .photo-wall-fade-left, .photo-wall-fade-right { width: 120px; }
+}
+
 .landing-gallery-section {
   text-align: center;
   margin: 8px 0;
@@ -3266,6 +3275,25 @@ body:has(.landing-page) {
   color: #a09888;
   text-align: center;
   margin: 0;
+}
+.gm-google-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--gold), #b8942f);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+}
+.gm-google-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 20px rgba(201,168,76,0.4);
 }
 .gm-join-btn {
   display: inline-flex;
