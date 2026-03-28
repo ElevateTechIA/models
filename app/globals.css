@@ -1881,27 +1881,52 @@ body:has(.ph-theme-pink) { background: #140a0d; }
 }
 
 /* Wall "Make your own" button */
+.wall-modal-btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
 .wall-make-own-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin-top: 16px;
-  padding: 12px;
-  font-size: 14px;
+  gap: 6px;
+  flex: 1;
+  padding: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, #c9a84c, #b8942f);
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s;
   box-shadow: 0 4px 16px rgba(201,168,76,0.3);
 }
-.wall-make-own-btn:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(201,168,76,0.4);
+.wall-make-own-btn:hover { transform: scale(1.02); }
+.wall-follow-me-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 11px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #ec4899, #d946a8);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 16px rgba(236,72,153,0.3);
+}
+.wall-follow-me-btn:hover { transform: scale(1.02); }
+.wall-follow-me-btn:disabled { opacity: 0.5; cursor: default; }
+.wall-follow-me-active {
+  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3) !important;
 }
 
 .ph-error {

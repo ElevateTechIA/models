@@ -223,23 +223,7 @@ export default function WallPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={selected.imageUrl} alt="" className="wall-modal-img" />
             <div className="wall-modal-body">
-              <div className="wall-modal-author-row">
-                <p className="wall-modal-author">by <strong>@{selected.username}</strong></p>
-                <button
-                  className={`wall-follow-toggle ${following ? "wall-follow-active" : ""}`}
-                  onClick={handleFollow}
-                  disabled={!authed}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    {following ? (
-                      <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></>
-                    ) : (
-                      <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></>
-                    )}
-                  </svg>
-                  {following ? "Following" : "Follow"} {followCount > 0 && <span className="wall-follow-count">{followCount}</span>}
-                </button>
-              </div>
+              <p className="wall-modal-author">by <strong>@{selected.username}</strong></p>
               <div className="wall-modal-actions">
                 <button className={`wall-modal-like ${liked ? "wall-modal-liked" : ""}`} onClick={handleLike} disabled={!authed}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={liked ? "#ef4444" : "none"} stroke={liked ? "#ef4444" : "currentColor"} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -263,17 +247,33 @@ export default function WallPage() {
               ) : (
                 <p className="wall-modal-hint">Sign in to like and comment</p>
               )}
-              <button
-                className="wall-make-own-btn"
-                onClick={() => {
-                  const prompt = selected?.prompt || "";
-                  const templateImg = encodeURIComponent(selected?.imageUrl || "");
-                  router.push(`/photos?tab=photos&prompt=${encodeURIComponent(prompt)}&template=${templateImg}`);
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                {lang === "es" ? "Crea la tuya" : "Make your own"}
-              </button>
+              <div className="wall-modal-btn-row">
+                <button
+                  className="wall-make-own-btn"
+                  onClick={() => {
+                    const prompt = selected?.prompt || "";
+                    const templateImg = encodeURIComponent(selected?.imageUrl || "");
+                    router.push(`/photos?tab=photos&prompt=${encodeURIComponent(prompt)}&template=${templateImg}`);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                  {lang === "es" ? "Crea la tuya" : "Make your own"}
+                </button>
+                <button
+                  className={`wall-follow-me-btn ${following ? "wall-follow-me-active" : ""}`}
+                  onClick={handleFollow}
+                  disabled={!authed}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {following ? (
+                      <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></>
+                    ) : (
+                      <><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></>
+                    )}
+                  </svg>
+                  {following ? "Following" : "Follow me"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

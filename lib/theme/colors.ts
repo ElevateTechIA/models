@@ -1,7 +1,7 @@
 /**
  * Theme Color Configuration — One Link
  *
- * 7 themes: Gold (default) + 6 from Smart AI Referrals
+ * 8 themes: Gold (default) + 6 from Smart AI Referrals + Peaky Blinders
  */
 
 export const themes = {
@@ -176,6 +176,35 @@ export const themes = {
       textSecondary: "#4a0e2a",
       textMuted: "#7a2550",
       surfaceVariant: "#ffc8e2",
+    },
+  },
+
+  peakyBlinders: {
+    name: "Peaky Blinders",
+    emoji: "🔪",
+    colors: {
+      gradientFrom: "#1a1714",
+      gradientVia: "#1a1714",
+      gradientTo: "#1a1714",
+      primary: "#d4a030",
+      primaryLight: "#e8c068",
+      primaryDark: "#8b6914",
+      secondary: "#3a3028",
+      secondaryLight: "#5a4a38",
+      accent: "#d4a030",
+      accentHover: "#c49020",
+      cardBg: "#252018",
+      cardBgHover: "#2e2820",
+      cardBorder: "rgba(212,160,48,0.25)",
+      primaryBg: "#2a2318",
+      primaryBgHover: "#332a1e",
+      primaryBorder: "rgba(212,160,48,0.15)",
+      overlayFrom: "rgba(26,23,20,0.85)",
+      overlayTo: "rgba(26,23,20,0.9)",
+      textPrimary: "#e8dcc8",
+      textSecondary: "#a89878",
+      textMuted: "#7a6a52",
+      surfaceVariant: "#302820",
     },
   },
 
