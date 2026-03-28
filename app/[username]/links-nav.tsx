@@ -17,7 +17,7 @@ export default function LinksNav({ links }: { links: SiteLink[] }) {
 
   async function openQr(link: SiteLink) {
     try {
-      const url = link.url === "#profile" ? window.location.href : link.url;
+      const url = link.url === "#profile" ? window.location.href : link.url === "#app" ? window.location.origin : link.url;
       const dataUrl = await QRCode.toDataURL(url, {
         width: 512,
         margin: 2,

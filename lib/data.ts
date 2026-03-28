@@ -114,7 +114,24 @@ function getNewUserConfig(displayName: string): SiteConfig {
       subtitle: "",
       picture: "",
     },
-    links: [],
+    links: [
+      {
+        id: generateLinkId(),
+        icon: "/icons/qrcode_icon.svg",
+        iconType: "preset" as const,
+        label: "Comparte App",
+        url: "#app",
+        enabled: true,
+      },
+      {
+        id: generateLinkId(),
+        icon: "/icons/qrcode_icon.svg",
+        iconType: "preset" as const,
+        label: "My link",
+        url: "#profile",
+        enabled: true,
+      },
+    ],
     settings: {
       language: "es",
       footerText: "",

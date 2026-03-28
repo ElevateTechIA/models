@@ -1,7 +1,7 @@
 /**
  * Theme Color Configuration — One Link
  *
- * 8 themes: Gold (default) + 6 from Smart AI Referrals + Peaky Blinders
+ * 10 themes: Gold (default) + 6 from Smart AI Referrals + Peaky Blinders + Dracula + Space Invaders
  */
 
 export const themes = {
@@ -234,6 +234,63 @@ export const themes = {
       textSecondary: "#4B5563",
       textMuted: "#6B7280",
       surfaceVariant: "#f3f4f6",
+    },
+  },
+  dracula: {
+    name: "Dracula",
+    emoji: "🧛",
+    colors: {
+      gradientFrom: "#282a36",
+      gradientVia: "#282a36",
+      gradientTo: "#282a36",
+      primary: "#bd93f9",
+      primaryLight: "#caa9fa",
+      primaryDark: "#6272a4",
+      secondary: "#44475a",
+      secondaryLight: "#6272a4",
+      accent: "#ff79c6",
+      accentHover: "#ff92d0",
+      cardBg: "#21222c",
+      cardBgHover: "#2a2c3a",
+      cardBorder: "rgba(189,147,249,0.25)",
+      primaryBg: "#2c2e3e",
+      primaryBgHover: "#343648",
+      primaryBorder: "rgba(189,147,249,0.15)",
+      overlayFrom: "rgba(40,42,54,0.9)",
+      overlayTo: "rgba(40,42,54,0.95)",
+      textPrimary: "#f8f8f2",
+      textSecondary: "#bd93f9",
+      textMuted: "#6272a4",
+      surfaceVariant: "#343746",
+    },
+  },
+
+  spaceInvaders: {
+    name: "Space Invaders",
+    emoji: "👾",
+    colors: {
+      gradientFrom: "#0a0a1a",
+      gradientVia: "#0a0a1a",
+      gradientTo: "#0a0a1a",
+      primary: "#00ff41",
+      primaryLight: "#66ff8c",
+      primaryDark: "#00b32d",
+      secondary: "#1a1a3e",
+      secondaryLight: "#2a2a5e",
+      accent: "#ff2d55",
+      accentHover: "#ff5070",
+      cardBg: "#0f0f2a",
+      cardBgHover: "#161640",
+      cardBorder: "rgba(0,255,65,0.2)",
+      primaryBg: "#0d1a0f",
+      primaryBgHover: "#142016",
+      primaryBorder: "rgba(0,255,65,0.15)",
+      overlayFrom: "rgba(10,10,26,0.9)",
+      overlayTo: "rgba(10,10,26,0.95)",
+      textPrimary: "#e0ffe8",
+      textSecondary: "#00ff41",
+      textMuted: "#3a7a4a",
+      surfaceVariant: "#141432",
     },
   },
 };

@@ -139,7 +139,9 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
 
   async function openQr(link: SiteLink) {
     try {
-      const url = isMyProfileLink(link)
+      const url = link.url === "#app"
+        ? window.location.origin
+        : isMyProfileLink(link)
         ? `${window.location.origin}/${username}/showcase`
         : link.url;
       const dataUrl = await QRCode.toDataURL(url, {
