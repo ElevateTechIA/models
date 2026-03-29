@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { useOfflineConfig } from "@/lib/pwa/use-offline-config";
 import { setCachedConfig } from "@/lib/pwa/idb-store";
+import { applyTheme, applyColorMode } from "@/lib/theme/colors";
+import type { ThemeName, ColorMode } from "@/lib/theme/colors";
 import LinksNav from "./links-nav";
 import type { SiteConfig } from "@/lib/types";
 
@@ -15,12 +17,19 @@ interface Props {
 export default function OfflineProfile({ username, serverConfig }: Props) {
   const { config: offlineConfig, loading, isOffline, isCached } = useOfflineConfig(username);
 
-  // If server provided config, store it in IndexedDB immediately
+  // If server provided config, store it in IndexedDB + apply theme
   useEffect(() => {
     if (serverConfig) {
       setCachedConfig(username, serverConfig);
     }
-  }, [username, serverConfig]);
+    const cfg = serverConfig || offlineConfig;
+    if (cfg?.settings?.appTheme) {
+      applyTheme(cfg.settings.appTheme as ThemeName);
+    }
+    if (cfg?.settings?.colorMode) {
+      applyColorMode(cfg.settings.colorMode as ColorMode);
+    }
+  }, [username, serverConfig, offlineConfig]);
 
   // When server rendered successfully and we're online, return null
   // (the server HTML is already visible)

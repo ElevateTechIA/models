@@ -12,6 +12,7 @@ import { translations, type Language } from "@/lib/translations";
 import CropModal from "@/app/components/CropModal";
 import AppToolbar from "@/app/components/AppToolbar";
 import MobileMenu from "@/app/components/MobileMenu";
+import { themes, type ThemeName } from "@/lib/theme/colors";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -31,6 +32,11 @@ export default function AdminPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
   const profilePicRef = useRef<HTMLInputElement>(null);
+  const [usePerThemePictures, setUsePerThemePictures] = useState(false);
+  const [perThemePictures, setPerThemePictures] = useState<Record<string, string>>({});
+  const [perThemePictureAspects, setPerThemePictureAspects] = useState<Record<string, number>>({});
+  const [editingThemePic, setEditingThemePic] = useState<string | null>(null);
+  const themePicRef = useRef<HTMLInputElement>(null);
 
   // Links state
   const [links, setLinks] = useState<SiteLink[]>([]);
@@ -150,6 +156,9 @@ export default function AdminPage() {
         setSubtitle(data.profile.subtitle);
         setPicture(data.profile.picture);
         setPictureAspect(data.profile.pictureAspect);
+        setUsePerThemePictures(data.profile.usePerThemePictures ?? false);
+        setPerThemePictures(data.profile.perThemePictures ?? {});
+        setPerThemePictureAspects(data.profile.perThemePictureAspects ?? {});
         setLinks(data.links);
         setLanguage(data.settings.language);
         setToolbarFont(data.settings.toolbarFont || "clean");
@@ -180,7 +189,7 @@ export default function AdminPage() {
         method: "PUT",
         headers: await authHeaders(),
         body: JSON.stringify({
-          profile: { name, subtitle, picture, pictureAspect },
+          profile: { name, subtitle, picture, pictureAspect, usePerThemePictures, perThemePictures, perThemePictureAspects },
         }),
       });
       if (!res.ok) throw new Error();
@@ -192,6 +201,16 @@ export default function AdminPage() {
     } finally {
       setSavingProfile(false);
     }
+  }
+
+  // ── Per-theme picture upload → opens crop modal ────
+  function handleThemePicUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !auth.currentUser || !editingThemePic) return;
+    if (file.size > 5 * 1024 * 1024) { showToast(t.imageTooLarge); return; }
+    setProfilePicFile(file);
+    setCropState({ file, target: "profile" });
+    e.target.value = "";
   }
 
   // ── Profile picture upload → opens crop modal ─────
@@ -433,7 +452,17 @@ export default function AdminPage() {
     switch (target) {
       case "profile": {
         const path = await uploadCroppedBlob(blob, "profile");
-        if (path) { setPicture(path); setPictureAspect(aspectRatio); showToast(t.saved); }
+        if (path) {
+          if (usePerThemePictures && editingThemePic) {
+            setPerThemePictures(prev => ({ ...prev, [editingThemePic]: path }));
+            setPerThemePictureAspects(prev => ({ ...prev, [editingThemePic]: aspectRatio ?? 1 }));
+          } else {
+            setPicture(path);
+            setPictureAspect(aspectRatio);
+          }
+          showToast(t.saved);
+        }
+        setEditingThemePic(null);
         break;
       }
       case "new-link-photo": {
@@ -720,6 +749,62 @@ export default function AdminPage() {
               onChange={(e) => setSubtitle(e.target.value)}
             />
           </div>
+        </div>
+
+        {/* Per-theme picture toggle */}
+        <div className="adm-theme-pic-toggle">
+          <div className="adm-theme-pic-toggle-row">
+            <span className="adm-label" style={{ margin: 0 }}>
+              {language === "es" ? "Foto diferente por tema" : "Different picture per theme"}
+            </span>
+            <button
+              className={`adm-toggle ${usePerThemePictures ? "adm-toggle-on" : ""}`}
+              onClick={() => setUsePerThemePictures(!usePerThemePictures)}
+              type="button"
+            >
+              <span className="adm-toggle-knob" />
+            </button>
+          </div>
+
+          {usePerThemePictures && (
+            <div className="adm-theme-pic-grid">
+              {(Object.keys(themes) as ThemeName[]).map((key) => {
+                const themePic = perThemePictures[key];
+                return (
+                  <button
+                    key={key}
+                    className={`adm-theme-pic-card ${appTheme === key ? "adm-theme-pic-card-active" : ""}`}
+                    onClick={() => { setEditingThemePic(key); themePicRef.current?.click(); }}
+                    type="button"
+                  >
+                    <div className="adm-theme-pic-preview" style={{ borderColor: themes[key].colors.primary }}>
+                      {themePic ? (
+                        <img src={themePic} alt={themes[key].name} />
+                      ) : (
+                        <span className="adm-theme-pic-empty" style={{ color: themes[key].colors.primary }}>+</span>
+                      )}
+                    </div>
+                    <span className="adm-theme-pic-emoji">{themes[key].emoji}</span>
+                    <span className="adm-theme-pic-name">{themes[key].name.split(" ").slice(1).join(" ") || themes[key].name}</span>
+                    {themePic && (
+                      <button
+                        className="adm-theme-pic-remove"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPerThemePictures(prev => { const next = { ...prev }; delete next[key]; return next; });
+                          setPerThemePictureAspects(prev => { const next = { ...prev }; delete next[key]; return next; });
+                        }}
+                        title={language === "es" ? "Quitar" : "Remove"}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <input type="file" accept="image/*" style={{ display: "none" }} ref={themePicRef} onChange={handleThemePicUpload} />
         </div>
 
         <button

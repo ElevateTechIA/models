@@ -35,7 +35,8 @@
       "Bash(\"/Users/cesarvega/Documents/Obsidian Vault/Claude:*)",
       "Bash(node -e \"const {themes} = require\\(''./lib/theme/colors''\\); console.log\\(Object.keys\\(themes\\)\\)\")",
       "Bash(npx tsx:*)",
-      "Bash(kill 83658)"
+      "Bash(kill 83658)",
+      "Bash(grep -n \"profile\\\\|picture\\\\|aspect\" /Users/cesarvega/Movies/CapCut/Models/app/[username]/showcase/ShowcaseClient.tsx)"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]",

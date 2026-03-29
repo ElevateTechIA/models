@@ -14,6 +14,9 @@ export interface SiteProfile {
   subtitle: string;
   picture: string;
   pictureAspect?: number; // Width/height ratio from crop
+  usePerThemePictures?: boolean;
+  perThemePictures?: Record<string, string>;
+  perThemePictureAspects?: Record<string, number>;
 }
 
 export type ShowcaseLayout = "classic" | "compact" | "immersive";

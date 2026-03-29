@@ -7,6 +7,9 @@ import { onAuthStateChanged } from "firebase/auth";
 import { translations } from "@/lib/translations";
 import CropModal from "@/app/components/CropModal";
 import QRCode from "qrcode";
+import { resolveProfilePicture } from "@/lib/theme/resolve-profile-picture";
+import { applyTheme, applyColorMode } from "@/lib/theme/colors";
+import type { ThemeName, ColorMode } from "@/lib/theme/colors";
 
 const QR_ICON_PATH = "/icons/qrcode_icon.svg";
 
@@ -48,6 +51,8 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
   const t = translations[config.settings.language] || translations.es;
   const layout: ShowcaseLayout = config.settings.showcaseLayout || "classic";
   const canEdit = mounted && isOwner;
+  const activeTheme = config.settings.appTheme || "gold";
+  const { picture: resolvedPic, aspect: resolvedAspect } = resolveProfilePicture(config.profile, activeTheme);
   const enabledLinks = config.links.filter((l) => l.enabled);
   const carouselPhotos = config.settings.carouselPhotos || [];
   const defaultOrder: ShowcaseSection[] = ["hero", "links", "gallery"];
@@ -175,6 +180,8 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
 
   useEffect(() => {
     setMounted(true);
+    if (config.settings.appTheme) applyTheme(config.settings.appTheme as ThemeName);
+    if (config.settings.colorMode) applyColorMode(config.settings.colorMode as ColorMode);
     const storedUsername = localStorage.getItem("username");
     if (storedUsername !== username) return;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -368,7 +375,7 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
   }
 
   function getHeroStyle(): React.CSSProperties {
-    const aspect = config.profile.pictureAspect;
+    const aspect = resolvedAspect;
     if (!aspect) return {};
     return { height: "auto", aspectRatio: `${aspect}`, minHeight: "320px", maxHeight: "100dvh" };
   }
@@ -517,9 +524,9 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
       return (
         <div className="sc-compact-header" key="hero">
           <div className="sc-compact-avatar-wrap">
-            {config.profile.picture ? (
+            {resolvedPic ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={config.profile.picture} alt={config.profile.name} className="sc-compact-avatar" />
+              <img src={resolvedPic} alt={config.profile.name} className="sc-compact-avatar" />
             ) : (
               <div className="sc-compact-avatar sc-compact-avatar-placeholder">{config.profile.name.charAt(0)}</div>
             )}
@@ -555,9 +562,9 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
     const isImmersive = layout === "immersive";
     return (
       <div className={`sc-hero${isImmersive ? " sc-hero-immersive" : ""}`} style={getHeroStyle()} key="hero">
-        {config.profile.picture && (
+        {resolvedPic && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={config.profile.picture} alt={config.profile.name} className="sc-hero-bg" />
+          <img src={resolvedPic} alt={config.profile.name} className="sc-hero-bg" />
         )}
         <div className="sc-hero-overlay" />
         {loadingProfile && <div className="sc-loading-overlay"><div className="sc-spinner" /><span className="sc-loading-text">{t.updatingPhoto}</span></div>}

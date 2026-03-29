@@ -5,6 +5,7 @@ import LinksNav from "./links-nav";
 import OfflineProfile from "./offline-profile";
 import type { SiteConfig } from "@/lib/types";
 import { translations } from "@/lib/translations";
+import { resolveProfilePicture } from "@/lib/theme/resolve-profile-picture";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export default async function UserBioPage({ params }: Props) {
   }
 
   const enabledLinks = config.links.filter((l) => l.enabled);
+  const { picture: profilePic } = resolveProfilePicture(config.profile, config.settings.appTheme || "gold");
 
   return (
     <>
@@ -34,9 +36,9 @@ export default async function UserBioPage({ params }: Props) {
         <div className="device-notch" />
         <main className="page-wrapper">
           <div className="avatar-ring">
-            {config.profile.picture ? (
+            {profilePic ? (
               <Image
-                src={config.profile.picture}
+                src={profilePic}
                 alt={config.profile.name}
                 width={170}
                 height={170}

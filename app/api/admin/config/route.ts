@@ -32,6 +32,12 @@ export async function PUT(req: NextRequest) {
     if (body.profile.picture) config.profile.picture = body.profile.picture;
     if (body.profile.pictureAspect !== undefined)
       config.profile.pictureAspect = body.profile.pictureAspect || undefined;
+    if (body.profile.usePerThemePictures !== undefined)
+      config.profile.usePerThemePictures = body.profile.usePerThemePictures;
+    if (body.profile.perThemePictures !== undefined)
+      config.profile.perThemePictures = body.profile.perThemePictures;
+    if (body.profile.perThemePictureAspects !== undefined)
+      config.profile.perThemePictureAspects = body.profile.perThemePictureAspects;
   }
 
   if (body.settings) {
