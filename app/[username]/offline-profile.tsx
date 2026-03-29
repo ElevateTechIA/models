@@ -8,6 +8,7 @@ import { applyTheme, applyColorMode } from "@/lib/theme/colors";
 import type { ThemeName, ColorMode } from "@/lib/theme/colors";
 import LinksNav from "./links-nav";
 import type { SiteConfig } from "@/lib/types";
+import { resolveProfilePicture } from "@/lib/theme/resolve-profile-picture";
 
 interface Props {
   username: string;
@@ -68,6 +69,7 @@ export default function OfflineProfile({ username, serverConfig }: Props) {
     }
 
     const enabledLinks = config.links.filter((l) => l.enabled);
+    const { picture: profilePic } = resolveProfilePicture(config.profile, config.settings.appTheme || "gold");
 
     return (
       <>
@@ -75,9 +77,9 @@ export default function OfflineProfile({ username, serverConfig }: Props) {
           <div className="device-notch" />
           <main className="page-wrapper">
             <div className="avatar-ring">
-              {config.profile.picture ? (
+              {profilePic ? (
                 <Image
-                  src={config.profile.picture}
+                  src={profilePic}
                   alt={config.profile.name}
                   width={170}
                   height={170}
