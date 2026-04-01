@@ -8,7 +8,7 @@ import { translations } from "@/lib/translations";
 import AppToolbar from "@/app/components/AppToolbar";
 import MobileMenu from "@/app/components/MobileMenu";
 
-type WallPhoto = { id: string; imageUrl: string; username: string; prompt: string };
+type WallPhoto = { id: string; imageUrl: string; username: string; prompt: string; relation?: string };
 type Comment = { id: string; username: string; text: string; createdAt: number };
 
 export default function WallPage() {
@@ -24,6 +24,16 @@ export default function WallPage() {
   const [following, setFollowing] = useState(false);
   const [followCount, setFollowCount] = useState(0);
   const [authed, setAuthed] = useState(false);
+  const [feedTab, setFeedTab] = useState<"all" | "following">("all");
+  const [followingPhotos, setFollowingPhotos] = useState<WallPhoto[]>([]);
+  const [discoverPhotos, setDiscoverPhotos] = useState<WallPhoto[]>([]);
+  const [showSocialPanel, setShowSocialPanel] = useState(false);
+  const [socialTab, setSocialTab] = useState<"following" | "followers">("following");
+  const [socialFollowing, setSocialFollowing] = useState<string[]>([]);
+  const [socialFollowers, setSocialFollowers] = useState<string[]>([]);
+  const [socialLoading, setSocialLoading] = useState(false);
+  const [myFollowingCount, setMyFollowingCount] = useState(0);
+  const [myFollowersCount, setMyFollowersCount] = useState(0);
   const [username, setUsername] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean" | "haute">("elegant");
@@ -44,12 +54,38 @@ export default function WallPage() {
         if (d?.settings?.colorMode) { setColorMode(d.settings.colorMode); import("@/lib/theme/colors").then(m => m.applyColorMode(d.settings.colorMode)); }
       }).catch(() => {});
     }
-    const unsub = onAuthStateChanged(auth, (u) => setAuthed(!!u));
-    fetch("/api/photos/gallery")
-      .then((r) => r.json())
-      .then((d) => { if (d.photos?.length) setPhotos(d.photos); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setAuthed(!!u);
+      try {
+        if (u) {
+          const token = await u.getIdToken();
+          const res = await fetch("/api/feed", { headers: { Authorization: `Bearer ${token}` } });
+          const d = await res.json();
+          if (d.feed?.length) {
+            const followingPics = d.feed.filter((p: WallPhoto) => p.relation === "following" || p.relation === "mutual");
+            const discoverPics = d.feed.filter((p: WallPhoto) => p.relation === "discover");
+            setFollowingPhotos(followingPics);
+            setDiscoverPhotos(discoverPics);
+            setPhotos(d.feed);
+            setMyFollowingCount(d.followingCount || 0);
+            setMyFollowersCount(d.followersCount || 0);
+          }
+        } else {
+          const res = await fetch("/api/photos/gallery");
+          const d = await res.json();
+          if (d.photos?.length) setPhotos(d.photos);
+        }
+      } catch {
+        // Fallback
+        try {
+          const res = await fetch("/api/photos/gallery");
+          const d = await res.json();
+          if (d.photos?.length) setPhotos(d.photos);
+        } catch {}
+      } finally {
+        setLoading(false);
+      }
+    });
     return () => unsub();
   }, []);
 
@@ -119,13 +155,23 @@ export default function WallPage() {
     } catch {} finally { setSending(false); }
   }
 
-  // Split photos into rows for carousel
-  const ROWS = Math.max(3, Math.ceil(photos.length / 4));
-  const rows: WallPhoto[][] = [];
-  const perRow = Math.max(4, Math.ceil(photos.length / ROWS));
-  for (let i = 0; i < ROWS; i++) {
-    const row = photos.slice(i * perRow, (i + 1) * perRow);
-    if (row.length > 0) rows.push(row);
+  async function openSocialPanel() {
+    setShowSocialPanel(true);
+    setSocialLoading(true);
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const [followingRes, followersRes] = await Promise.all([
+        fetch("/api/follow/list?type=following", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("/api/follow/list?type=followers", { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+      const followingData = await followingRes.json();
+      const followersData = await followersRes.json();
+      setSocialFollowing(followingData.users || []);
+      setSocialFollowers(followersData.users || []);
+      setMyFollowingCount(followingData.count || 0);
+      setMyFollowersCount(followersData.count || 0);
+    } catch {} finally { setSocialLoading(false); }
   }
 
   const wobbles = ["wall-wobble-1", "", "wall-wobble-2", "", "wall-wobble-1"];
@@ -189,29 +235,66 @@ export default function WallPage() {
         <div className="wall-empty"><p>No photos yet</p></div>
       )}
 
-      {!loading && photos.length > 0 && (
-        <div className="wall-carousel-container">
-          {rows.map((row, ri) => (
-            <div key={ri} className="wall-carousel-row">
-              <div className={`wall-carousel-track ${ri % 2 === 1 ? "wall-carousel-reverse" : ""}`} style={{ animationDuration: `${25 + ri * 5}s` }}>
-                {[...row, ...row].map((photo, j) => (
-                  <div
-                    key={`${photo.id}-${j}`}
-                    className={`wall-card ${wobbles[j % wobbles.length]}`}
-                    onClick={() => openPhoto(photo)}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={photo.imageUrl} alt="" className="wall-card-img" loading="lazy" />
-                    <div className="wall-card-overlay">
-                      <span>@{photo.username}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+      {/* Feed tabs (only show when logged in and has following content) */}
+      {!loading && authed && followingPhotos.length > 0 && (
+        <div className="wall-feed-tabs">
+          <button
+            className={`wall-feed-tab ${feedTab === "all" ? "wall-feed-tab-active" : ""}`}
+            onClick={() => setFeedTab("all")}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            {lang === "es" ? "Todos" : "All"}
+          </button>
+          <button
+            className={`wall-feed-tab ${feedTab === "following" ? "wall-feed-tab-active" : ""}`}
+            onClick={() => setFeedTab("following")}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+            {lang === "es" ? "Siguiendo" : "Following"}
+            <span className="wall-feed-tab-count">{followingPhotos.length}</span>
+          </button>
         </div>
       )}
+
+      {!loading && photos.length > 0 && (() => {
+        const displayPhotos = feedTab === "following" && authed ? followingPhotos : photos;
+        const ROWS = Math.max(3, Math.ceil(displayPhotos.length / 4));
+        const rowsArr: WallPhoto[][] = [];
+        const perRow = Math.max(4, Math.ceil(displayPhotos.length / ROWS));
+        for (let i = 0; i < ROWS; i++) {
+          const row = displayPhotos.slice(i * perRow, (i + 1) * perRow);
+          if (row.length > 0) rowsArr.push(row);
+        }
+        return (
+          <div className="wall-carousel-container">
+            {/* Section label for Following tab */}
+            {feedTab === "following" && followingPhotos.length === 0 && (
+              <div className="wall-empty"><p>{lang === "es" ? "Sigue a alguien para ver su contenido aqui" : "Follow someone to see their content here"}</p></div>
+            )}
+            {rowsArr.map((row, ri) => (
+              <div key={ri} className="wall-carousel-row">
+                <div className={`wall-carousel-track ${ri % 2 === 1 ? "wall-carousel-reverse" : ""}`} style={{ animationDuration: `${25 + ri * 5}s` }}>
+                  {[...row, ...row].map((photo, j) => (
+                    <div
+                      key={`${photo.id}-${j}`}
+                      className={`wall-card ${wobbles[j % wobbles.length]} ${photo.relation === "mutual" ? "wall-card-mutual" : photo.relation === "following" ? "wall-card-following" : ""}`}
+                      onClick={() => openPhoto(photo)}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={photo.imageUrl} alt="" className="wall-card-img" loading="lazy" />
+                      <div className="wall-card-overlay">
+                        <span>@{photo.username}</span>
+                        {photo.relation === "mutual" && <span className="wall-card-badge wall-card-badge-mutual">🤝</span>}
+                        {photo.relation === "following" && <span className="wall-card-badge wall-card-badge-following">✓</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* Modal */}
       {selected && (
@@ -297,6 +380,68 @@ export default function WallPage() {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
         <span>{lang === "es" ? "Compartir app" : "Share this app"}</span>
       </button>
+
+      {/* Floating social stats button */}
+      {authed && (
+        <button className="wall-social-fab" onClick={openSocialPanel}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span className="wall-social-fab-count">{myFollowersCount}</span>
+          <span>{lang === "es" ? "seguidores" : "followers"}</span>
+        </button>
+      )}
+
+      {/* Social panel (followers/following) */}
+      {showSocialPanel && (
+        <>
+          <div className="wall-social-panel-backdrop" onClick={() => setShowSocialPanel(false)} />
+          <div className={`wall-social-panel ${showSocialPanel ? "wall-social-panel-open" : ""}`}>
+            <div className="wall-social-header">
+              <h3>{username || ""}</h3>
+              <button className="wall-social-close" onClick={() => setShowSocialPanel(false)}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="wall-social-tabs">
+              <button
+                className={`wall-social-tab ${socialTab === "following" ? "wall-social-tab-active" : ""}`}
+                onClick={() => setSocialTab("following")}
+              >
+                {lang === "es" ? "Siguiendo" : "Following"} ({socialFollowing.length})
+              </button>
+              <button
+                className={`wall-social-tab ${socialTab === "followers" ? "wall-social-tab-active" : ""}`}
+                onClick={() => setSocialTab("followers")}
+              >
+                {lang === "es" ? "Seguidores" : "Followers"} ({socialFollowers.length})
+              </button>
+            </div>
+            <div className="wall-social-list">
+              {socialLoading && <div style={{ textAlign: "center", padding: 32 }}><div className="ph-spinner-small" /></div>}
+              {!socialLoading && (socialTab === "following" ? socialFollowing : socialFollowers).length === 0 && (
+                <p className="wall-social-empty">
+                  {socialTab === "following"
+                    ? (lang === "es" ? "No sigues a nadie aun" : "You're not following anyone yet")
+                    : (lang === "es" ? "Nadie te sigue aun" : "No followers yet")}
+                </p>
+              )}
+              {!socialLoading && (socialTab === "following" ? socialFollowing : socialFollowers).map((user) => {
+                const isMutual = socialFollowing.includes(user) && socialFollowers.includes(user);
+                return (
+                  <div
+                    key={user}
+                    className="wall-social-item"
+                    onClick={() => { setShowSocialPanel(false); router.push(`/${user}/showcase`); }}
+                  >
+                    <div className="wall-social-avatar">{user.charAt(0).toUpperCase()}</div>
+                    <span className="wall-social-username">@{user}</span>
+                    {isMutual && <span className="wall-social-mutual">{lang === "es" ? "Mutuo" : "Mutual"}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

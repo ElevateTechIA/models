@@ -353,9 +353,26 @@ export default function PhotosClient() {
   useEffect(() => {
     if (activeTab === "wall" && wallPhotos.length === 0 && !wallLoading) {
       setWallLoading(true);
-      fetch("/api/photos/gallery").then(r => r.json()).then(d => {
-        if (d.photos?.length) setWallPhotos(d.photos);
-      }).catch(() => {}).finally(() => setWallLoading(false));
+      (async () => {
+        try {
+          const token = await getToken();
+          if (token) {
+            const res = await fetch("/api/feed", { headers: { Authorization: `Bearer ${token}` } });
+            const d = await res.json();
+            if (d.feed?.length) setWallPhotos(d.feed.map((p: any) => ({ id: p.id, imageUrl: p.imageUrl, username: p.username, prompt: p.prompt })));
+          } else {
+            const res = await fetch("/api/photos/gallery");
+            const d = await res.json();
+            if (d.photos?.length) setWallPhotos(d.photos);
+          }
+        } catch {
+          try {
+            const res = await fetch("/api/photos/gallery");
+            const d = await res.json();
+            if (d.photos?.length) setWallPhotos(d.photos);
+          } catch {}
+        } finally { setWallLoading(false); }
+      })();
     }
   }, [activeTab, wallPhotos.length, wallLoading]);
 
@@ -782,22 +799,9 @@ export default function PhotosClient() {
 
           {!libraryLoading && libraryFilter === "photos" && (
             libraryImages.length === 0 ? (
-              <div className="ph-onboarding">
-                <p className="ph-onboarding-title">{t.onboardingTitle}</p>
-                <div className="ph-onboarding-tips">
-                  {t.onboardingTips.map((tip, i) => (
-                    <div key={i} className="ph-onboarding-tip">
-                      <span className="ph-onboarding-icon">{
-                        tip.icon === "instagram" ? "\uD83D\uDCF8" :
-                        tip.icon === "showcase" ? "\u2728" :
-                        tip.icon === "link" ? "\uD83D\uDD17" :
-                        tip.icon === "brand" ? "\uD83C\uDFA8" :
-                        "\uD83C\uDFAC"
-                      }</span>
-                      <span className="ph-onboarding-text">{tip.text}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="ph-library-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3 }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <p style={{ color: "rgba(255,255,255,0.4)", margin: "12px 0 16px", fontSize: 14 }}>{lang === "es" ? "Tu galeria esta vacia" : "Your gallery is empty"}</p>
                 <button className="ph-onboarding-cta" onClick={() => setActiveTab("photos")}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   {t.goToPhotos}

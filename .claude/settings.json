@@ -36,7 +36,8 @@
       "Bash(node -e \"const {themes} = require\\(''./lib/theme/colors''\\); console.log\\(Object.keys\\(themes\\)\\)\")",
       "Bash(npx tsx:*)",
       "Bash(kill 83658)",
-      "Bash(grep -n \"profile\\\\|picture\\\\|aspect\" /Users/cesarvega/Movies/CapCut/Models/app/[username]/showcase/ShowcaseClient.tsx)"
+      "Bash(grep -n \"profile\\\\|picture\\\\|aspect\" /Users/cesarvega/Movies/CapCut/Models/app/[username]/showcase/ShowcaseClient.tsx)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js\\)$\")"
     ],
     "additionalDirectories": [
       "/Users/cesarvega/Movies/CapCut/Models/app/[username]",
@@ -47,7 +48,8 @@
       "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain/Proyectos",
       "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain/Decisiones",
       "/Users/cesarvega/Documents/Obsidian Vault/Claude Brain/Debug-Log",
-      "/Users/cesarvega/Documents/Obsidian Vault/.obsidian"
+      "/Users/cesarvega/Documents/Obsidian Vault/.obsidian",
+      "/Users/cesarvega/Movies/CapCut/Models/app/api"
     ]
   }
 }
