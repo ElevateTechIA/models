@@ -79,7 +79,7 @@ export default async function UserBioPage({ params }: Props) {
           )}
 
           <div className="cta-container">
-            <CtaButton label={translations[config.settings.language || "es"].ctaCreateYours} />
+            <CtaButton label={translations[config.settings.language || "es"].ctaCreateYours} username={username} page="links" lang={config.settings.language || "es"} />
           </div>
 
         </main>

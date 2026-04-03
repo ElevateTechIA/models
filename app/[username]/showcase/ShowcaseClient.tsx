@@ -8,6 +8,7 @@ import { translations } from "@/lib/translations";
 import CropModal from "@/app/components/CropModal";
 import QRCode from "qrcode";
 import { resolveProfilePicture } from "@/lib/theme/resolve-profile-picture";
+import CtaButton from "../cta-button";
 import { applyTheme, applyColorMode } from "@/lib/theme/colors";
 import type { ThemeName, ColorMode } from "@/lib/theme/colors";
 
@@ -769,10 +770,7 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
       {config.settings.footerText && <div className="sc-footer">{config.settings.footerText}</div>}
 
       <div className="cta-container">
-        <button className="cta-create-btn" onClick={() => { window.location.href = auth.currentUser ? "/admin" : "/login"; }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          {t.ctaCreateYours}
-        </button>
+        <CtaButton label={t.ctaCreateYours} username={username} page="showcase" lang={config.settings.language || "es"} />
       </div>
     </div>
   );

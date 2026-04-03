@@ -442,6 +442,24 @@ body:has(.md-page) {
 .cta-create-btn svg {
   flex-shrink: 0;
 }
+.cta-create-btn:active {
+  cursor: pointer;
+}
+.cta-logged-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.cta-secondary-btn {
+  color: var(--text-muted);
+  border-color: rgba(128, 128, 128, 0.3);
+}
+.cta-secondary-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--text-dark);
+  border-color: rgba(128, 128, 128, 0.5);
+}
 
 /* ── Footer ───────────────────────────────────── */
 .footer {
