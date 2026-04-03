@@ -769,10 +769,10 @@ export default function ShowcaseClient({ config: initialConfig, username }: Prop
       {config.settings.footerText && <div className="sc-footer">{config.settings.footerText}</div>}
 
       <div className="cta-container">
-        <a href="/login" className="cta-create-btn">
+        <button className="cta-create-btn" onClick={() => { window.location.href = auth.currentUser ? "/admin" : "/login"; }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
           {t.ctaCreateYours}
-        </a>
+        </button>
       </div>
     </div>
   );

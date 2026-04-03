@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { findUserByUsername, readUserConfig } from "@/lib/data";
 import LinksNav from "./links-nav";
 import OfflineProfile from "./offline-profile";
+import CtaButton from "./cta-button";
 import type { SiteConfig } from "@/lib/types";
 import { translations } from "@/lib/translations";
 import { resolveProfilePicture } from "@/lib/theme/resolve-profile-picture";
@@ -78,10 +79,7 @@ export default async function UserBioPage({ params }: Props) {
           )}
 
           <div className="cta-container">
-            <a href="/login" className="cta-create-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              {translations[config.settings.language || "es"].ctaCreateYours}
-            </a>
+            <CtaButton label={translations[config.settings.language || "es"].ctaCreateYours} />
           </div>
 
         </main>

@@ -160,11 +160,12 @@ export default function PhotosClient() {
   }, []);
 
   useEffect(() => {
+    if (!authReady) return;
     if (activeTab === "library") {
       if (libraryFilter === "photos" && !libraryPhotosFetched) fetchLibraryPhotos();
       if (libraryFilter === "videos" && !libraryVideosFetched) fetchLibraryVideos();
     }
-  }, [activeTab, libraryFilter, libraryPhotosFetched, libraryVideosFetched, fetchLibraryPhotos, fetchLibraryVideos]);
+  }, [authReady, activeTab, libraryFilter, libraryPhotosFetched, libraryVideosFetched, fetchLibraryPhotos, fetchLibraryVideos]);
 
   // ── Auto-save ──
   async function savePhotoToLibrary(imageData: string, p: string, ar: string, resultId?: string) {
