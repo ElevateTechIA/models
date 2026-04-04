@@ -83,6 +83,7 @@ export default function AdminPage() {
     }
     return "auto";
   });
+  const [useGradients, setUseGradients] = useState(true);
   const [footerText, setFooterText] = useState("");
   const [showcaseLayout, setShowcaseLayout] = useState<"classic" | "compact" | "immersive">("classic");
   const [savingSettings, setSavingSettings] = useState(false);
@@ -168,7 +169,9 @@ export default function AdminPage() {
         const mode = data.settings.colorMode || (localMode as "light" | "dark" | "auto") || "auto";
         setAppTheme(theme);
         setColorMode(mode);
-        import("@/lib/theme/colors").then(m => { m.applyTheme(theme as any); m.applyColorMode(mode); });
+        const gradients = data.settings.useGradients !== false;
+        setUseGradients(gradients);
+        import("@/lib/theme/colors").then(m => { m.applyTheme(theme as any); m.applyColorMode(mode); m.applyGradientMode(gradients); });
         setFooterText(data.settings.footerText);
         setShowcaseLayout(data.settings.showcaseLayout || "classic");
         setLoading(false);
@@ -690,6 +693,18 @@ export default function AdminPage() {
               method: "PUT",
               headers: await authHeaders(),
               body: JSON.stringify({ settings: { language, footerText, showcaseLayout, toolbarFont, appTheme, colorMode: mode } }),
+            });
+          } catch {}
+        }}
+        useGradients={useGradients}
+        onChangeGradients={async (on) => {
+          setUseGradients(on);
+          (await import("@/lib/theme/colors")).applyGradientMode(on);
+          try {
+            await fetch("/api/admin/config", {
+              method: "PUT",
+              headers: await authHeaders(),
+              body: JSON.stringify({ settings: { useGradients: on } }),
             });
           } catch {}
         }}

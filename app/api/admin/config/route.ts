@@ -56,6 +56,8 @@ export async function PUT(req: NextRequest) {
       config.settings.appTheme = body.settings.appTheme;
     if (body.settings.colorMode !== undefined)
       config.settings.colorMode = body.settings.colorMode;
+    if (body.settings.useGradients !== undefined)
+      config.settings.useGradients = body.settings.useGradients;
   }
 
   await writeUserConfig(authed.username, config);

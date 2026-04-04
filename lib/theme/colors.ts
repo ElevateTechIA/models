@@ -326,3 +326,14 @@ export function applyColorMode(mode: ColorMode) {
   // Persist so it can be restored instantly on next page load
   try { localStorage.setItem("color-mode", mode); } catch {}
 }
+
+/** Apply gradient mode (on/off) */
+export function applyGradientMode(on: boolean) {
+  const root = document.documentElement;
+  if (on) {
+    root.removeAttribute("data-gradient");
+  } else {
+    root.setAttribute("data-gradient", "off");
+  }
+  try { localStorage.setItem("gradient-mode", on ? "on" : "off"); } catch {}
+}

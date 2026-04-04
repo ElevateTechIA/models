@@ -22,6 +22,8 @@ interface MobileMenuProps {
   onChangeTheme?: (theme: ThemeName) => void;
   colorMode?: "light" | "dark" | "auto";
   onChangeColorMode?: (mode: "light" | "dark" | "auto") => void;
+  useGradients?: boolean;
+  onChangeGradients?: (on: boolean) => void;
 }
 
 export default function MobileMenu({
@@ -40,6 +42,8 @@ export default function MobileMenu({
   onChangeTheme,
   colorMode = "light",
   onChangeColorMode,
+  useGradients = true,
+  onChangeGradients,
 }: MobileMenuProps) {
   if (!isOpen) return null;
 
@@ -241,6 +245,31 @@ export default function MobileMenu({
                 <button className={`mmenu-mode-btn ${colorMode === "auto" ? "mmenu-mode-active" : ""}`} onClick={() => onChangeColorMode("auto")}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg>
                   <span>Auto</span>
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Gradient toggle */}
+        {onChangeGradients && (
+          <>
+            <div className="mmenu-divider" />
+            <div className="mmenu-section">
+              <div className="mmenu-gradient-row">
+                <p className="mmenu-section-label" style={{ margin: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="2" y="2" width="20" height="20" rx="4" />
+                    <path d="M2 12h20" />
+                    <path d="M12 2v20" />
+                  </svg>
+                  {language === "es" ? "GRADIENTES" : "GRADIENTS"}
+                </p>
+                <button
+                  className={`mmenu-gradient-toggle ${useGradients ? "mmenu-gradient-toggle-on" : ""}`}
+                  onClick={() => onChangeGradients(!useGradients)}
+                >
+                  <span className="mmenu-gradient-knob" />
                 </button>
               </div>
             </div>

@@ -32,6 +32,7 @@ export interface SiteSettings {
   toolbarFont?: "gothic" | "elegant" | "clean" | "haute";
   appTheme?: string;
   colorMode?: "light" | "dark" | "auto";
+  useGradients?: boolean;
 }
 
 export interface SiteConfig {

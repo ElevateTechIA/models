@@ -6492,6 +6492,72 @@ body:has(.sc-page) {
   color: #fff !important;
 }
 
+/* ── Gradient toggle ─────────────────────────────── */
+.mmenu-gradient-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mmenu-gradient-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  background: #555;
+  cursor: pointer;
+  transition: background 0.25s;
+  padding: 0;
+  flex-shrink: 0;
+}
+.mmenu-gradient-toggle-on {
+  background: var(--gold, #c9a84c);
+}
+.mmenu-gradient-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s;
+}
+.mmenu-gradient-toggle-on .mmenu-gradient-knob {
+  transform: translateX(20px);
+}
+
+/* ═══ Gradient OFF overrides ════════════════════════ */
+[data-gradient="off"] .adm-btn-primary,
+[data-gradient="off"] .mmenu-mode-active,
+[data-gradient="off"] .mmenu-theme-active,
+[data-gradient="off"] .mmenu-font-active,
+[data-gradient="off"] .ph-send-btn,
+[data-gradient="off"] .ph-onboarding-cta,
+[data-gradient="off"] .wall-make-own-btn,
+[data-gradient="off"] .cta-create-btn:hover,
+[data-gradient="off"] .adm-bottom-btn:hover {
+  background: var(--theme-primary, #c9a84c) !important;
+}
+[data-gradient="off"] .ph-title,
+[data-gradient="off"] .ph-theme-blue .ph-title,
+[data-gradient="off"] .ph-theme-purple .ph-title {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  color: var(--theme-primary, #c9a84c) !important;
+}
+[data-gradient="off"] .link-btn {
+  background: var(--theme-cardBg, var(--card-bg)) !important;
+  border-color: var(--theme-primaryBorder, rgba(201,168,76,0.2)) !important;
+}
+[data-gradient="off"] .avatar-ring::before,
+[data-gradient="off"] .avatar-ring::after {
+  background: var(--theme-primary, #c9a84c) !important;
+}
+
 .mmenu-logout {
   display: flex;
   align-items: center;

@@ -49,6 +49,7 @@ export default function PhotosClient() {
   const [toolbarFont, setToolbarFont] = useState<"gothic" | "elegant" | "clean" | "haute">("elegant");
   const [appTheme, setAppTheme] = useState<string>("gold");
   const [colorMode, setColorMode] = useState<"light" | "dark" | "auto">("light");
+  const [useGradients, setUseGradients] = useState(true);
   const [templateImage, setTemplateImage] = useState<string | null>(null);
 
   // ── Photo state ──
@@ -126,6 +127,7 @@ export default function PhotosClient() {
         if (d?.settings?.toolbarFont) setToolbarFont(d.settings.toolbarFont);
         if (d?.settings?.appTheme) { setAppTheme(d.settings.appTheme); import("@/lib/theme/colors").then(m => m.applyTheme(d.settings.appTheme)); }
         if (d?.settings?.colorMode) { setColorMode(d.settings.colorMode); import("@/lib/theme/colors").then(m => m.applyColorMode(d.settings.colorMode)); }
+        const g = d?.settings?.useGradients !== false; setUseGradients(g); import("@/lib/theme/colors").then(m => m.applyGradientMode(g));
       }).catch(() => {});
     }
     loadLang();
@@ -634,6 +636,13 @@ export default function PhotosClient() {
           (await import("@/lib/theme/colors")).applyColorMode(mode);
           const token = await getToken(); if (!token) return;
           try { await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ settings: { language: lang, toolbarFont, appTheme, colorMode: mode } }) }); } catch {}
+        }}
+        useGradients={useGradients}
+        onChangeGradients={async (on) => {
+          setUseGradients(on);
+          (await import("@/lib/theme/colors")).applyGradientMode(on);
+          const token = await getToken(); if (!token) return;
+          try { await fetch("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ settings: { useGradients: on } }) }); } catch {}
         }}
         onLogout={() => { setShowMenu(false); handleLogout(); }}
         t={t}

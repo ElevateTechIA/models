@@ -34,7 +34,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem("color-mode")||"auto";var d=m==="dark"||(m==="auto"&&window.matchMedia("(prefers-color-scheme:dark)").matches);document.documentElement.setAttribute("data-color-mode",d?"dark":"light");}catch(e){}})();`,
+            __html: `(function(){try{var m=localStorage.getItem("color-mode")||"auto";var d=m==="dark"||(m==="auto"&&window.matchMedia("(prefers-color-scheme:dark)").matches);document.documentElement.setAttribute("data-color-mode",d?"dark":"light");var g=localStorage.getItem("gradient-mode");if(g==="off")document.documentElement.setAttribute("data-gradient","off");}catch(e){}})();`,
           }}
         />
       </head>
