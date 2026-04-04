@@ -3863,7 +3863,7 @@ body:has(.adm-page) {
   max-width: 800px;
   min-height: 100dvh;
   margin: 0 auto;
-  padding: 24px 16px 60px;
+  padding: 24px 16px 80px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -3977,6 +3977,46 @@ body:has(.adm-page) {
   background: #fff;
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(180, 160, 120, 0.2);
+}
+
+/* ── Bottom toolbar ───────────────────────────────── */
+.adm-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: var(--theme-cardBg, #1a1a1a);
+  border-top: 1px solid var(--theme-cardBorder, rgba(255, 255, 255, 0.1));
+  z-index: 9999;
+}
+.adm-bottom-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--theme-primary, #c9a84c) 40%, transparent);
+  background: color-mix(in srgb, var(--theme-primary, #c9a84c) 10%, transparent);
+  color: var(--theme-primary, #c9a84c);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.adm-bottom-btn:hover {
+  background: var(--theme-primary, #c9a84c);
+  color: #fff;
+  border-color: var(--theme-primary, #c9a84c);
+  transform: scale(1.03);
+}
+.adm-bottom-btn svg {
+  flex-shrink: 0;
 }
 
 /* ── Sections ─────────────────────────────────────── */

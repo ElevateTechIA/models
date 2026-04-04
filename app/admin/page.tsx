@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import QRCode from "qrcode";
@@ -1213,6 +1214,21 @@ export default function AdminPage() {
           {savingSettings ? t.saving : settingsSaved ? t.saved : t.save}
         </button>
       </section>
+
+      {/* ── Bottom toolbar: quick links (portal to body) ── */}
+      {username && typeof document !== "undefined" && createPortal(
+        <div className="adm-bottom-bar">
+          <a href={`/${username}`} className="adm-bottom-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span>Social Links</span>
+          </a>
+          <a href={`/${username}/showcase`} className="adm-bottom-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span>Showcase</span>
+          </a>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
