@@ -3941,6 +3941,30 @@ body:has(.adm-page) {
   font-weight: 700;
   color: var(--text-dark);
   letter-spacing: 0.5px;
+  transition: font-family 0.3s;
+}
+.adm-font-gothic .adm-title,
+.adm-font-gothic .adm-section-title {
+  font-family: 'UnifrakturMaguntia', cursive;
+  font-style: normal;
+}
+.adm-font-elegant .adm-title,
+.adm-font-elegant .adm-section-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+}
+.adm-font-clean .adm-title,
+.adm-font-clean .adm-section-title {
+  font-family: 'Open Sans', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+}
+.adm-font-haute .adm-title,
+.adm-font-haute .adm-section-title {
+  font-family: 'Bodoni Moda', serif;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 2px;
 }
 
 .adm-subtitle {

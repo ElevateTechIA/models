@@ -558,7 +558,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="adm-page">
+    <div className={`adm-page adm-font-${toolbarFont}`}>
       {/* Crop Modal */}
       {cropState && (
         <CropModal
