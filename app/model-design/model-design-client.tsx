@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
+import { compressImage } from "@/lib/compress-image";
 
 const ALLOWED_USERNAMES = ["cesarvegacol", "wendypradaoficial11", "deejanehannah"];
 
@@ -274,12 +275,13 @@ export default function ModelDesignClient() {
     }
   }
 
-  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setInputImage(reader.result as string);
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await compressImage(file);
+      setInputImage(dataUrl);
+    } catch { /* ignore */ }
   }
 
   function clearImage() {
@@ -290,15 +292,15 @@ export default function ModelDesignClient() {
 
   // --- Face swap handlers ---
 
-  function handleFaceSwapUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFaceSwapUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 4 * 1024 * 1024) { setFaceSwapError("La imagen es muy grande. Usa una foto menor a 4 MB."); return; }
     setFaceSwapImageName(file.name);
     setFaceSwapError("");
-    const reader = new FileReader();
-    reader.onload = () => setFaceSwapImage(reader.result as string);
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await compressImage(file);
+      setFaceSwapImage(dataUrl);
+    } catch { setFaceSwapError("Error al procesar la imagen."); }
   }
 
   function clearFaceSwapImage() {

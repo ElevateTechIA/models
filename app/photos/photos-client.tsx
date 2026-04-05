@@ -9,6 +9,7 @@ import { translations } from "@/lib/translations";
 import { InsufficientCreditsModal } from "@/components/credits/InsufficientCreditsModal";
 import AppToolbar from "@/app/components/AppToolbar";
 import MobileMenu from "@/app/components/MobileMenu";
+import { compressImage } from "@/lib/compress-image";
 
 // Access is now open to all authenticated users (controlled by credits)
 
@@ -254,13 +255,13 @@ export default function PhotosClient() {
   }
 
   // ── Photo handlers ──
-  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
-    if (file.size > 4 * 1024 * 1024) { setError(t.imageTooLarge); return; }
     setError("");
-    const reader = new FileReader();
-    reader.onload = () => setReferenceImage(reader.result as string);
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await compressImage(file);
+      setReferenceImage(dataUrl);
+    } catch { setError(t.networkError); }
   }
   function clearImage() { setReferenceImage(null); setResultImages([]); setError(""); if (fileInputRef.current) fileInputRef.current.value = ""; }
 
@@ -286,13 +287,13 @@ export default function PhotosClient() {
   }
 
   // ── Video handlers ──
-  function handleVidImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleVidImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
-    if (file.size > 4 * 1024 * 1024) { setVidError(t.imageTooLarge); return; }
     setVidError("");
-    const reader = new FileReader();
-    reader.onload = () => setVidSourceImage(reader.result as string);
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await compressImage(file);
+      setVidSourceImage(dataUrl);
+    } catch { setVidError(t.networkError); }
   }
   function clearVidImage() { setVidSourceImage(null); setResultVideos([]); setVidError(""); if (vidFileInputRef.current) vidFileInputRef.current.value = ""; }
 
