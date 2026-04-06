@@ -708,24 +708,20 @@ export default function PhotosClient() {
             )}
 
             {!referenceImage && resultImages.length === 0 && !loading && !templateImage && (
-              <div className="ph-preview ph-ideas-preview" style={{ aspectRatio: `${getAspectNumber(aspectRatio)}` }}>
-                <div className="ph-ideas-container">
-                  <p className="ph-ideas-title">{t.promptIdeasTitle}</p>
-                  <p className="ph-ideas-subtitle">{t.promptIdeasTap}</p>
-                  <div className="ph-ideas-list">
-                    {t.promptIdeas.map((idea, i) => (
-                      <button key={i} className="ph-idea-chip" onClick={() => setPrompt(idea)}>
-                        <span className="ph-idea-text">{idea}</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                      </button>
-                    ))}
-                  </div>
-                  <label className="ph-upload-link">
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <span>{t.uploadPhotoHint}</span>
-                  </label>
+              <div className="ph-ideas-compact">
+                <p className="ph-ideas-title">{t.promptIdeasTitle}</p>
+                <div className="ph-ideas-scroll">
+                  {t.promptIdeas.map((idea, i) => (
+                    <button key={i} className="ph-idea-chip" onClick={() => setPrompt(idea)}>
+                      <span className="ph-idea-text">{idea}</span>
+                    </button>
+                  ))}
                 </div>
+                <label className="ph-upload-link">
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span>{t.uploadPhotoHint}</span>
+                </label>
               </div>
             )}
 
@@ -758,7 +754,7 @@ export default function PhotosClient() {
                 </label>
               )}
               <button className={`ph-ratio-toggle ${showRatioPanel ? "ph-ratio-toggle-active" : ""}`} onClick={() => setShowRatioPanel(!showRatioPanel)}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="18" rx="2" ry="2" /><rect x="6" y="7" width="12" height="10" rx="1" ry="1" /></svg><span>{aspectRatio}</span></button>
-              <button className="ph-mic-btn" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+
               <button className="ph-send-btn" onClick={generate} disabled={loading || !prompt.trim() || !referenceImage}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
             </div>
           </div>
@@ -816,7 +812,7 @@ export default function PhotosClient() {
                 </label>
               )}
               <button className={`ph-ratio-toggle ${showVidRatioPanel ? "ph-ratio-toggle-active" : ""}`} onClick={() => setShowVidRatioPanel(!showVidRatioPanel)}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="18" rx="2" ry="2" /><rect x="6" y="7" width="12" height="10" rx="1" ry="1" /></svg><span>{vidAspectRatio}</span></button>
-              <button className="ph-mic-btn" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+
               <button className="ph-send-btn" onClick={generateVideo} disabled={vidLoading || !vidSourceImage}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
             </div>
           </div>
