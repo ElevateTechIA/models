@@ -2193,6 +2193,16 @@ body:has(.ph-theme-pink) { background: #140a0d; }
   color: #94a3b8;
 }
 
+.ph-fs-btn-delete {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.ph-fs-btn-delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
 /* Bottom Tab Bar */
 .ph-tab-bar {
   position: fixed;

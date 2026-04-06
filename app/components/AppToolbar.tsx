@@ -11,15 +11,16 @@ interface AppToolbarProps {
   onMenuClick: () => void;
   font?: ToolbarFont;
   logoHref?: string;
+  creditsRefreshKey?: number;
 }
 
-export default function AppToolbar({ username, onMenuClick, logoHref }: AppToolbarProps) {
+export default function AppToolbar({ username, onMenuClick, logoHref, creditsRefreshKey }: AppToolbarProps) {
   const [tokens, setTokens] = useState<number | null>(null);
   const [loadingTokens, setLoadingTokens] = useState(true);
 
   useEffect(() => {
     fetchTokens();
-  }, []);
+  }, [creditsRefreshKey]);
 
   async function fetchTokens() {
     try {

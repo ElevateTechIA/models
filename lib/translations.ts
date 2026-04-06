@@ -68,6 +68,8 @@ export const translations = {
     phShare: "Compartir",
     phPost: "Publicar",
     phClose: "Cerrar",
+    phDelete: "Eliminar",
+    phConfirmDelete: "¿Estás seguro de que quieres eliminar esta imagen?",
     safetyFilter: "Bloqueado por filtros de seguridad. Intenta con otro prompt.",
     logout: "Salir",
 
@@ -283,6 +285,8 @@ export const translations = {
     phShare: "Share",
     phPost: "Post",
     phClose: "Close",
+    phDelete: "Delete",
+    phConfirmDelete: "Are you sure you want to delete this image?",
     safetyFilter: "Blocked by safety filters. Try a different prompt.",
     logout: "Sign Out",
 

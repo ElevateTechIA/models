@@ -249,8 +249,11 @@ export async function POST(req: NextRequest) {
             const videoBase64 = Buffer.from(videoBuffer).toString("base64");
             console.log(`[videos] Success with ${model}, video size: ${videoBuffer.byteLength} bytes`);
 
+            const creditsPerVideo = parseInt(process.env.CREDITS_PER_VIDEO || "500");
             return NextResponse.json({
               video: `data:video/mp4;base64,${videoBase64}`,
+              creditsUsed: creditsPerVideo,
+              creditsRemaining,
             });
           }
 

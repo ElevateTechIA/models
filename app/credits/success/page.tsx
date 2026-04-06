@@ -41,14 +41,31 @@ function SuccessContent() {
     try {
       const token = await auth.currentUser?.getIdToken();
       const deviceId = await getDeviceId();
-      const response = await fetch('/api/credits/balance', {
-        headers: { Authorization: `Bearer ${token}`, 'x-device-id': deviceId },
-      });
+      const headers: Record<string, string> = { 'x-device-id': deviceId };
+      if (token) headers.Authorization = `Bearer ${token}`;
 
-      if (response.ok) {
-        const data = await response.json();
-        setCredits(data.credits);
+      // First fetch to get baseline
+      const res1 = await fetch('/api/credits/balance', { headers });
+      const data1 = res1.ok ? await res1.json() : null;
+      const baseline = data1?.credits ?? 0;
+
+      // Poll up to 5 times waiting for webhook to process (credits should increase)
+      let finalCredits = baseline;
+      for (let i = 0; i < 5; i++) {
+        await new Promise(r => setTimeout(r, 1500));
+        const freshToken = await auth.currentUser?.getIdToken(true);
+        if (freshToken) headers.Authorization = `Bearer ${freshToken}`;
+        const res = await fetch('/api/credits/balance', { headers });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.credits > baseline) {
+            finalCredits = data.credits;
+            break;
+          }
+          finalCredits = data.credits;
+        }
       }
+      setCredits(finalCredits);
     } catch (error) {
       console.error('Error loading credits:', error);
     } finally {
