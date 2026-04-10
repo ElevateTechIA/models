@@ -9,8 +9,8 @@ type GalleryPhoto = { id: string; imageUrl: string; username: string; prompt: st
 type Comment = { id: string; username: string; text: string; createdAt: number };
 
 const t_es = {
-  hero: "Tu mundo digital en un solo enlace",
-  heroSub: "Comparte todas tus redes sociales, contacto y mas en una pagina elegante y personalizada.",
+  hero: "Conecta, crece y haz networking",
+  heroSub: "Únete a la comunidad donde conoces personas, amplías tu red de negocios, creas fotos profesionales, videos y compartes todo tu mundo digital en un solo lugar.",
   featureLinks: "Todos tus enlaces",
   featureLinksDesc: "Redes sociales, WhatsApp, Spotify y mas en un solo lugar.",
   featureQr: "Codigo QR",
@@ -35,8 +35,8 @@ const t_es = {
 };
 
 const t_en = {
-  hero: "Your digital world in one link",
-  heroSub: "Share all your social media, contact info and more on one elegant, personalized page.",
+  hero: "Connect, grow and network",
+  heroSub: "Join the community where you meet people, expand your business network, create professional photos, videos and share your entire digital world in one place.",
   featureLinks: "All your links",
   featureLinksDesc: "Social media, WhatsApp, Spotify and more in one place.",
   featureQr: "QR Code",

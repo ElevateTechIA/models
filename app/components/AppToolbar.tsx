@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { getDeviceId } from "@/lib/device-fingerprint";
 
@@ -19,11 +20,27 @@ export default function AppToolbar({ username, onMenuClick, logoHref, creditsRef
   const [loadingTokens, setLoadingTokens] = useState(true);
 
   useEffect(() => {
-    fetchTokens();
+    // Wait for Firebase Auth to restore session before fetching.
+    // Using auth.currentUser directly races against async auth init and
+    // can cause the toolbar to display "0" on a fresh page load.
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        fetchTokens();
+      } else {
+        setLoadingTokens(false);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    if (creditsRefreshKey === undefined) return;
+    if (auth.currentUser) fetchTokens();
   }, [creditsRefreshKey]);
 
   async function fetchTokens() {
     try {
+      setLoadingTokens(true);
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
       const deviceId = await getDeviceId();

@@ -708,20 +708,24 @@ export default function PhotosClient() {
             )}
 
             {!referenceImage && resultImages.length === 0 && !loading && !templateImage && (
-              <div className="ph-ideas-compact">
-                <p className="ph-ideas-title">{t.promptIdeasTitle}</p>
-                <div className="ph-ideas-scroll">
-                  {t.promptIdeas.map((idea, i) => (
-                    <button key={i} className="ph-idea-chip" onClick={() => setPrompt(idea)}>
-                      <span className="ph-idea-text">{idea}</span>
-                    </button>
-                  ))}
+              <div className="ph-preview ph-ideas-preview" style={{ aspectRatio: `${getAspectNumber(aspectRatio)}` }}>
+                <div className="ph-ideas-container">
+                  <p className="ph-ideas-title">{t.promptIdeasTitle}</p>
+                  <p className="ph-ideas-subtitle">{t.promptIdeasTap}</p>
+                  <div className="ph-ideas-list">
+                    {t.promptIdeas.map((idea, i) => (
+                      <button key={i} className="ph-idea-chip" onClick={() => setPrompt(idea)}>
+                        <span className="ph-idea-text">{idea}</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      </button>
+                    ))}
+                  </div>
+                  <label className="ph-upload-link">
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>{t.uploadPhotoHint}</span>
+                  </label>
                 </div>
-                <label className="ph-upload-link">
-                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                  <span>{t.uploadPhotoHint}</span>
-                </label>
               </div>
             )}
 
